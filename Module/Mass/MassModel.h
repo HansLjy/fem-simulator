@@ -7,6 +7,7 @@
 
 #include "Eigen/Dense"
 #include "Mesh/Mesh.h"
+#include "Util/Pattern.h"
 
 enum class MassModelType {
 	kVoronoi
@@ -15,6 +16,8 @@ enum class MassModelType {
 class MassModel {
 public:
 	virtual VectorXd GetMassDistribution(const Mesh& mesh);
+
+	BASE_DECLARE_CLONE(MassModel)
 };
 
 #endif //FEM_MASSMODEL_H

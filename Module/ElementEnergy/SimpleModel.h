@@ -7,11 +7,13 @@
 
 #include "ElasticEnergy.h"
 
-class SimpleModel : public ElasticEnergy {
+class SimpleModel : public ElasticEnergyModel {
 public:
-	double Energy(const Matrix3d &B, const Matrix3d &Ds) const override;
-	Vector12d Gradient(const Matrix3d &B, const Matrix3d &Ds) const override;
-	Matrix12d Hessian(const Matrix3d &B, const Matrix3d &Ds) const override;
+	double Energy(const ConsistencyModel &cons_model, const Matrix3d &B, const Matrix3d &Ds) const override;
+	Vector12d Gradient(const ConsistencyModel &cons_model, const Matrix3d &B, const Matrix3d &Ds) const override;
+	Matrix12d Hessian(const ConsistencyModel &cons_model, const Matrix3d &B, const Matrix3d &Ds) const override;
+
+	DERIVED_DECLARE_CLONE(ElasticEnergyModel)
 };
 
 #endif //FEM_SIMPLEMODEL_H

@@ -13,46 +13,56 @@
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
 
-namespace BodyEnergy {
+struct BodyEnergyParameter {
+	ElasticEnergyModelType _elas_type;
+	ElasticEnergyModelParameter _elas_para;
+	DissipationEnergyModelType _diss_type;
+	DissipationEnergyModelParameter _diss_para;
+	ConsistencyModelType _cons_type;
+	ConsistencyModelParameter _cons_para;
+};
+
+class BodyEnergy {
+public:
+	void Initialize(const BodyEnergyParameter& para);
 
 	double EEnergy(
-		const ElasticEnergy& elas_model,
 		const Mesh& reference,
 		const VectorXd& X
 	);
 
 	double DEnergy(
-		const DissipationEnergy& diss_model,
 		const Mesh& reference,
 		const VectorXd& X,
 		const VectorXd& V
 	);
 
 	VectorXd EGradient(
-		const ElasticEnergy& elas_model,
 		const Mesh& reference,
 		const VectorXd& X
 	);
 
 	VectorXd DGradient(
-		const DissipationEnergy& diss_model,
 		const Mesh& reference,
 		const VectorXd& X,
 		const VectorXd& V
 	);
 
 	MatrixXd EHessian(
-		const ElasticEnergy& elas_model,
 		const Mesh& reference,
 		const VectorXd& X
 	);
 
 	MatrixXd DHessian(
-		const DissipationEnergy& diss_model,
 		const Mesh& reference,
 		const VectorXd& X,
 		const VectorXd& V
 	);
-}
+
+private:
+	ElasticEnergyModel* _elas_model;
+	DissipationEnergyModel* _diss_model;
+	ConsistencyModel* _cons_model;
+};
 
 #endif //FEM_BODYENERGY_H

@@ -11,10 +11,10 @@
 DECLARE_XXX_FACTORY(ConsistencyModel)
 
 #include "ElementEnergy/ElasticEnergy.h"
-DECLARE_XXX_FACTORY(ElasticEnergy)
+DECLARE_XXX_FACTORY(ElasticEnergyModel)
 
 #include "ElementEnergy/DissipationEnergy.h"
-DECLARE_XXX_FACTORY(DissipationEnergy)
+DECLARE_XXX_FACTORY(DissipationEnergyModel)
 
 #include "Mass/MassModel.h"
 DECLARE_XXX_FACTORY(MassModel)

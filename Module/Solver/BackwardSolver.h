@@ -10,6 +10,7 @@
 class BackwardSolver : public Solver {
 public:
 	Target * CreateCorrespondingTarget() override;
+	DERIVED_DECLARE_CLONE(Solver)
 };
 
 #endif //FEM_BACKWARDSOLVER_H

@@ -5,16 +5,18 @@
 #include "SimpleModel.h"
 #include <cmath>
 
-double SimpleModel::Energy(const Matrix3d &B, const Matrix3d &Ds) const {
+double SimpleModel::Energy(const ConsistencyModel &cons_model,
+						   const Matrix3d &B, const Matrix3d &Ds) const {
 	double W = std::abs(Ds.determinant() / 6.0);	// volume
 	Matrix3d F = Ds * B;
-	return W * _cons_model->EnergyDensity(F);
+	return W * cons_model.EnergyDensity(F);
 }
 
-Vector12d SimpleModel::Gradient(const Matrix3d &B, const Matrix3d &Ds) const {
+Vector12d SimpleModel::Gradient(const ConsistencyModel &cons_model,
+								const Matrix3d &B, const Matrix3d &Ds) const {
 	double W = std::abs(Ds.determinant() / 6.0);	// volume
 	Matrix3d F = Ds * B;
-	Matrix3d H = -W * _cons_model->Piola(F) * B.transpose();
+	Matrix3d H = -W * cons_model.Piola(F) * B.transpose();
 	Vector12d gradient;
 	for (int i = 0; i < 3; i++) {
 		gradient.block<3, 1>(3 * i, 0) = H.col(i);
@@ -23,7 +25,8 @@ Vector12d SimpleModel::Gradient(const Matrix3d &B, const Matrix3d &Ds) const {
 	return gradient;
 }
 
-Matrix12d SimpleModel::Hessian(const Matrix3d &B, const Matrix3d &Ds) const {
+Matrix12d SimpleModel::Hessian(const ConsistencyModel &cons_model,
+							   const Matrix3d &B, const Matrix3d &Ds) const {
 	double W = std::abs(Ds.determinant() / 6.0);	// volume
 	Matrix3d F = Ds * B;
 	Matrix12d hessian;
@@ -34,7 +37,7 @@ Matrix12d SimpleModel::Hessian(const Matrix3d &B, const Matrix3d &Ds) const {
 			dDs.setZero();
 			dDs(i, j) = 1;
 			Matrix3d dF = dDs * B;
-			Matrix3d dH = - W * _cons_model->PiolaDifferential(F, dF) * B.transpose();
+			Matrix3d dH = - W * cons_model.PiolaDifferential(F, dF) * B.transpose();
 			int col_id = i * 3 + j;
 			for (int k = 0; k < 3; k++) {
 				hessian.col(col_id).block<3, 1>(3 * k, 0) = dH.col(k);
@@ -47,3 +50,5 @@ Matrix12d SimpleModel::Hessian(const Matrix3d &B, const Matrix3d &Ds) const {
 	}
 	return hessian;
 }
+
+DEFINE_CLONE(ElasticEnergyModel, SimpleModel)

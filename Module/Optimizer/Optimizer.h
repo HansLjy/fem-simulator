@@ -7,6 +7,7 @@
 
 #include "Function/Function.h"
 #include "Constraint/Constraint.h"
+#include "Util/Pattern.h"
 
 enum class OptimizerType {
 	kInteriorPoint
@@ -20,13 +21,24 @@ struct OptimizerParameter {
 
 class Optimizer {
 public:
+	void Initialize(const OptimizerParameter& para);
 	void SetTarget(const Function& func);
 	void AddConstraint(const Constraint& cons);
 	void SetInitial(const VectorXd& x);
-	void SetParameter(const OptimizerParameter& para);
-	virtual VectorXd Optimize();
+	virtual VectorXd Optimize(const VectorXd& x0) const = 0;
 
 	virtual ~Optimizer();
+
+	BASE_DECLARE_CLONE(Optimizer)
+
+protected:
+	// Parameter
+	double _max_error;
+	double _max_step;
+
+	const Function* _target;
+	std::vector<const Constraint*> _constraints;
+
 };
 
 #endif //FEM_OPTIMIZER_H

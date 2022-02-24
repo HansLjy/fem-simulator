@@ -23,3 +23,5 @@ VectorXd VoronoiModel::GetMassDistribution(const Mesh &mesh) {
 	}
 	return mass;
 }
+
+DEFINE_CLONE(MassModel, VoronoiModel)

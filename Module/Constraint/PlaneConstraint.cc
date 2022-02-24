@@ -9,7 +9,7 @@ void PlaneConstraint::SetPlane(const Vector3d &norm, const Vector3d &point) {
 	_point = point;
 }
 
-double PlaneConstraint::Value(const VectorXd &x) {
+double PlaneConstraint::Value(const VectorXd &x) const {
 	int dimension = x.size();
 	double result = 0;
 	for (int i = 0; i < dimension; i += 3) {
@@ -18,7 +18,7 @@ double PlaneConstraint::Value(const VectorXd &x) {
 	return result;
 }
 
-VectorXd PlaneConstraint::Gradient(const VectorXd &x) {
+VectorXd PlaneConstraint::Gradient(const VectorXd &x) const {
 	int dimension = x.size();
 	VectorXd gradient(dimension);
 	for (int i = 0; i < dimension; i += 3) {
@@ -27,7 +27,7 @@ VectorXd PlaneConstraint::Gradient(const VectorXd &x) {
 	return gradient;
 }
 
-MatrixXd PlaneConstraint::Hessian(const VectorXd &x) {
+MatrixXd PlaneConstraint::Hessian(const VectorXd &x) const {
 	MatrixXd hessian(x.size(), x.size());
 	hessian.setZero();
 	return hessian;

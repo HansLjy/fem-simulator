@@ -6,26 +6,23 @@
 #define FEM_TARGET_H
 
 #include "Function/Function.h"
-#include "ElementEnergy/ElasticEnergy.h"
-#include "ElementEnergy/DissipationEnergy.h"
 #include "Mesh/Mesh.h"
+#include "Util/Pattern.h"
+#include "BodyEnergy/BodyEnergy.h"
 
 enum class TargetType {
 	kBackward,
 };
 
 struct TargetParameter {
-	ElasticEnergyType _elas_type;
-	ElasticEnergyParameter _elas_para;
-	DissipationEnergyType _diss_type;
-	DissipationEnergyParameter _diss_para;
+	BodyEnergyParameter _body_para;
 };
 
 class Target : public Function {
 public:
-	double Value(const VectorXd &x) override = 0;
-	VectorXd Gradient(const VectorXd &x) override = 0;
-	MatrixXd Hessian(const VectorXd &x) override = 0;
+	double Value(const VectorXd &x) const override = 0;
+	VectorXd Gradient(const VectorXd &x) const override = 0;
+	MatrixXd Hessian(const VectorXd &x) const override = 0;
 
 	void Initialize(const TargetParameter& para);
 	void SetMesh(const Mesh& mesh);
@@ -34,13 +31,19 @@ public:
 	void SetV(const VectorXd& v);	// set vn
 	void SetDt(double dt);
 
+	BASE_DECLARE_CLONE(Target)
+
+	Target() = default;
+
+	virtual ~Target();
+	Target(const Target& target);
+
 protected:
 	// Data
 	Mesh _reference;
 
 	// Parameter
-	ElasticEnergy* _elas_model = nullptr;
-	DissipationEnergy* _diss_model = nullptr;
+	BodyEnergy* _body_energy;
 
 	// Outer Status
 	VectorXd _x, _v;

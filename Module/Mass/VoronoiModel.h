@@ -10,6 +10,8 @@
 class VoronoiModel : public MassModel {
 public:
 	VectorXd GetMassDistribution(const Mesh &mesh) override;
+
+	DERIVED_DECLARE_CLONE(MassModel)
 };
 
 #endif //FEM_VORONOIMODEL_H

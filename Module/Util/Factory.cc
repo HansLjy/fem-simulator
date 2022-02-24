@@ -10,13 +10,13 @@ BEGIN_DEFINE_XXX_FACTORY(ConsistencyModel)
 END_DEFINE_XXX_FACTORY
 
 #include "ElementEnergy/SimpleModel.h"
-BEGIN_DEFINE_XXX_FACTORY(ElasticEnergy)
-		ADD_PRODUCT(ElasticEnergyType::kSimple, SimpleModel)
+BEGIN_DEFINE_XXX_FACTORY(ElasticEnergyModel)
+		ADD_PRODUCT(ElasticEnergyModelType::kSimple, SimpleModel)
 END_DEFINE_XXX_FACTORY
 
 #include "ElementEnergy/RayleighModel.h"
-BEGIN_DEFINE_XXX_FACTORY(DissipationEnergy)
-		ADD_PRODUCT(DissipationEnergyType::kRayleigh, RayleighModel)
+BEGIN_DEFINE_XXX_FACTORY(DissipationEnergyModel)
+		ADD_PRODUCT(DissipationEnergyModelType::kRayleigh, RayleighModel)
 END_DEFINE_XXX_FACTORY
 
 #include "Mass/VoronoiModel.h"

@@ -3,6 +3,16 @@
 //
 
 #include "BodyEnergy.h"
+#include "Util/Factory.h"
+
+void BodyEnergy::Initialize(const BodyEnergyParameter &para) {
+	_cons_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(para._cons_type);
+	_cons_model->Initialize(para._cons_para);
+	_elas_model = ElasticEnergyModelFactory::GetInstance()->GetElasticEnergyModel(para._elas_type);
+	_elas_model->Initialize(para._elas_para);
+	_diss_model = DissipationEnergyModelFactory::GetInstance()->GetDissipationEnergyModel(para._diss_type);
+	_diss_model->Initialize(para._diss_para);
+}
 
 Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {
 	Vector3d X1 = X.block<3, 1>(3 * tet[0], 0);	// TODO is this working?
@@ -22,21 +32,19 @@ Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {
 	const auto& B = ref.GetB();
 
 double
-BodyEnergy::EEnergy(const ElasticEnergy &elas_model, const Mesh &reference,
-					const VectorXd &X) {
+BodyEnergy::EEnergy(const Mesh &reference, const VectorXd &X) {
 	GET_MEMBERS(reference, tets, points, B)
 	double energy = 0;
 	int num_of_tets = tets.size();
 	for (int i = 0; i < num_of_tets; i++) {
 		auto D = GetDs(points, tets[i]);
-		energy += elas_model.Energy(B[i], D);
+		energy += _elas_model->Energy(*_cons_model, B[i], D);
 	}
 	return energy;
 }
 
 VectorXd
-BodyEnergy::EGradient(const ElasticEnergy &elas_model, const Mesh &reference,
-					  const VectorXd &X) {
+BodyEnergy::EGradient(const Mesh &reference, const VectorXd &X) {
 	GET_MEMBERS(reference, tets, points, B)
 
 	VectorXd gradient(X.size());
@@ -46,7 +54,7 @@ BodyEnergy::EGradient(const ElasticEnergy &elas_model, const Mesh &reference,
 	for (int i = 0; i < num_of_tets; i++) {
 		auto tet = tets[i];
 		auto D = GetDs(points, tet);
-		Vector12d local_gradient = elas_model.Gradient(B[i], D);
+		Vector12d local_gradient = _elas_model->Gradient(*_cons_model, B[i], D);
 		for (int j = 0; j < 4; j++) {
 			gradient.block<3, 1>(3 * tet[j], 0) += local_gradient.block<3, 1>(3 * j, 0);
 		}
@@ -56,8 +64,7 @@ BodyEnergy::EGradient(const ElasticEnergy &elas_model, const Mesh &reference,
 }
 
 MatrixXd
-BodyEnergy::EHessian(const ElasticEnergy &elas_model, const Mesh &reference,
-					 const VectorXd &X) {
+BodyEnergy::EHessian(const Mesh &reference, const VectorXd &X) {
 	GET_MEMBERS(reference, tets, points, B)
 
 	MatrixXd hessian(X.size(), X.size());
@@ -67,7 +74,84 @@ BodyEnergy::EHessian(const ElasticEnergy &elas_model, const Mesh &reference,
 	for (int i = 0; i < num_of_tets; i++) {
 		auto tet = tets[i];
 		auto D = GetDs(points, tet);
-		Matrix12d local_hessian = elas_model.Hessian(B[i], D);
+		Matrix12d local_hessian = _elas_model->Hessian(*_cons_model, B[i], D);
+		for (int j = 0; j < 4; j++) {
+			for (int k = 0; k < 4; k++) {
+				hessian.block<3, 3>(3 * tet[j], 3 * tet[k]) += local_hessian.block<3, 3>(3 * j, 3 * k);
+			}
+		}
+	}
+
+	return hessian;
+}
+
+double BodyEnergy::DEnergy(const Mesh &reference, const VectorXd &X,
+							 const VectorXd &V) {
+	GET_MEMBERS(reference, tets, points, B)
+	const auto& mass = reference.GetMass();
+
+	double energy = 0;
+	int num_of_tets = tets.size();
+	for (int i = 0; i < num_of_tets; i++) {
+		auto tet = tets[i];
+		Vector12d v;
+		Vector4d m;
+		for (int j = 0; j < 4; j++) {
+			v.block<3, 1>(3 * j, 0) = V.block<3, 1>(3 * tet[j], 0);
+			m(j) = mass(tet[j]);
+		}
+		auto D = GetDs(points, tet);
+		energy += _diss_model->Energy(*_cons_model, *_elas_model, B[i], D, m, v);
+	}
+	return energy;
+}
+
+VectorXd BodyEnergy::DGradient(const Mesh &reference, const VectorXd &X,
+							   const VectorXd &V) {
+	GET_MEMBERS(reference, tets, points, B)
+	const auto& mass = reference.GetMass();
+
+	VectorXd gradient(X.size());
+	gradient.setZero();
+
+	int num_of_tets = tets.size();
+	for (int i = 0; i < num_of_tets; i++) {
+		auto tet = tets[i];
+		Vector12d v;
+		Vector4d m;
+		for (int j = 0; j < 4; j++) {
+			v.block<3, 1>(3 * j, 0) = V.block<3, 1>(3 * tet[j], 0);
+			m(j) = mass(tet[j]);
+		}
+		auto D = GetDs(points, tet);
+		Vector12d local_gradient = _diss_model->Gradient(*_cons_model, *_elas_model, B[i], D, m, v);
+		for (int j = 0; j < 4; j++) {
+			gradient.block<3, 1>(3 * tet[j], 0) += local_gradient.block<3, 1>(3 * j, 0);
+		}
+	}
+
+	return gradient;
+}
+
+MatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &X,
+							  const VectorXd &V) {
+	GET_MEMBERS(reference, tets, points, B)
+	const auto& mass = reference.GetMass();
+
+	MatrixXd hessian(X.size(), X.size());
+	hessian.setZero();
+
+	int num_of_tets = tets.size();
+	for (int i = 0; i < num_of_tets; i++) {
+		auto tet = tets[i];
+		Vector12d v;
+		Vector4d m;
+		for (int j = 0; j < 4; j++) {
+			v.block<3, 1>(3 * j, 0) = V.block<3, 1>(3 * tet[j], 0);
+			m(j) = mass(tet[j]);
+		}
+		auto D = GetDs(points, tet);
+		Matrix12d local_hessian = _diss_model->Hessian(*_cons_model, *_elas_model, B[i], D, m, v);
 		for (int j = 0; j < 4; j++) {
 			for (int k = 0; k < 4; k++) {
 				hessian.block<3, 3>(3 * tet[j], 3 * tet[k]) += local_hessian.block<3, 3>(3 * j, 3 * k);

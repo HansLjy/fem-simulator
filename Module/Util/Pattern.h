@@ -35,4 +35,29 @@ classname *classname##Factory::Get##classname(const classname##Type &type) { \
 		default: return nullptr;          \
 	}									  \
 };
+
+class XXX {
+public:
+	virtual XXX* Clone() const = 0;
+};
+
+class YYY : public XXX {
+public:
+	XXX * Clone() const override;
+};
+
+XXX *YYY::Clone() const {
+	return new YYY(*this);
+}
+
+#define BASE_DECLARE_CLONE(classname) \
+	virtual classname* Clone() const = 0;
+
+#define DERIVED_DECLARE_CLONE(classname) \
+	classname* Clone() const override;
+
+#define DEFINE_CLONE(base, derived) \
+base* derived::Clone() const {      \
+	return new derived(*this);      \
+}
 #endif //FEM_PATTERN_H

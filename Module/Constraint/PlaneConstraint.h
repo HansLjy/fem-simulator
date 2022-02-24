@@ -12,9 +12,9 @@ using Eigen::Vector3d;
 class PlaneConstraint : public Constraint {
 public:
 	void SetPlane(const Vector3d& norm, const Vector3d& point);
-	double Value(const VectorXd &x) override;
-	VectorXd Gradient(const VectorXd &x) override;
-	MatrixXd Hessian(const VectorXd &x) override;
+	double Value(const VectorXd &x) const override;
+	VectorXd Gradient(const VectorXd &x) const override;
+	MatrixXd Hessian(const VectorXd &x) const override;
 
 private:
 	Vector3d _norm, _point;

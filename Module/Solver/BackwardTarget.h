@@ -9,9 +9,13 @@
 
 class BackwardTarget : public Target {
 public:
-	double Value(const VectorXd &x) override;
-	VectorXd Gradient(const VectorXd &x) override;
-	MatrixXd Hessian(const VectorXd &x) override;
+	double Value(const VectorXd &x) const override;
+	VectorXd Gradient(const VectorXd &x) const override;
+	MatrixXd Hessian(const VectorXd &x) const override;
+
+	DERIVED_DECLARE_CLONE(Target)
+
+	~BackwardTarget();
 };
 
 #endif //FEM_BACKWARDTARGET_H

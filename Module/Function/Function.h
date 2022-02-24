@@ -14,9 +14,9 @@ using std::function;
 
 class Function {
 public:
-	virtual double Value(const VectorXd& x) = 0;
-	virtual VectorXd Gradient(const VectorXd& x) = 0;
-	virtual MatrixXd Hessian(const VectorXd& x) = 0;
+	virtual double Value(const VectorXd& x) const = 0;
+	virtual VectorXd Gradient(const VectorXd& x) const = 0;
+	virtual MatrixXd Hessian(const VectorXd& x) const = 0;
 };
 
 

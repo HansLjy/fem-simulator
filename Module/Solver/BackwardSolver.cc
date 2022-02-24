@@ -8,3 +8,5 @@
 Target *BackwardSolver::CreateCorrespondingTarget() {
 	return new BackwardTarget;
 }
+
+DEFINE_CLONE(Solver, BackwardSolver)

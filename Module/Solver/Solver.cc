@@ -8,7 +8,8 @@
 void Solver::Initialize(const SolverParameter &para) {
 	_step = para._step;
 	_optimizer = OptimizerFactory::GetInstance()->GetOptimizer(para._opt_type);
-	_target = SetCorrespondingTarget();
+	_optimizer->Initialize(para._opt_para);
+	_target = CreateCorrespondingTarget();
 	_target->Initialize(para._tar_para);
 	_target->SetMesh(_reference);
 }
@@ -18,7 +19,7 @@ void Solver::Step(double dt) {
 	_target->SetX(x);
 	_target->SetV(_v);
 	_target->SetDt(dt);
-	_optimizer->SetTarget(*target);
+	_optimizer->SetTarget(*_target);
 	_optimizer->SetInitial(x);
 	x = _optimizer->Optimize();
 }

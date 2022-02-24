@@ -30,7 +30,7 @@ public:
 	const VectorXd& GetPoints() const;
 	vector<array<int, 4>>& GetTets();
 	const vector<array<int, 4>>& GetTets() const;
-	VectorXd& GetMass();
+	VectorXd& GetMass() const;
 	const std::vector<Matrix3d>& GetB() const;
 
 	void ComputeInverse();

@@ -12,9 +12,10 @@
 #include "ElementEnergy/DissipationEnergy.h"
 #include "Optimizer/Optimizer.h"
 #include "Target.h"
+#include "Util/Pattern.h"
 
 enum class SolverType {
-	kOptSolver,
+	kBackward,
 };
 
 struct SolverParameter {
@@ -31,6 +32,8 @@ public:
 	virtual Target* CreateCorrespondingTarget() = 0;
 	void Step(double dt);
 	Mesh& GetCurrentMesh();
+
+	BASE_DECLARE_CLONE(Solver)
 
 protected:
 	// Data

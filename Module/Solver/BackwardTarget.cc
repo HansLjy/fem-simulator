@@ -6,27 +6,31 @@
 #include "BodyEnergy/BodyEnergy.h"
 #include "Eigen/Sparse"
 
-double BackwardTarget::Value(const VectorXd &x) {
+double BackwardTarget::Value(const VectorXd &x) const {
 	VectorXd v = (x - _x) / _dt;
 	auto M = _reference.GetMass().asDiagonal();
 	return 0.5 * (v - _v).transpose() * M * (v - _v)
-		+ BodyEnergy::EEnergy(*_elas_model, _reference, x)
-		+ BodyEnergy::DEnergy(*_diss_model, _reference, _x, v);
+		+ _body_energy->EEnergy(_reference, x)
+		+ _body_energy->DEnergy(_reference, _x, v);
 }
 
 
-VectorXd BackwardTarget::Gradient(const VectorXd &x) {
+VectorXd BackwardTarget::Gradient(const VectorXd &x) const {
 	VectorXd v = (x - _x) / _dt;
 	auto M = _reference.GetMass().asDiagonal();
 	return 1.0 / _dt * M * (v - _v)
-		+ BodyEnergy::EGradient(*_elas_model, _reference, x)
-		+ BodyEnergy::DGradient(*_diss_model, _reference, _x, v);
+		+ _body_energy->EGradient(_reference, x)
+		+ _body_energy->DGradient(_reference, _x, v);
 }
 
-MatrixXd BackwardTarget::Hessian(const VectorXd &x) {
+MatrixXd BackwardTarget::Hessian(const VectorXd &x) const {
 	VectorXd v = (x - _x) / _dt;
 	auto M = _reference.GetMass().asDiagonal().toDenseMatrix();
 	return 1 / (_dt * _dt) * M
-		+ BodyEnergy::EHessian(*_elas_model, _reference, x)
-		+ BodyEnergy::DHessian(*_diss_model, _reference, _x, v);
+		+ _body_energy->EHessian(_reference, x)
+		+ _body_energy->DHessian(_reference, _x, v);
 }
+
+DEFINE_CLONE(Target, BackwardTarget)
+
+BackwardTarget::~BackwardTarget() = default;
