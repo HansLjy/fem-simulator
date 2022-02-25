@@ -18,12 +18,15 @@ enum class ElasticEnergyModelType {
 	kSimple,
 };
 
-struct ElasticEnergyModelParameter {
+class ElasticEnergyModelParameter {
+public:
+	ElasticEnergyModelParameter() = default;
+	virtual ~ElasticEnergyModelParameter() = default;
 };
 
 class ElasticEnergyModel {
 public:
-	void Initialize(const ElasticEnergyModelParameter& para);
+	virtual void Initialize(const ElasticEnergyModelParameter& para);
 
 	// Here B is the inverse of [X1 - X4, X2 - X4, X3 - X4]
 	virtual double Energy(const ConsistencyModel& cons_model, const Matrix3d& B, const Matrix3d& Ds) const = 0;
@@ -32,7 +35,7 @@ public:
 
 	BASE_DECLARE_CLONE(ElasticEnergyModel)
 
-	virtual ~ElasticEnergyModel();
+	virtual ~ElasticEnergyModel() = default;
 
 protected:
 };

@@ -6,7 +6,7 @@
 #define FEM_FUNCTION_H
 
 #include "Eigen/Dense"
-#include <functional>
+#include "Util/Pattern.h"
 
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
@@ -17,6 +17,9 @@ public:
 	virtual double Value(const VectorXd& x) const = 0;
 	virtual VectorXd Gradient(const VectorXd& x) const = 0;
 	virtual MatrixXd Hessian(const VectorXd& x) const = 0;
+	virtual ~Function() = default;
+
+	BASE_DECLARE_CLONE(Function)
 };
 
 

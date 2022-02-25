@@ -9,16 +9,24 @@
 #include "Util/Pattern.h"
 #include "ElasticEnergy.h"
 
-struct RayleighModelParameter : public DissipationEnergyModelParameter {
-	double _alpha1, _alpha2;
+class RayleighModelParameter : public DissipationEnergyModelParameter {
+public:
+	RayleighModelParameter(double alpha1, double alpha2);
+
+	DERIVED_DECLARE_CLONE(DissipationEnergyModelParameter)
+
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Alpha1, _alpha1)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Alpha2, _alpha2)
 };
 
 class RayleighModel : public DissipationEnergyModel {
 public:
+	void Initialize(const DissipationEnergyModelParameter &para) override;
 	double Energy(const ConsistencyModel &cons_model, const ElasticEnergyModel &elas_model, const Matrix3d &B, const Matrix3d &Ds, const Vector4d &mass, const Vector12d &v) const override;
 	Vector12d Gradient(const ConsistencyModel &cons_model, const ElasticEnergyModel &elas_model, const Matrix3d &B, const Matrix3d &Ds, const Vector4d &mass, const Vector12d &v) const override;
 	Matrix12d Hessian(const ConsistencyModel &cons_model, const ElasticEnergyModel &elas_model, const Matrix3d &B, const Matrix3d &Ds, const Vector4d &mass, const Vector12d &v) const override;
 
+	~RayleighModel();
 	DERIVED_DECLARE_CLONE(DissipationEnergyModel)
 private:
 	double _alpha1, _alpha2;

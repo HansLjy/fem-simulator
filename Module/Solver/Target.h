@@ -9,13 +9,20 @@
 #include "Mesh/Mesh.h"
 #include "Util/Pattern.h"
 #include "BodyEnergy/BodyEnergy.h"
+#include "Mass/MassModel.h"
 
 enum class TargetType {
 	kBackward,
 };
 
-struct TargetParameter {
-	BodyEnergyParameter _body_para;
+class TargetParameter {
+public:
+	TargetParameter(const BodyEnergyParameter& body_para);
+
+	DERIVED_DECLARE_CLONE(TargetParameter)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(BodyEnergyParameter, BodyEnergyParameter, _body_para)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(MassModelType, MassModelType, _mass_type)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(MassModelParameter, MassModelParameter, _mass_para)
 };
 
 class Target : public Function {
@@ -31,11 +38,9 @@ public:
 	void SetV(const VectorXd& v);	// set vn
 	void SetDt(double dt);
 
-	BASE_DECLARE_CLONE(Target)
-
 	Target() = default;
 
-	virtual ~Target();
+	~Target();
 	Target(const Target& target);
 
 protected:
@@ -44,6 +49,7 @@ protected:
 
 	// Parameter
 	BodyEnergy* _body_energy;
+	MassModel* _mass_model;
 
 	// Outer Status
 	VectorXd _x, _v;

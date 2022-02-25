@@ -7,14 +7,19 @@
 
 #include "Optimizer.h"
 
-struct InteriorPointParameter : public OptimizerParameter {
+class InteriorPointParameter : public OptimizerParameter {
+public:
+	InteriorPointParameter(double max_error, int max_step, double mu);
+	DERIVED_DECLARE_CLONE(OptimizerParameter)
+
+private:
 	double _mu;
 };
 
 class InteriorPoint : public Optimizer {
 public:
 	VectorXd Optimize(const VectorXd &x0) const override;
-
+	~InteriorPoint() = default;
 	DERIVED_DECLARE_CLONE(Optimizer)
 
 private:

@@ -9,40 +9,37 @@
 #include <array>
 #include <vector>
 #include "Eigen/Dense"
-#include "Mass/MassModel.h"
+#include "Util/Pattern.h"
 
 using std::string, std::vector, std::array;
 using Eigen::VectorXd;
 using Eigen::Matrix3d;
 
-struct MeshParameter {
-	string _input_file;
-	MassModelType _mass_model;
+class MeshParameter {
+public:
+	MeshParameter(const string& input_file);
+
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(string, InputFile, _input_file)
 };
+
+#define TETS vector<array<int, 4>>
 
 class Mesh {
 public:
 	void Initialize(const MeshParameter& para);
-	void Load(const string& file);
 	void Store(const string& file) const;
-	std::string GetTitle() const;
-	VectorXd& GetPoints();
-	const VectorXd& GetPoints() const;
-	vector<array<int, 4>>& GetTets();
-	const vector<array<int, 4>>& GetTets() const;
-	VectorXd& GetMass() const;
-	const std::vector<Matrix3d>& GetB() const;
-
-	void ComputeInverse();
-	void ComputeMass();
 
 private:
-	std::string _title;
-	VectorXd _points;
-	VectorXd _mass;
-	std::vector<std::array<int, 4>> _tets;
-	std::vector<Matrix3d> _B;
+	void ComputeInverse();
+	void Load(const string& file);
 
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(VectorXd, Points, _points)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(string, Title, _title)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(VectorXd, Mass, _mass)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(TETS, Tets, _tets)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(vector<Matrix3d>, B, _B)
 };
+
+#undef TETS
 
 #endif //FEM_MESH_H

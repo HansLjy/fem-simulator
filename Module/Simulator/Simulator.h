@@ -18,13 +18,26 @@
 
 using std::string;
 
-struct SimulatorParameter {
-	string _output_dir;
-	double _duration;
-	double _step;
-	SolverType _sol_type;
-	SolverParameter _sol_para;
-	MeshParameter _mesh_para;
+class SimulatorParameter {
+public:
+	SimulatorParameter(
+		const string& input_file,
+		const string& output_dir,
+		double duration,
+		double step,
+		SolverType sol_type,
+		const SolverParameter* sol_para,
+		const MeshParameter& mesh_para
+	);
+
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(string, InputFile, _input_file)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(string, OutputDir, _output_dir)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Duration, _duration)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Step, _step)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(SolverType, SolverType, _sol_type)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(SolverParameter, SolverParameter, _sol_para)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(MeshParameter, MeshParameter, _mesh_para)
+
 };
 
 
@@ -34,6 +47,7 @@ public:
 	void Initialize(const SimulatorParameter& para);
 	void AddConstraint(const Constraint& cons);
 	void Simulate();
+	~Simulator();
 
 private:
 	string _output_dir;

@@ -12,6 +12,7 @@ public:
 	double Energy(const ConsistencyModel &cons_model, const Matrix3d &B, const Matrix3d &Ds) const override;
 	Vector12d Gradient(const ConsistencyModel &cons_model, const Matrix3d &B, const Matrix3d &Ds) const override;
 	Matrix12d Hessian(const ConsistencyModel &cons_model, const Matrix3d &B, const Matrix3d &Ds) const override;
+	~SimpleModel();
 
 	DERIVED_DECLARE_CLONE(ElasticEnergyModel)
 };

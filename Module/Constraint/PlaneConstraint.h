@@ -6,6 +6,7 @@
 #define FEM_PLANECONSTRAINTS_H
 
 #include "Constraint/Constraint.h"
+#include "Util/Pattern.h"
 
 using Eigen::Vector3d;
 
@@ -15,6 +16,8 @@ public:
 	double Value(const VectorXd &x) const override;
 	VectorXd Gradient(const VectorXd &x) const override;
 	MatrixXd Hessian(const VectorXd &x) const override;
+
+	DERIVED_DECLARE_CLONE(Function)
 
 private:
 	Vector3d _norm, _point;

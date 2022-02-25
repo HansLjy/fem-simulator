@@ -5,13 +5,22 @@
 #include "BodyEnergy.h"
 #include "Util/Factory.h"
 
+DEFINE_CLONE(BodyEnergyParameter, BodyEnergyParameter)
+
+DEFINE_ACCESSIBLE_MEMBER(BodyEnergyParameter, ElasticEnergyModelType, ElasticEnergyModelType, _elas_type)
+DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, ElasticEnergyModelParameter, ElasticEnergyModelParameter, _elas_para)
+DEFINE_ACCESSIBLE_MEMBER(BodyEnergyParameter, DissipationEnergyModelType, DissipationEnergyModelType, _diss_type)
+DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, DissipationEnergyModelParameter, DissipationEnergyModelParameter, _diss_para)
+DEFINE_ACCESSIBLE_MEMBER(BodyEnergyParameter, ConsistencyModelType, ConsistencyModelType, _cons_type)
+DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, ConsistencyModelParameter, ConsistencyModelParameter, _cons_para)
+
 void BodyEnergy::Initialize(const BodyEnergyParameter &para) {
-	_cons_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(para._cons_type);
-	_cons_model->Initialize(para._cons_para);
-	_elas_model = ElasticEnergyModelFactory::GetInstance()->GetElasticEnergyModel(para._elas_type);
-	_elas_model->Initialize(para._elas_para);
-	_diss_model = DissipationEnergyModelFactory::GetInstance()->GetDissipationEnergyModel(para._diss_type);
-	_diss_model->Initialize(para._diss_para);
+	_cons_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(para.GetConsistencyModelType());
+	_cons_model->Initialize(*para.GetConsistencyModelParameter());
+	_elas_model = ElasticEnergyModelFactory::GetInstance()->GetElasticEnergyModel(para.GetElasticEnergyModelType());
+	_elas_model->Initialize(*para.GetElasticEnergyModelParameter());
+	_diss_model = DissipationEnergyModelFactory::GetInstance()->GetDissipationEnergyModel(para.GetDissipationEnergyModelType());
+	_diss_model->Initialize(*para.GetDissipationEnergyModelParameter());
 }
 
 Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {
@@ -161,3 +170,11 @@ MatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &X,
 
 	return hessian;
 }
+
+BodyEnergy::~BodyEnergy() {
+	delete _elas_model;
+	delete _diss_model;
+	delete _cons_model;
+}
+
+DEFINE_CLONE(BodyEnergy, BodyEnergy)

@@ -31,6 +31,4 @@ MatrixXd BackwardTarget::Hessian(const VectorXd &x) const {
 		+ _body_energy->DHessian(_reference, _x, v);
 }
 
-DEFINE_CLONE(Target, BackwardTarget)
-
-BackwardTarget::~BackwardTarget() = default;
+DEFINE_CLONE(Function, BackwardTarget)

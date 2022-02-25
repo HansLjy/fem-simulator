@@ -18,21 +18,28 @@ enum class SolverType {
 	kBackward,
 };
 
-struct SolverParameter {
-	double _step;
-	OptimizerType _opt_type;
-	OptimizerParameter _opt_para;
-	TargetParameter _tar_para;
+class SolverParameter {
+public:
+	SolverParameter(double step, OptimizerType opt_type, const OptimizerParameter& opt_para, const TargetParameter& tar_para);
+
+	DERIVED_DECLARE_CLONE(SolverParameter)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Step, _step)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(OptimizerType, OptimizerType, _opt_type)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(OptimizerParameter, OptimizerParameter, _opt_para)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(TargetParameter, TargetParameter, _tar_para)
 };
 
 class Solver {
 public:
+	Solver() = default;
 	void Initialize(const SolverParameter& para);
 	void SetMesh(const Mesh& reference);
 	virtual Target* CreateCorrespondingTarget() = 0;
 	void Step(double dt);
 	Mesh& GetCurrentMesh();
 
+	virtual ~Solver();
+	Solver(const Solver& solver);
 	BASE_DECLARE_CLONE(Solver)
 
 protected:

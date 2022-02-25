@@ -9,14 +9,25 @@
 #include "Mesh/Mesh.h"
 #include "Util/Pattern.h"
 
+using Eigen::VectorXd;
+
 enum class MassModelType {
 	kVoronoi
 };
 
+class MassModelParameter {
+public:
+	MassModelParameter();
+
+	DERIVED_DECLARE_CLONE(MassModelParameter)
+};
+
 class MassModel {
 public:
-	virtual VectorXd GetMassDistribution(const Mesh& mesh);
+	virtual void Initialize(const MassModelParameter& para);
+	virtual VectorXd GetMassDistribution(const Mesh& mesh) = 0;
 
+	virtual ~MassModel();
 	BASE_DECLARE_CLONE(MassModel)
 };
 

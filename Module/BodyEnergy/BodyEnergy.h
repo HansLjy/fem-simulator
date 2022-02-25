@@ -9,17 +9,20 @@
 #include "ElementEnergy/DissipationEnergy.h"
 #include "Mesh/Mesh.h"
 #include <vector>
+#include "Util/Pattern.h"
 
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
 
-struct BodyEnergyParameter {
-	ElasticEnergyModelType _elas_type;
-	ElasticEnergyModelParameter _elas_para;
-	DissipationEnergyModelType _diss_type;
-	DissipationEnergyModelParameter _diss_para;
-	ConsistencyModelType _cons_type;
-	ConsistencyModelParameter _cons_para;
+class BodyEnergyParameter {
+public:
+	DERIVED_DECLARE_CLONE(BodyEnergyParameter)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(ElasticEnergyModelType, ElasticEnergyModelType, _elas_type)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(ElasticEnergyModelParameter, ElasticEnergyModelParameter, _elas_para)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(DissipationEnergyModelType, DissipationEnergyModelType, _diss_type)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(DissipationEnergyModelParameter, DissipationEnergyModelParameter, _diss_para)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(ConsistencyModelType, ConsistencyModelType, _cons_type)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(ConsistencyModelParameter, ConsistencyModelParameter, _cons_para)
 };
 
 class BodyEnergy {
@@ -58,6 +61,10 @@ public:
 		const VectorXd& X,
 		const VectorXd& V
 	);
+
+	~BodyEnergy();
+
+	DERIVED_DECLARE_CLONE(BodyEnergy)
 
 private:
 	ElasticEnergyModel* _elas_model;

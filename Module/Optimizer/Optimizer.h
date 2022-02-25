@@ -13,21 +13,25 @@ enum class OptimizerType {
 	kInteriorPoint
 };
 
-struct OptimizerParameter {
-	double _max_error;
-	int _max_step;
-
+class OptimizerParameter {
+public:
+	OptimizerParameter(double max_error, int max_step);
+	BASE_DECLARE_CLONE(OptimizerParameter)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, MaxError, _max_error)
+	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(int, MaxStep, _max_step)
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, Mu)
 };
 
 class Optimizer {
 public:
+	Optimizer() = default;
 	void Initialize(const OptimizerParameter& para);
 	void SetTarget(const Function& func);
-	void AddConstraint(const Constraint& cons);
-	void SetInitial(const VectorXd& x);
+	void AddConstraint(const Function& cons);
 	virtual VectorXd Optimize(const VectorXd& x0) const = 0;
 
 	virtual ~Optimizer();
+	Optimizer(const Optimizer& optimizer);
 
 	BASE_DECLARE_CLONE(Optimizer)
 
@@ -36,8 +40,8 @@ protected:
 	double _max_error;
 	double _max_step;
 
-	const Function* _target;
-	std::vector<const Constraint*> _constraints;
+	Function* _target;
+	std::vector<const Function*> _constraints;
 
 };
 

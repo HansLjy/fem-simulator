@@ -13,9 +13,9 @@ public:
 	VectorXd Gradient(const VectorXd &x) const override;
 	MatrixXd Hessian(const VectorXd &x) const override;
 
-	DERIVED_DECLARE_CLONE(Target)
+	DERIVED_DECLARE_CLONE(Function)
 
-	~BackwardTarget();
+	~BackwardTarget() = default;
 };
 
 #endif //FEM_BACKWARDTARGET_H

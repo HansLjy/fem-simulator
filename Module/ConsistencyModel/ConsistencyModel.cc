@@ -4,8 +4,13 @@
 
 #include "ConsitencyModel.h"
 
+ConsistencyModelParameter::ConsistencyModelParameter() = default;
+
+DEFINE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(ConsistencyModelParameter, double, YoungsModule)
+DEFINE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(ConsistencyModelParameter, double, PoissonRatio)
+
 void ConsistencyModel::Initialize(const ConsistencyModelParameter &para) {
-	_lame_mu = para._youngs_module / (2 * (1 + para._poisson_ratio));
-	_lame_lambda = para._youngs_module * para._poisson_ratio / ((1 + para._poisson_ratio) * (1 - 2 * para._poisson_ratio));
 }
+
+ConsistencyModel::~ConsistencyModel() = default;
 

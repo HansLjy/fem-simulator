@@ -51,4 +51,6 @@ Matrix12d SimpleModel::Hessian(const ConsistencyModel &cons_model,
 	return hessian;
 }
 
+SimpleModel::~SimpleModel() = default;
+
 DEFINE_CLONE(ElasticEnergyModel, SimpleModel)

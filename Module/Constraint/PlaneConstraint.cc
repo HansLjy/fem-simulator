@@ -32,3 +32,5 @@ MatrixXd PlaneConstraint::Hessian(const VectorXd &x) const {
 	hessian.setZero();
 	return hessian;
 }
+
+DEFINE_CLONE(Function, PlaneConstraint)

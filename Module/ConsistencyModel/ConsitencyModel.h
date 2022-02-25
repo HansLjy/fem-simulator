@@ -15,14 +15,18 @@ enum class ConsistencyModelType {
 	kStVK,
 };
 
-struct ConsistencyModelParameter{
-	double _youngs_module;
-	double _poisson_ratio;
+class ConsistencyModelParameter {
+public:
+	ConsistencyModelParameter();
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, YoungsModule)
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, PoissonRatio)
+
+	BASE_DECLARE_CLONE(ConsistencyModelParameter)
 };
 
 class ConsistencyModel {
 public:
-	void Initialize(const ConsistencyModelParameter& para);
+	virtual void Initialize(const ConsistencyModelParameter& para);
 	virtual double EnergyDensity(const Matrix3d& F) const = 0;
 	virtual Matrix3d Piola(const Matrix3d& F) const = 0;
 	virtual Matrix3d PiolaDifferential(const Matrix3d& F, const Matrix3d& dF) const = 0;
@@ -31,9 +35,6 @@ public:
 
 	virtual ~ConsistencyModel();
 
-protected:
-	double _lame_mu;
-	double _lame_lambda;
 };
 
 #endif //FEM_CONSITENCYMODEL_H

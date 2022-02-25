@@ -5,5 +5,6 @@
 #include "ElasticEnergy.h"
 #include "Util/Factory.h"
 
+
 void ElasticEnergyModel::Initialize(const ElasticEnergyModelParameter &para) {
 }

@@ -4,6 +4,11 @@
 
 #include "InteriorPoint.h"
 
+InteriorPointParameter::InteriorPointParameter(double max_error, int max_step,
+											   double mu) : OptimizerParameter(max_error, max_step), _mu(mu){}
+
+DEFINE_CLONE(OptimizerParameter, InteriorPointParameter)
+
 VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 	int m = _constraints.size();	// number of constraints
 	int n = x0.size();				// number of x

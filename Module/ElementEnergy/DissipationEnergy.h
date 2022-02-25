@@ -16,12 +16,19 @@ enum class DissipationEnergyModelType {
 	kRayleigh
 };
 
-struct DissipationEnergyModelParameter {
+class DissipationEnergyModelParameter {
+public:
+	DissipationEnergyModelParameter();
+	BASE_DECLARE_CLONE(DissipationEnergyModelParameter)
+
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, Alpha1)
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, Alpha2)
+
 };
 
 class DissipationEnergyModel {
 public:
-	void Initialize(const DissipationEnergyModelParameter& para);
+	virtual void Initialize(const DissipationEnergyModelParameter& para);
 
 	// Here B is the inverse of [X1 - X4, X2 - X4, X3 - X4]
 	virtual double Energy(
@@ -53,7 +60,7 @@ public:
 
 	BASE_DECLARE_CLONE(DissipationEnergyModel)
 
-	virtual ~DissipationEnergyModel();
+	virtual ~DissipationEnergyModel() = default;
 };
 
 #endif //FEM_DISSIPATIONENERGY_H
