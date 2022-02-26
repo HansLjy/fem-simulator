@@ -7,6 +7,8 @@
 #include "Logger/Exception.h"
 #include "Util/Factory.h"
 #include <fstream>
+#include <iostream>
+using std::getline;
 using std::fstream;
 using Eigen::Vector3d;
 
@@ -21,7 +23,7 @@ void Mesh::Initialize(const MeshParameter &para) {
 }
 
 void Mesh::Load(const string &file) {
-	fstream file_stream(file);
+	fstream file_stream(file, std::ios::in);
 	string line;
 	auto logger = Logger::GetLogger();
 	Exception exception("Mesh loading error");
@@ -54,10 +56,8 @@ void Mesh::Load(const string &file) {
 	// POINT data
 	string word, datatype;
 	int num_of_points;
-	if (file_stream >> word >> num_of_points >> datatype
-		|| word != "POINTS"
-		|| (datatype != "double" && datatype != "float")
-			) {
+	file_stream >> word >> num_of_points >> datatype;
+	if (word != "POINTS" || (datatype != "double" && datatype != "float")) {
 		logger->log(Logger::LogType::kError, "Unsupported point type");
 		throw exception;
 	}
@@ -113,13 +113,14 @@ void Mesh::Load(const string &file) {
 }
 
 void Mesh::Store(const string &file) const {
-	fstream file_stream(file);
+	fstream file_stream(file, std::ios::out | std::ios::trunc);
+	file_stream.precision(10);
 	file_stream << "# vtk DataFile Version 2.0 \n"
 				<< _title << std::endl
 				<< "ASCII\n"
 				<< "DATASET UNSTRUCTURED_GRID\n";
 	int num_of_x = _points.size();
-	file_stream << "POINTS " << num_of_x / 3 << "double" << std::endl;
+	file_stream << "POINTS " << num_of_x / 3 << " double" << std::endl;
 	for (int i = 0; i < num_of_x; i += 3) {
 		file_stream << _points(i) << " " << _points(i + 1) << " " << _points(i + 2) << std::endl;
 	}
@@ -128,7 +129,7 @@ void Mesh::Store(const string &file) const {
 	for (auto itr : _tets) {
 		file_stream << "4 " << itr[0] << " " << itr[1] << " " << itr[2] << " " << itr[3] << std::endl;
 	}
-	file_stream << "CELL_TYPES " << num_of_tets;
+	file_stream << "CELL_TYPES " << num_of_tets << std::endl;
 	for (int i = 0; i < num_of_tets; i++) {
 		file_stream << "10" << std::endl;
 	}
