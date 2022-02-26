@@ -10,6 +10,7 @@ VectorXd VoronoiModel::GetMassDistribution(const Mesh &mesh) {
 	int num_of_points = points.size() / 3;
 	int num_of_tets = tets.size();
 	VectorXd mass(num_of_points);
+	mass.setZero();
 	for (int i = 0; i < num_of_tets; i++) {
 		auto tet = tets[i];
 		Matrix3d D;
