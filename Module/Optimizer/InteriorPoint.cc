@@ -3,6 +3,7 @@
 //
 
 #include "InteriorPoint.h"
+#include <spdlog/spdlog.h>
 
 InteriorPointParameter::InteriorPointParameter(double max_error, int max_step,
 											   double mu) : OptimizerParameter(max_error, max_step), _mu(mu){}
@@ -44,7 +45,8 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 		RHS.block(0, 0, n, 1) = -_target->Gradient(x) + A * lambda;
 		RHS.block(n, 0, m, 1) = _mu * one - G.asDiagonal() * lambda;
 
-		auto sol = LHS.colPivHouseholderQr().solve(RHS);
+		VectorXd sol = LHS.colPivHouseholderQr().solve(RHS);
+
 		double alpha = 1;
 		for (int i = 0; i < m; i++) {
 			if (sol(n + i) < 0) {
@@ -55,9 +57,15 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 		x += alpha * sol.block(0, 0, n, 1);
 		lambda += alpha * sol.block(n, 0, m, 1);
 
-		if (sol.dot(sol) < _max_error) {
+		if (sol.norm() < _max_error) {
 			break;
 		}
+	}
+
+	if (step <= _max_step) {
+		spdlog::info("Interior Point Optimizer, converge in {} step", step - 1);
+	} else {
+		spdlog::info("Interior Point Optimizer, fail to converge");
 	}
 	return x;
 }

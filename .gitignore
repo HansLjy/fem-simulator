@@ -7,3 +7,8 @@ CMakeFiles
 Makefile
 main
 fem
+UnitTest/CMakeFiles
+UnitTest/CMakeCache.txt
+UnitTest/Makefile
+UnitTest/OptimizerTest
+UnitTest/*.cmake
