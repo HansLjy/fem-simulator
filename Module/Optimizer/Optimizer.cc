@@ -18,6 +18,7 @@ void Optimizer::Initialize(const OptimizerParameter &para) {
 }
 
 void Optimizer::SetTarget(const Function& func) {
+	delete _target;
 	_target = func.Clone();
 }
 
@@ -27,7 +28,7 @@ void Optimizer::AddConstraint(const Function& cons) {
 
 Optimizer::~Optimizer() {
 	delete _target;
-	for (auto constraint : _constraints) {
+	for (const Function* constraint : _constraints) {
 		delete constraint;
 	}
 }

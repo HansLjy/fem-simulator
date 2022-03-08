@@ -50,7 +50,7 @@ private:
 
 DEFINE_CLONE(Function, SettableFunction)
 
-class OptimizerTest : public CppUnit::TestFixture {
+class Tester : public CppUnit::TestFixture {
 private:
 	Optimizer* _interior_pointer_optimizer;
 
@@ -97,7 +97,7 @@ public:
 };
 
 int main() {
-	CppUnit::TestCaller<OptimizerTest> test("Test CG", &OptimizerTest::TestCG);
+	CppUnit::TestCaller<Tester> test("Test CG", &Tester::TestCG);
 	test.runTest();
 	return 0;
 }

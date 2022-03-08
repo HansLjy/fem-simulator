@@ -40,7 +40,7 @@ protected:
 	double _max_error;
 	double _max_step;
 
-	Function* _target;
+	Function* _target = nullptr;
 	std::vector<const Function*> _constraints;
 
 };

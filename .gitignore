@@ -10,5 +10,7 @@ fem
 UnitTest/CMakeFiles
 UnitTest/CMakeCache.txt
 UnitTest/Makefile
-UnitTest/OptimizerTest
+UnitTest/Tester
 UnitTest/*.cmake
+UnitTest/build
+UnitTest/Test

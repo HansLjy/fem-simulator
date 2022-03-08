@@ -50,7 +50,7 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 		double alpha = 1;
 		for (int i = 0; i < m; i++) {
 			if (sol(n + i) < 0) {
-				alpha = std::min(alpha, lambda(i) / (- sol(n + i) * 1.1));
+				alpha = std::min(alpha, lambda(i) / (- sol(n + i) * 2));
 			}
 		}
 
@@ -65,7 +65,7 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 	if (step <= _max_step) {
 		spdlog::info("Interior Point Optimizer, converge in {} step", step - 1);
 	} else {
-		spdlog::info("Interior Point Optimizer, fail to converge");
+		spdlog::warn("Interior Point Optimizer, fail to converge");
 	}
 	return x;
 }
