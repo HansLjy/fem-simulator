@@ -17,7 +17,9 @@ void Target::Initialize(const TargetParameter &para) {
 	_body_energy->Initialize(*para.GetBodyEnergyParameter());
 	_mass_model = MassModelFactory::GetInstance()->GetMassModel(para.GetMassModelType());
 	_mass_model->Initialize(*para.GetMassModelParameter());
-	_reference.GetMass() = _mass_model->GetMassDistribution(_reference);
+	ComputeVolumn();
+	ComputeMass();
+	ComputeInverse();
 }
 
 Target::~Target() {
@@ -48,4 +50,38 @@ void Target::SetDt(double dt) {
 
 void Target::SetMesh(const Mesh &mesh) {
 	_reference = mesh;
+}
+
+void Target::ComputeInverse() {
+	const auto& points = _reference.GetPoints();
+	const auto& tets = _reference.GetTets();
+	int num_of_tets = tets.size();
+	_inv.resize(num_of_tets, 1);
+	int index = 0;
+	for (const auto& tet : tets) {
+		Matrix3d D;
+		for (int i = 0; i < 3; i++) {
+			D.col(i) = points.block<3, 1>(3 * tet[i], 0) - points.block<3, 1>(3 * tet[3], 0);
+		}
+		_inv[index++] = D.inverse();
+	}
+}
+
+void Target::ComputeMass() {
+	_mass = _mass_model->GetMassDistribution(_reference);
+}
+
+void Target::ComputeVolumn() {
+	const auto& points = _reference.GetPoints();
+	const auto& tets = _reference.GetTets();
+	int num_of_tets = tets.size();
+	_volumn.resize(num_of_tets, 1);
+	int index = 0;
+	for (const auto& tet : tets) {
+		Matrix3d D;
+		for (int i = 0; i < 3; i++) {
+			D.col(i) = points.block<3, 1>(3 * tet[i], 0) - points.block<3, 1>(3 * tet[3], 0);
+		}
+		_volumn[index++] = std::abs(D.determinant() / 6.0);
+	}
 }

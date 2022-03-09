@@ -19,7 +19,6 @@ DEFINE_ACCESSIBLE_MEMBER(MeshParameter, string, InputFile, _input_file)
 
 void Mesh::Initialize(const MeshParameter &para) {
 	Load(para.GetInputFile());
-	ComputeInverse();
 }
 
 void Mesh::Load(const string &file) {
@@ -136,27 +135,8 @@ void Mesh::Store(const string &file) const {
 	file_stream.close();
 }
 
-void Mesh::ComputeInverse() {
-	int num_of_tets = _tets.size();
-	_B.resize(num_of_tets);
-	for (int i = 0; i < num_of_tets; i++) {
-		auto tet = _tets[i];
-		Matrix3d D;
-		Vector3d X[4];
-		for (int j = 0; j < 4; j++) {
-			X[j] = _points.block<3, 1>(3 * tet[j], 0);
-		}
-		for (int j = 0; j < 3; j++) {
-			D.col(j) = X[j] - X[3];
-		}
-		_B[i] = D.inverse();
-	}
-}
-
 #define TETS vector<array<int, 4>>
 DEFINE_ACCESSIBLE_MEMBER(Mesh, VectorXd, Points, _points)
 DEFINE_ACCESSIBLE_MEMBER(Mesh, string, Title, _title)
-DEFINE_ACCESSIBLE_MEMBER(Mesh, VectorXd, Mass, _mass)
 DEFINE_ACCESSIBLE_MEMBER(Mesh, TETS, Tets, _tets)
-DEFINE_ACCESSIBLE_MEMBER(Mesh, vector<Matrix3d>, B, _B)
 #undef TETS

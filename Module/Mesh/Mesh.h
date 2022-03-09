@@ -30,14 +30,11 @@ public:
 	void Store(const string& file) const;
 
 private:
-	void ComputeInverse();
 	void Load(const string& file);
 
 	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(VectorXd, Points, _points)
 	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(string, Title, _title)
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(VectorXd, Mass, _mass)
 	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(TETS, Tets, _tets)
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(vector<Matrix3d>, B, _B)
 };
 
 #undef TETS

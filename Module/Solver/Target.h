@@ -11,6 +11,8 @@
 #include "BodyEnergy/BodyEnergy.h"
 #include "Mass/MassModel.h"
 
+using Eigen::VectorX;
+
 enum class TargetType {
 	kBackward,
 };
@@ -44,12 +46,20 @@ public:
 	Target(const Target& target);
 
 protected:
+	void ComputeInverse();
+	void ComputeMass();
+	void ComputeVolumn();
+
 	// Data
 	Mesh _reference;
 
 	// Parameter
 	BodyEnergy* _body_energy;
 	MassModel* _mass_model;
+
+	VectorXd _mass;
+	VectorX<Matrix3d> _inv;
+	VectorXd _volumn;
 
 	// Outer Status
 	VectorXd _x, _v;

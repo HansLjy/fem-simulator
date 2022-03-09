@@ -13,6 +13,7 @@
 
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
+using Eigen::VectorX;
 
 class BodyEnergyParameter {
 public:
@@ -29,38 +30,34 @@ class BodyEnergy {
 public:
 	void Initialize(const BodyEnergyParameter& para);
 
-	double EEnergy(
-		const Mesh& reference,
-		const VectorXd& X
-	);
+	double
+	EEnergy(const Mesh &reference, const VectorXd &W,
+			const VectorX<Matrix3d> &inv,
+			const VectorXd &X);
 
-	double DEnergy(
-		const Mesh& reference,
-		const VectorXd& X,
-		const VectorXd& V
-	);
+	double
+	DEnergy(const Mesh &reference, const VectorXd &W, const VectorXd &mass,
+			const VectorX<Matrix3d> &inv, const VectorXd &X,
+			const VectorXd &V);
 
-	VectorXd EGradient(
-		const Mesh& reference,
-		const VectorXd& X
-	);
+	VectorXd
+	EGradient(const Mesh &reference, const VectorXd &W,
+			  const VectorX<Matrix3d> &inv, const VectorXd &X);
 
-	VectorXd DGradient(
-		const Mesh& reference,
-		const VectorXd& X,
-		const VectorXd& V
-	);
+	VectorXd
+	DGradient(const Mesh &reference, const VectorXd &W, const VectorXd &mass,
+			  const VectorX<Matrix3d> &inv, const VectorXd &X,
+			  const VectorXd &V);
 
-	MatrixXd EHessian(
-		const Mesh& reference,
-		const VectorXd& X
-	);
+	MatrixXd
+	EHessian(const Mesh &reference, const VectorXd &W,
+			 const VectorX<Matrix3d> &inv,
+			 const VectorXd &X);
 
-	MatrixXd DHessian(
-		const Mesh& reference,
-		const VectorXd& X,
-		const VectorXd& V
-	);
+	MatrixXd
+	DHessian(const Mesh &reference, const VectorXd &W, const VectorXd &mass,
+			 const VectorX<Matrix3d> &inv, const VectorXd &X,
+			 const VectorXd &V);
 
 	~BodyEnergy();
 
