@@ -4,28 +4,29 @@
 
 #include "Solver.h"
 #include "Util/Factory.h"
+#include <spdlog/spdlog.h>
 
-SolverParameter::SolverParameter(double step, OptimizerType opt_type,
+SolverParameter::SolverParameter(OptimizerType opt_type,
 								 const OptimizerParameter &opt_para,
 								 const TargetParameter &tar_para)
-								 : _step(step), _opt_type(opt_type),
+								 : _opt_type(opt_type),
 								   _opt_para(opt_para.Clone()),
 								   _tar_para(tar_para.Clone())
 								 {}
 
 DEFINE_CLONE(SolverParameter, SolverParameter)
-DEFINE_ACCESSIBLE_MEMBER(SolverParameter, double, Step, _step)
 DEFINE_ACCESSIBLE_MEMBER(SolverParameter, OptimizerType, OptimizerType, _opt_type)
 DEFINE_ACCESSIBLE_POINTER_MEMBER(SolverParameter, OptimizerParameter, OptimizerParameter, _opt_para)
 DEFINE_ACCESSIBLE_POINTER_MEMBER(SolverParameter, TargetParameter, TargetParameter, _tar_para)
 
 void Solver::Initialize(const SolverParameter &para) {
-	_step = para.GetStep();
 	_optimizer = OptimizerFactory::GetInstance()->GetOptimizer(para.GetOptimizerType());
 	_optimizer->Initialize(*para.GetOptimizerParameter());
 	_target = CreateCorrespondingTarget();
 	_target->Initialize(*para.GetTargetParameter());
 	_target->SetMesh(_reference);
+
+	spdlog::info("Solver initialized");
 }
 
 void Solver::Step(double dt) {
@@ -39,7 +40,6 @@ void Solver::Step(double dt) {
 
 Solver::Solver(const Solver& solver) {
 	_reference = solver._reference;
-	_step = solver._step;
 	_current = solver._current;
 	_v = solver._v;
 	_optimizer = solver._optimizer->Clone();
@@ -58,4 +58,12 @@ Mesh& Solver::GetCurrentMesh() {
 void Solver::SetMesh(const Mesh& mesh) {
 	_reference = mesh;
 	_current = mesh;
+}
+
+void Solver::AddExternalForce(const ExternalForce &ext) {
+	_target->AddExternalForce(ext);
+}
+
+void Solver::AddConstraint(const Constraint &cons) {
+	_optimizer->AddConstraint(cons);
 }

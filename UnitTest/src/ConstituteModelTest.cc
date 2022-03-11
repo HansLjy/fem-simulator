@@ -6,10 +6,7 @@
 #include "ConsistencyModel/StVKModel.h"
 
 void Test::TestConstituteModel() {
-	spdlog::info("Start Constitute Model Test");
-	ConsistencyModelParameter* para = new StVKModelParameter(1, 1);
-	_consistency_model->Initialize(*para);
-
+	spdlog::info("Start Constitute Model Resource");
 
 	//<- Identity matrix, psi, piola and piola differential should all be 0
 	Matrix3d I = Matrix3d::Identity();
@@ -21,7 +18,7 @@ void Test::TestConstituteModel() {
 	CPPUNIT_ASSERT(piola.norm() < _eps && piola.norm() > -_eps);
 	CPPUNIT_ASSERT(piola_diff.norm() < _eps && piola_diff.norm() > -_eps);
 
-	// <- Test a random rotational matrix
+	// <- Resource a random rotational matrix
 
 	Vector3d pivot = Vector3d::Random().normalized();
 	double x = pivot.x(), y = pivot.y(), z = pivot.z();
@@ -71,5 +68,5 @@ void Test::TestConstituteModel() {
 	CPPUNIT_ASSERT((P - piola).norm() < _eps);
 	CPPUNIT_ASSERT((dP - piola_diff).norm() < _eps);
 
-	spdlog::info("Finish Constitute Model Test");
+	spdlog::info("Finish Constitute Model Resource");
 }

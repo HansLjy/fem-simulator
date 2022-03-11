@@ -11,8 +11,6 @@ typedef std::array<Vector3d, 4> Tet;
 
 void Test::TestElasticForce() {
 	spdlog::info("Start testing elastic energy model");
-	auto cons_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(ConsistencyModelType::kStVK);
-	cons_model->Initialize(StVKModelParameter(1, 1));
 	Tet tet;
 
 	tet[0] << 1, 0, 0;
@@ -28,12 +26,11 @@ void Test::TestElasticForce() {
 	double W = D.determinant() / 6;
 
 	Matrix3d B = D.inverse();
-	_elas_model->Initialize(ElasticEnergyModelParameter());
 
 	// Stay put
-	auto energy = _elas_model->Energy(*cons_model, W, B, D);
-	auto gradient = _elas_model->Gradient(*cons_model, W, B, D);
-	auto hessian = _elas_model->Hessian(*cons_model, W, B, D);
+	auto energy = _elas_model->Energy(*_consistency_model, W, B, D);
+	auto gradient = _elas_model->Gradient(*_consistency_model, W, B, D);
+	auto hessian = _elas_model->Hessian(*_consistency_model, W, B, D);
 
 	double error_hessian = 0;
 
@@ -52,9 +49,9 @@ void Test::TestElasticForce() {
 	for (int i = 0; i < 3; i++) {
 		D.col(i) = tet[(i + 1) % 3] - tet[3];
 	}
-	energy = _elas_model->Energy(*cons_model, W, B, D);
-	gradient = _elas_model->Gradient(*cons_model, W, B, D);
-	hessian = _elas_model->Hessian(*cons_model, W, B, D);
+	energy = _elas_model->Energy(*_consistency_model, W, B, D);
+	gradient = _elas_model->Gradient(*_consistency_model, W, B, D);
+	hessian = _elas_model->Hessian(*_consistency_model, W, B, D);
 
 	error_hessian = 0;
 
@@ -89,9 +86,9 @@ void Test::TestElasticForce() {
 			for (int j = 0; j < 3; j++) {
 				double tmp = D(i, j);
 				D(i, j) = tmp + h;
-				double f_plus = _elas_model->Energy(*cons_model, W, B, D);
+				double f_plus = _elas_model->Energy(*_consistency_model, W, B, D);
 				D(i, j) = tmp - h;
-				double f_minus = _elas_model->Energy(*cons_model, W, B, D);
+				double f_minus = _elas_model->Energy(*_consistency_model, W, B, D);
 				num_gradient(3 * j + i) = (f_plus - f_minus) / (2 * h);
 				D(i, j) = tmp;
 			}
@@ -100,9 +97,9 @@ void Test::TestElasticForce() {
 		for (int i = 0; i < 3; i++) {
 			Vector3d tmp = D.row(i);
 			D.row(i) = tmp - h * Vector3d::Ones();
-			double f_plus = _elas_model->Energy(*cons_model, W, B, D);
+			double f_plus = _elas_model->Energy(*_consistency_model, W, B, D);
 			D.row(i) = tmp + h * Vector3d::Ones();
-			double f_minus = _elas_model->Energy(*cons_model, W, B, D);
+			double f_minus = _elas_model->Energy(*_consistency_model, W, B, D);
 			num_gradient(9 + i) = (f_plus - f_minus) / (2 * h);
 			D.row(i) = tmp;
 		}
@@ -120,7 +117,7 @@ void Test::TestElasticForce() {
 									D(i2, j2) = tmp2 + delta2 * h;
 									f[(delta1 + 1) >> 1][(delta2 + 1)
 											>> 1] = _elas_model->Energy(
-											*cons_model, W, B, D);
+											*_consistency_model, W, B, D);
 								}
 							}
 							D(i1, j1) = tmp1;
@@ -134,7 +131,7 @@ void Test::TestElasticForce() {
 							double f[5];
 							for (int delta = -2; delta <= 2; delta++) {
 								D(i, j) = tmp + delta * h;
-								f[delta + 2] = _elas_model->Energy(*cons_model,
+								f[delta + 2] = _elas_model->Energy(*_consistency_model,
 																   W, B, D);
 							}
 							D(i, j) = tmp;
@@ -158,8 +155,8 @@ void Test::TestElasticForce() {
 					num_hessian.row(i + 6);
 		}
 
-		gradient = _elas_model->Gradient(*cons_model, W, B, D);
-		hessian = _elas_model->Hessian(*cons_model, W, B, D);
+		gradient = _elas_model->Gradient(*_consistency_model, W, B, D);
+		hessian = _elas_model->Hessian(*_consistency_model, W, B, D);
 
 		CPPUNIT_ASSERT((gradient - num_gradient).norm() < 0.01);
 		CPPUNIT_ASSERT((hessian - num_hessian).norm() < 0.01);

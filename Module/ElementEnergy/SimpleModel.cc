@@ -3,7 +3,13 @@
 //
 
 #include "SimpleModel.h"
-#include <cmath>
+#include <spdlog/spdlog.h>
+
+DEFINE_CLONE(ElasticEnergyModelParameter, SimpleModelParameter)
+
+void SimpleModel::Initialize(const ElasticEnergyModelParameter &para) {
+	spdlog::info("SimpleModel initialized");
+}
 
 double SimpleModel::Energy(const ConsistencyModel &cons_model, double W,
 						   const Matrix3d &B,

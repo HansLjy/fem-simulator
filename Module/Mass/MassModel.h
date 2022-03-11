@@ -19,7 +19,7 @@ class MassModelParameter {
 public:
 	MassModelParameter();
 
-	DERIVED_DECLARE_CLONE(MassModelParameter)
+	BASE_DECLARE_CLONE(MassModelParameter)
 };
 
 class MassModel {

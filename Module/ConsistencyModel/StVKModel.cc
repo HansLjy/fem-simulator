@@ -3,6 +3,7 @@
 //
 
 #include "StVKModel.h"
+#include <spdlog/spdlog.h>
 
 StVKModelParameter::StVKModelParameter(double youngs_module,
 									   double poisson_ratio) : _youngs_module(youngs_module), _poisson_ratio(poisson_ratio) {}
@@ -14,6 +15,7 @@ DEFINE_ACCESSIBLE_MEMBER(StVKModelParameter, double, PoissonRatio, _poisson_rati
 void StVKModel::Initialize(const ConsistencyModelParameter& para) {
 	_lame_mu = para.GetYoungsModule() / (2 * (1 + para.GetPoissonRatio()));
 	_lame_lambda = para.GetYoungsModule() * para.GetPoissonRatio() / ((1 + para.GetPoissonRatio()) * (1 - 2 * para.GetPoissonRatio()));
+	spdlog::info("StVKModel initialized");
 }
 
 double StVKModel::EnergyDensity(const Matrix3d &F) const {

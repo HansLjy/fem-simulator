@@ -25,17 +25,17 @@ public:
 	double Energy(const ConsistencyModel &cons_model,
 				  const ElasticEnergyModel &elas_model,
 				  double W, const Matrix3d &B, const Vector4d &mass,
-				  const Vector12d &v,
+				  const Vector12d &V,
 				  const Matrix3d &Ds) const override;
 	Vector12d Gradient(const ConsistencyModel &cons_model,
 					   const ElasticEnergyModel &elas_model, double W,
 					   const Matrix3d &B, const Vector4d &mass,
-					   const Vector12d &v,
+					   const Vector12d &V,
 					   const Matrix3d &Ds) const override;
 	Matrix12d Hessian(const ConsistencyModel &cons_model,
 					  const ElasticEnergyModel &elas_model, double W,
 					  const Matrix3d &B, const Vector4d &mass,
-					  const Vector12d &v,
+					  const Vector12d &V,
 					  const Matrix3d &Ds) const override;
 
 	~RayleighModel();

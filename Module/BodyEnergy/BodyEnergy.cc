@@ -4,6 +4,18 @@
 
 #include "BodyEnergy.h"
 #include "Util/Factory.h"
+#include <spdlog/spdlog.h>
+
+BodyEnergyParameter::BodyEnergyParameter(
+		const ElasticEnergyModelType &elas_type,
+		const ElasticEnergyModelParameter &elas_para,
+		const DissipationEnergyModelType &diss_type,
+		const DissipationEnergyModelParameter &diss_para,
+		const ConsistencyModelType &cons_type,
+		const ConsistencyModelParameter &cons_para) :
+		_elas_type(elas_type), _elas_para(elas_para.Clone()),
+		_diss_type(diss_type), _diss_para(diss_para.Clone()),
+		_cons_type(cons_type), _cons_para(cons_para.Clone()) {}
 
 DEFINE_CLONE(BodyEnergyParameter, BodyEnergyParameter)
 
@@ -21,6 +33,8 @@ void BodyEnergy::Initialize(const BodyEnergyParameter &para) {
 	_elas_model->Initialize(*para.GetElasticEnergyModelParameter());
 	_diss_model = DissipationEnergyModelFactory::GetInstance()->GetDissipationEnergyModel(para.GetDissipationEnergyModelType());
 	_diss_model->Initialize(*para.GetDissipationEnergyModelParameter());
+
+	spdlog::info("BodyEnergy initialized");
 }
 
 Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {

@@ -4,6 +4,8 @@
 
 #include "VoronoiModel.h"
 
+DEFINE_CLONE(MassModelParameter, VoronoiModelParameter)
+
 VectorXd VoronoiModel::GetMassDistribution(const Mesh &mesh) {
 	const VectorXd& points = mesh.GetPoints();
 	const auto& tets = mesh.GetTets();

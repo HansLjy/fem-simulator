@@ -17,6 +17,7 @@
 #include "Optimizer/Optimizer.h"
 #include "ConsistencyModel/ConsitencyModel.h"
 #include "ElementEnergy/ElasticEnergy.h"
+#include "BodyEnergy/BodyEnergy.h"
 
 class Test : public CppUnit::TestFixture {
 public:
@@ -26,12 +27,14 @@ public:
 	void TestOptimizerCG();
 	void TestConstituteModel();
 	void TestElasticForce();
+	void TestBodyEnergy();
 
 private:
 	const double _eps = 1e-12;
 	Optimizer* _interior_pointer_optimizer;
 	ConsistencyModel* _consistency_model;
 	ElasticEnergyModel* _elas_model;
+	BodyEnergy* _body_energy_model;
 };
 
 #endif //FEM_TEST_H

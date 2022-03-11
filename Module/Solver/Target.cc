@@ -4,8 +4,15 @@
 
 #include "Target.h"
 #include "Util/Factory.h"
+#include <spdlog/spdlog.h>
 
-TargetParameter::TargetParameter(const BodyEnergyParameter &body_para) : _body_para(body_para.Clone()){}
+TargetParameter::TargetParameter(const BodyEnergyParameter &body_para,
+								 const MassModelType &mass_type,
+								 const MassModelParameter &mass_para)
+								 : _body_para(body_para.Clone()),
+								   _mass_type(mass_type),
+								   _mass_para(mass_para.Clone())
+								   {}
 
 DEFINE_CLONE(TargetParameter, TargetParameter)
 DEFINE_ACCESSIBLE_POINTER_MEMBER(TargetParameter, BodyEnergyParameter, BodyEnergyParameter, _body_para)
@@ -20,11 +27,17 @@ void Target::Initialize(const TargetParameter &para) {
 	ComputeVolumn();
 	ComputeMass();
 	ComputeInverse();
+
+	spdlog::info("Target initialized");
 }
 
 Target::~Target() {
 	delete _body_energy;
 	delete _mass_model;
+	int num_of_ext = _ext_force.size();
+	for (int i = 0; i < num_of_ext; i++) {
+		delete _ext_force[i];
+	}
 };
 
 Target::Target(const Target &target) {
@@ -34,6 +47,10 @@ Target::Target(const Target &target) {
 	_x = target._x;
 	_v = target._v;
 	_dt = target._dt;
+	_ext_force.clear();
+	for (const auto& force : target._ext_force) {
+		_ext_force.push_back(force->Clone());
+	}
 }
 
 void Target::SetX(const VectorXd &x) {
@@ -84,4 +101,8 @@ void Target::ComputeVolumn() {
 		}
 		_volumn[index++] = std::abs(D.determinant() / 6.0);
 	}
+}
+
+void Target::AddExternalForce(const ExternalForce &ext) {
+	_ext_force.push_back(ext.Clone());
 }

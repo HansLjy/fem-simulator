@@ -17,6 +17,16 @@ using Eigen::VectorX;
 
 class BodyEnergyParameter {
 public:
+	BodyEnergyParameter(
+		const ElasticEnergyModelType& elas_type,
+		const ElasticEnergyModelParameter &elas_para,
+		const DissipationEnergyModelType& diss_type,
+		const DissipationEnergyModelParameter &diss_para,
+		const ConsistencyModelType& cons_type,
+		const ConsistencyModelParameter &cons_para
+	);
+
+
 	DERIVED_DECLARE_CLONE(BodyEnergyParameter)
 	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(ElasticEnergyModelType, ElasticEnergyModelType, _elas_type)
 	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(ElasticEnergyModelParameter, ElasticEnergyModelParameter, _elas_para)

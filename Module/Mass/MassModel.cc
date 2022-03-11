@@ -3,8 +3,10 @@
 //
 
 #include "MassModel.h"
+#include <spdlog/spdlog.h>
 
-DEFINE_CLONE(MassModelParameter, MassModelParameter)
 MassModelParameter::MassModelParameter() = default;
-void MassModel::Initialize(const MassModelParameter &para) {}
+void MassModel::Initialize(const MassModelParameter &para) {
+	spdlog::info("MassModel initialized");
+}
 MassModel::~MassModel() = default;

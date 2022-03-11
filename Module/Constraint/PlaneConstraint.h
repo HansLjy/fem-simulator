@@ -12,7 +12,7 @@ using Eigen::Vector3d;
 
 class PlaneConstraint : public Constraint {
 public:
-	void SetPlane(const Vector3d& norm, const Vector3d& point);
+	PlaneConstraint(const Vector3d& norm, const Vector3d& point);
 	double Value(const VectorXd &x) const override;
 	VectorXd Gradient(const VectorXd &x) const override;
 	MatrixXd Hessian(const VectorXd &x) const override;

@@ -4,10 +4,7 @@
 
 #include "PlaneConstraint.h"
 
-void PlaneConstraint::SetPlane(const Vector3d &norm, const Vector3d &point) {
-	_norm = norm.normalized();
-	_point = point;
-}
+PlaneConstraint::PlaneConstraint(const Vector3d &norm, const Vector3d &point) : _norm(norm), _point(point) {}
 
 double PlaneConstraint::Value(const VectorXd &x) const {
 	int dimension = x.size();

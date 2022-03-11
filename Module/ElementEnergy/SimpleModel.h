@@ -7,8 +7,15 @@
 
 #include "ElasticEnergy.h"
 
+class SimpleModelParameter : public ElasticEnergyModelParameter {
+public:
+	DERIVED_DECLARE_CLONE(ElasticEnergyModelParameter)
+};
+
 class SimpleModel : public ElasticEnergyModel {
 public:
+	void Initialize(const ElasticEnergyModelParameter &para) override;
+
 	double
 	Energy(const ConsistencyModel &cons_model, double W, const Matrix3d &B,
 		   const Matrix3d &Ds) const override;

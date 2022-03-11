@@ -15,22 +15,21 @@
 #include "ConsistencyModel/ConsitencyModel.h"
 #include "Optimizer/Optimizer.h"
 #include "Solver/Solver.h"
+#include "BodyEnergy/ExternalForce.h"
 
 using std::string;
 
 class SimulatorParameter {
 public:
 	SimulatorParameter(
-		const string& input_file,
 		const string& output_dir,
 		double duration,
 		double step,
 		SolverType sol_type,
-		const SolverParameter* sol_para,
+		const SolverParameter& sol_para,
 		const MeshParameter& mesh_para
 	);
 
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(string, InputFile, _input_file)
 	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(string, OutputDir, _output_dir)
 	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Duration, _duration)
 	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Step, _step)
@@ -46,6 +45,7 @@ class Simulator {
 public:
 	void Initialize(const SimulatorParameter& para);
 	void AddConstraint(const Constraint& cons);
+	void AddExternalForce(const ExternalForce& ext);
 	void Simulate();
 	~Simulator();
 

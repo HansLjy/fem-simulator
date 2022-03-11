@@ -3,8 +3,6 @@
 //
 
 #include "../Test.h"
-#include "Optimizer/Optimizer.h"
-#include "Optimizer/InteriorPoint.h"
 #include "Function/Function.h"
 #include "Eigen/Dense"
 
@@ -69,16 +67,13 @@ void Test::TestOptimizerCG() {
 		func.SetGradientFunction(gra);
 		func.SetHessianFunction(hes);
 
-		_interior_pointer_optimizer->Initialize(
-				InteriorPointParameter(eps, 100, 0.1));
-
 		_interior_pointer_optimizer->SetTarget(func);
 
 		Vector3d x0 = Vector3d::Zero();
 
 		auto x = _interior_pointer_optimizer->Optimize(x0);
 
-		spdlog::info("Test round {}, error {}", T, eps);
+		spdlog::info("Resource round {}, error {}", T, eps);
 
 		CPPUNIT_ASSERT((A * x - b).norm() < eps);
 	}

@@ -3,8 +3,7 @@
 //
 
 #include "Mesh.h"
-#include "Logger/Logger.h"
-#include "Logger/Exception.h"
+#include <spdlog/spdlog.h>
 #include "Util/Factory.h"
 #include <fstream>
 #include <iostream>
@@ -19,19 +18,17 @@ DEFINE_ACCESSIBLE_MEMBER(MeshParameter, string, InputFile, _input_file)
 
 void Mesh::Initialize(const MeshParameter &para) {
 	Load(para.GetInputFile());
+	spdlog::info("Mesh intialized");
 }
 
 void Mesh::Load(const string &file) {
 	fstream file_stream(file, std::ios::in);
 	string line;
-	auto logger = Logger::GetLogger();
-	Exception exception("Mesh loading error");
-
 	// Header
 	getline(file_stream, line);
 	if (line != "# vtk DataFile Version 2.0") {
-		logger->log(Logger::LogType::kError, "Unsupported VTK format, use VTk 2.0 instead");
-		throw exception;
+		spdlog::error("Unsupported VTK format, use VTk 2.0 instead");
+		throw std::exception();
 	}
 
 	// Title, I don't care
@@ -41,15 +38,15 @@ void Mesh::Load(const string &file) {
 	// ASCII / BINARY
 	getline(file_stream, line);
 	if (line != "ASCII") {
-		logger->log(Logger::LogType::kError, "Unsupported file format, use ASCII instead");
-		throw exception;
+		spdlog::error("Unsupported file format, use ASCII instead");
+		throw std::exception();
 	}
 
 	// Dataset
 	getline(file_stream, line);
 	if (line != "DATASET UNSTRUCTURED_GRID") {
-		logger->log(Logger::LogType::kError, "Unsupported mesh format, use unstructured grid instead");
-		throw exception;
+		spdlog::error("Unsupported mesh format, use unstructured grid instead");
+		throw std::exception();
 	}
 
 	// POINT data
@@ -57,8 +54,8 @@ void Mesh::Load(const string &file) {
 	int num_of_points;
 	file_stream >> word >> num_of_points >> datatype;
 	if (word != "POINTS" || (datatype != "double" && datatype != "float")) {
-		logger->log(Logger::LogType::kError, "Unsupported point type");
-		throw exception;
+		spdlog::error("Unsupported point type");
+		throw std::exception();
 	}
 
 	_points.resize(3 * num_of_points, 1);
@@ -74,16 +71,16 @@ void Mesh::Load(const string &file) {
 	int num_of_tets, num_of_figures;
 	file_stream >> word >> num_of_tets >> num_of_figures;
 	if (word != "CELLS") {
-		logger->log(Logger::LogType::kError, "Unexpected descriptor");
-		throw exception;
+		spdlog::error("Unexpected descriptor");
+		throw std::exception();
 	}
 
 	for (int i = 0; i < num_of_tets; i++) {
 		int points_per_tet;
 		file_stream >> points_per_tet;
 		if (points_per_tet != 4) {
-			logger->log(Logger::LogType::kError, "Unsupported grid, use tet instead");
-			throw exception;
+			spdlog::error("Unsupported grid, use tet instead");
+			throw std::exception();
 		}
 		std::array<int, 4> tet;
 		for (int j = 0; j < points_per_tet; j++) {
@@ -96,16 +93,16 @@ void Mesh::Load(const string &file) {
 	int num_of_tets2;
 	file_stream >> word >> num_of_tets2;
 	if (word != "CELL_TYPES" || num_of_tets != num_of_tets2) {
-		logger->log(Logger::LogType::kError, "Unexpected descriptor");
-		throw exception;
+		spdlog::error("Unexpected descriptor");
+		throw std::exception();
 	}
 	for (int i = 0; i < num_of_tets; i++) {
 		int tet_type;
 		file_stream >> tet_type;
 		if (tet_type != 10) {
 			// for now, only accept tet mesh
-			logger->log(Logger::LogType::kError, "Unsupported mesh, use tet mesh instead");
-			throw exception;
+			spdlog::error("Unsupported mesh, use tet mesh instead");
+			throw std::exception();
 		}
 	}
 	file_stream.close();

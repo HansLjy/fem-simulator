@@ -9,6 +9,7 @@
 #include "Mesh/Mesh.h"
 #include "Util/Pattern.h"
 #include "BodyEnergy/BodyEnergy.h"
+#include "BodyEnergy/ExternalForce.h"
 #include "Mass/MassModel.h"
 
 using Eigen::VectorX;
@@ -19,7 +20,9 @@ enum class TargetType {
 
 class TargetParameter {
 public:
-	TargetParameter(const BodyEnergyParameter& body_para);
+	TargetParameter(const BodyEnergyParameter &body_para,
+					const MassModelType &mass_type,
+					const MassModelParameter &mass_para);
 
 	DERIVED_DECLARE_CLONE(TargetParameter)
 	DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(BodyEnergyParameter, BodyEnergyParameter, _body_para)
@@ -33,7 +36,8 @@ public:
 	VectorXd Gradient(const VectorXd &x) const override = 0;
 	MatrixXd Hessian(const VectorXd &x) const override = 0;
 
-	void Initialize(const TargetParameter& para);
+	virtual void Initialize(const TargetParameter& para);
+	void AddExternalForce(const ExternalForce& ext);
 	void SetMesh(const Mesh& mesh);
 
 	void SetX(const VectorXd& x);	// set xn
@@ -60,6 +64,8 @@ protected:
 	VectorXd _mass;
 	VectorX<Matrix3d> _inv;
 	VectorXd _volumn;
+
+	std::vector<const ExternalForce*> _ext_force;
 
 	// Outer Status
 	VectorXd _x, _v;

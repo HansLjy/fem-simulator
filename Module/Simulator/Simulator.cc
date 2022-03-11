@@ -5,20 +5,18 @@
 #include "Simulator.h"
 #include "Util/Factory.h"
 
-SimulatorParameter::SimulatorParameter(const string &input_file,
-									   const string &output_dir,
+SimulatorParameter::SimulatorParameter(const string &output_dir,
 									   double duration, double step,
 									   SolverType sol_type,
-									   const SolverParameter *sol_para,
+									   const SolverParameter&sol_para,
 									   const MeshParameter& mesh_para)
-									   : _input_file(input_file), _output_dir(output_dir),
+									   : _output_dir(output_dir),
 									     _duration(duration), _step(step),
 										 _sol_type(sol_type),
-										 _sol_para(sol_para->Clone()),
-										 _mesh_para((mesh_para))
+										 _sol_para(sol_para.Clone()),
+										 _mesh_para(mesh_para)
 									   {}
 
-DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, string, InputFile, _input_file)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, string, OutputDir, _output_dir)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, double, Duration, _duration)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, double, Step, _step)
@@ -51,4 +49,12 @@ void Simulator::Simulate() {
 
 Simulator::~Simulator() {
 	delete _solver;
+}
+
+void Simulator::AddConstraint(const Constraint &cons) {
+	_solver->AddConstraint(cons);
+}
+
+void Simulator::AddExternalForce(const ExternalForce &ext) {
+	_solver->AddExternalForce(ext);
 }

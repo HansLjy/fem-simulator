@@ -7,6 +7,11 @@
 
 #include "MassModel.h"
 
+class VoronoiModelParameter : public MassModelParameter {
+public:
+	DERIVED_DECLARE_CLONE(MassModelParameter)
+};
+
 class VoronoiModel : public MassModel {
 public:
 	VectorXd GetMassDistribution(const Mesh &mesh) override;

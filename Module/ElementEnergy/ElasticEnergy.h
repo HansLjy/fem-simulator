@@ -21,6 +21,8 @@ enum class ElasticEnergyModelType {
 class ElasticEnergyModelParameter {
 public:
 	ElasticEnergyModelParameter() = default;
+
+	BASE_DECLARE_CLONE(ElasticEnergyModelParameter)
 	virtual ~ElasticEnergyModelParameter() = default;
 };
 
