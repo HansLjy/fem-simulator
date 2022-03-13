@@ -24,7 +24,6 @@ void Solver::Initialize(const SolverParameter &para) {
 	_optimizer->Initialize(*para.GetOptimizerParameter());
 	_target = CreateCorrespondingTarget();
 	_target->Initialize(*para.GetTargetParameter());
-	_target->SetMesh(_reference);
 
 	spdlog::info("Solver initialized");
 }
@@ -58,6 +57,7 @@ Mesh& Solver::GetCurrentMesh() {
 void Solver::SetMesh(const Mesh& mesh) {
 	_reference = mesh;
 	_current = mesh;
+	_target->SetMesh(mesh);
 }
 
 void Solver::AddExternalForce(const ExternalForce &ext) {

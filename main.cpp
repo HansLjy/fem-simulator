@@ -42,7 +42,7 @@ int main() {
 				)
 		),
 		MeshParameter(
-			"./Resource/vtk/bunny.vtk"	// input file
+			"./Resource/vtk/one-tet.vtk"	// input file
 		)
 	);
 
@@ -51,7 +51,7 @@ int main() {
 
 	Vector3d norm, base;
 	norm << 0, 0, 1;
-	base << 0, 0, 0;
+	base << 0, 0, -0.1;
 
 	simulator->AddConstraint(PlaneConstraint(norm, base));
 	simulator->Simulate();

@@ -111,7 +111,7 @@ void Mesh::Load(const string &file) {
 void Mesh::Store(const string &file) const {
 	fstream file_stream(file, std::ios::out | std::ios::trunc);
 	file_stream.precision(10);
-	file_stream << "# vtk DataFile Version 2.0 \n"
+	file_stream << "# vtk DataFile Version 2.0\n"
 				<< _title << std::endl
 				<< "ASCII\n"
 				<< "DATASET UNSTRUCTURED_GRID\n";

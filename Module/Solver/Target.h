@@ -46,10 +46,11 @@ public:
 
 	Target() = default;
 
-	~Target();
+	~Target() override;
 	Target(const Target& target);
 
 protected:
+	void PreCompute();
 	void ComputeInverse();
 	void ComputeMass();
 	void ComputeVolumn();
@@ -58,10 +59,11 @@ protected:
 	Mesh _reference;
 
 	// Parameter
-	BodyEnergy* _body_energy;
-	MassModel* _mass_model;
+	BodyEnergy* _body_energy = nullptr;
+	MassModel* _mass_model = nullptr;
 
 	VectorXd _mass;
+	VectorXd _mass_sparse;
 	VectorX<Matrix3d> _inv;
 	VectorXd _volumn;
 
@@ -69,7 +71,7 @@ protected:
 
 	// Outer Status
 	VectorXd _x, _v;
-	double _dt;
+	double _dt = 0;
 };
 
 #endif //FEM_TARGET_H

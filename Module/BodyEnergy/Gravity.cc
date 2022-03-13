@@ -11,7 +11,7 @@ Gravity::Gravity(double g) : _g(g) {}
 double
 Gravity::Energy(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 				const VectorXd &V) const {
-	const int num_of_points = mesh.GetPoints().size();
+	const int num_of_points = mesh.GetPoints().size() / 3;
 
 	double energy = 0;
 	for (int i = 0; i < num_of_points; i++) {
@@ -23,7 +23,7 @@ Gravity::Energy(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 VectorXd
 Gravity::Gradient(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 				  const VectorXd &V) const {
-	const int num_of_points = mesh.GetPoints().size();
+	const int num_of_points = mesh.GetPoints().size() / 3;
 	VectorXd gradient(3 * num_of_points);
 	gradient.setZero();
 
@@ -37,7 +37,7 @@ Gravity::Gradient(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 MatrixXd
 Gravity::Hessian(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 				 const VectorXd &V) const {
-	const int num_of_points = mesh.GetPoints().size();
+	const int num_of_points = mesh.GetPoints().size() / 3;
 	MatrixXd hessian(3 * num_of_points, 3 * num_of_points);
 	hessian.setZero();
 	return hessian;

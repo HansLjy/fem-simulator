@@ -54,8 +54,7 @@ private:
 	double _duration;
 	double _step;
 	Solver* _solver;
-	Mesh _reference;
-
+	string _title;
 };
 
 #endif //FEM_SIMULATOR_H

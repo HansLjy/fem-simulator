@@ -15,7 +15,7 @@ public:
 
 	DERIVED_DECLARE_CLONE(Function)
 
-	~BackwardTarget() = default;
+	~BackwardTarget() override = default;
 };
 
 #endif //FEM_BACKWARDTARGET_H

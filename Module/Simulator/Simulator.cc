@@ -29,14 +29,17 @@ void Simulator::Initialize(const SimulatorParameter &para) {
 	_duration = para.GetDuration();
 	_step = para.GetStep();
 	_solver = SolverFactory::GetInstance()->GetSolver(para.GetSolverType());
-	_reference.Initialize(para.GetMeshParameter());
 	_solver->Initialize(*para.GetSolverParameter());
-	_solver->SetMesh(_reference);
+
+	Mesh mesh;
+	mesh.Initialize(para.GetMeshParameter());
+	_title = mesh.GetTitle();
+	_solver->SetMesh(mesh);
 }
 
 void Simulator::Simulate() {
 	double current = 0;
-	string prefix = _output_dir + "/" + _reference.GetTitle();
+	string prefix = _output_dir + "/" + _title;
 	string suffix = ".vtk";
 	int index = 0;
 	while(current < _duration) {

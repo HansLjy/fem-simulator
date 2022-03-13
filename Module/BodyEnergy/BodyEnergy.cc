@@ -49,7 +49,7 @@ Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {
 	return D;
 }
 
-#define GET_MEMBERS(ref, tets, points, B)	\
+#define GET_MEMBERS(ref, tets, points)		\
 	const auto& tets = (ref).GetTets();		\
 	const auto& points = (ref).GetPoints();
 
@@ -57,7 +57,7 @@ double
 BodyEnergy::EEnergy(const Mesh &reference, const VectorXd &W,
 					const VectorX<Matrix3d> &inv,
 					const VectorXd &X) {
-	GET_MEMBERS(reference, tets, points, B)
+	GET_MEMBERS(reference, tets, points)
 	double energy = 0;
 	int num_of_tets = tets.size();
 	for (int i = 0; i < num_of_tets; i++) {
@@ -70,7 +70,7 @@ BodyEnergy::EEnergy(const Mesh &reference, const VectorXd &W,
 VectorXd
 BodyEnergy::EGradient(const Mesh &reference, const VectorXd &W,
 					  const VectorX<Matrix3d> &inv, const VectorXd &X) {
-	GET_MEMBERS(reference, tets, points, B)
+	GET_MEMBERS(reference, tets, points)
 
 	VectorXd gradient(X.size());
 	gradient.setZero();
@@ -93,7 +93,7 @@ MatrixXd
 BodyEnergy::EHessian(const Mesh &reference, const VectorXd &W,
 					 const VectorX<Matrix3d> &inv,
 					 const VectorXd &X) {
-	GET_MEMBERS(reference, tets, points, B)
+	GET_MEMBERS(reference, tets, points)
 
 	MatrixXd hessian(X.size(), X.size());
 	hessian.setZero();
@@ -119,7 +119,7 @@ BodyEnergy::DEnergy(const Mesh &reference, const VectorXd &W,
 					const VectorXd &mass,
 					const VectorX<Matrix3d> &inv, const VectorXd &X,
 					const VectorXd &V) {
-	GET_MEMBERS(reference, tets, points, B)
+	GET_MEMBERS(reference, tets, points)
 
 	double energy = 0;
 	int num_of_tets = tets.size();
@@ -142,7 +142,7 @@ VectorXd BodyEnergy::DGradient(const Mesh &reference, const VectorXd &W,
 							   const VectorXd &mass,
 							   const VectorX<Matrix3d> &inv, const VectorXd &X,
 							   const VectorXd &V) {
-	GET_MEMBERS(reference, tets, points, B)
+	GET_MEMBERS(reference, tets, points)
 
 	VectorXd gradient(X.size());
 	gradient.setZero();
@@ -172,7 +172,7 @@ MatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &W,
 							  const VectorXd &mass,
 							  const VectorX<Matrix3d> &inv, const VectorXd &X,
 							  const VectorXd &V) {
-	GET_MEMBERS(reference, tets, points, B)
+	GET_MEMBERS(reference, tets, points)
 
 	MatrixXd hessian(X.size(), X.size());
 	hessian.setZero();

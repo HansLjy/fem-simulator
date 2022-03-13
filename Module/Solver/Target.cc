@@ -24,10 +24,6 @@ void Target::Initialize(const TargetParameter &para) {
 	_body_energy->Initialize(*para.GetBodyEnergyParameter());
 	_mass_model = MassModelFactory::GetInstance()->GetMassModel(para.GetMassModelType());
 	_mass_model->Initialize(*para.GetMassModelParameter());
-	ComputeVolumn();
-	ComputeMass();
-	ComputeInverse();
-
 	spdlog::info("Target initialized");
 }
 
@@ -42,15 +38,24 @@ Target::~Target() {
 
 Target::Target(const Target &target) {
 	_reference = target._reference;
+	delete _body_energy;
+	delete _mass_model;
 	_body_energy = target._body_energy->Clone();
 	_mass_model = target._mass_model->Clone();
 	_x = target._x;
 	_v = target._v;
 	_dt = target._dt;
+	for (const auto& force : _ext_force) {
+		delete force;
+	}
 	_ext_force.clear();
 	for (const auto& force : target._ext_force) {
 		_ext_force.push_back(force->Clone());
 	}
+	_mass = target._mass;
+	_mass_sparse = target._mass_sparse;
+	_volumn = target._volumn;
+	_inv = target._inv;
 }
 
 void Target::SetX(const VectorXd &x) {
@@ -67,6 +72,13 @@ void Target::SetDt(double dt) {
 
 void Target::SetMesh(const Mesh &mesh) {
 	_reference = mesh;
+	PreCompute();
+}
+
+void Target::PreCompute() {
+	ComputeInverse();
+	ComputeMass();
+	ComputeVolumn();
 }
 
 void Target::ComputeInverse() {
@@ -86,13 +98,18 @@ void Target::ComputeInverse() {
 
 void Target::ComputeMass() {
 	_mass = _mass_model->GetMassDistribution(_reference);
+	int num_of_tets = _mass.size();
+	_mass_sparse.resize(3 * num_of_tets);
+	for (int i = 0; i < 3 * num_of_tets; i += 3) {
+		_mass_sparse(i) = _mass_sparse(i + 1) = _mass_sparse(i + 2) = _mass(i / 3);
+	}
 }
 
 void Target::ComputeVolumn() {
 	const auto& points = _reference.GetPoints();
 	const auto& tets = _reference.GetTets();
 	int num_of_tets = tets.size();
-	_volumn.resize(num_of_tets, 1);
+	_volumn.resize(num_of_tets);
 	int index = 0;
 	for (const auto& tet : tets) {
 		Matrix3d D;
