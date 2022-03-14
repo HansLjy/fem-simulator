@@ -7,6 +7,7 @@
 #include "BodyEnergy/Gravity.h"
 #include "Constraint/PlaneConstraint.h"
 #include "Mass/VoronoiModel.h"
+#include "BodyEnergy/GroundForce.h"
 
 int main() {
 	auto simulator = new Simulator;
@@ -42,18 +43,19 @@ int main() {
 				)
 		),
 		MeshParameter(
-			"./Resource/vtk/one-tet.vtk"	// input file
+			"./Resource/vtk/standard-tet.vtk"	// input file
 		)
 	);
 
 	simulator->Initialize(para);
 	simulator->AddExternalForce(Gravity(9.8));
+	simulator->AddExternalForce(GroundForce(2));
 
-	Vector3d norm, base;
-	norm << 0, 0, 1;
-	base << 0, 0, -0.1;
-
-	simulator->AddConstraint(PlaneConstraint(norm, base));
+//	Vector3d norm, base;
+//	norm << 0, 0, 1;
+//	base << 0, 0, -0.1;
+//
+//	simulator->AddConstraint(PlaneConstraint(norm, base));
 	simulator->Simulate();
 	return 0;
 }

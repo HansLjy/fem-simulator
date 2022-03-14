@@ -69,14 +69,16 @@ public:
 			 const VectorX<Matrix3d> &inv, const VectorXd &X,
 			 const VectorXd &V);
 
+	BodyEnergy() = default;
+	BodyEnergy(const BodyEnergy& body_energy);
 	~BodyEnergy();
 
 	DERIVED_DECLARE_CLONE(BodyEnergy)
 
 private:
-	ElasticEnergyModel* _elas_model;
-	DissipationEnergyModel* _diss_model;
-	ConsistencyModel* _cons_model;
+	ElasticEnergyModel* _elas_model = nullptr;
+	DissipationEnergyModel* _diss_model = nullptr;
+	ConsistencyModel* _cons_model = nullptr;
 };
 
 #endif //FEM_BODYENERGY_H

@@ -29,8 +29,8 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 		one(i) = 1;
 	}
 
-	spdlog::info("Start optimization, initial guess: ");
-	std::cerr << x0 << std::endl << "===" << std::endl << lambda << std::endl;
+//	spdlog::info("Start optimization, initial guess: ");
+//	std::cerr << x0 << std::endl << "===" << std::endl << lambda << std::endl;
 
 	VectorXd x = x0;
 	int step = 0;
@@ -65,7 +65,7 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 			}
 		}
 
-		std::cerr << "=========" << std::endl << sol << std::endl;
+//		std::cerr << "=========" << std::endl << sol << std::endl;
 
 		x += alpha * sol.block(0, 0, n, 1);
 		lambda += alpha * sol.block(n, 0, m, 1);

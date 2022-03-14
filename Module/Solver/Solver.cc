@@ -34,7 +34,9 @@ void Solver::Step(double dt) {
 	_target->SetV(_v);
 	_target->SetDt(dt);
 	_optimizer->SetTarget(*_target);
-	x = _optimizer->Optimize(x);
+	VectorXd new_x = _optimizer->Optimize(x);
+	_v = (new_x - x) / dt;
+	x = new_x;
 }
 
 Solver::Solver(const Solver& solver) {
@@ -57,6 +59,8 @@ Mesh& Solver::GetCurrentMesh() {
 void Solver::SetMesh(const Mesh& mesh) {
 	_reference = mesh;
 	_current = mesh;
+	_v.resizeLike(mesh.GetPoints());
+	_v.setZero();
 	_target->SetMesh(mesh);
 }
 

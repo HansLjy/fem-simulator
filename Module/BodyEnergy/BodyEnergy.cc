@@ -5,6 +5,7 @@
 #include "BodyEnergy.h"
 #include "Util/Factory.h"
 #include <spdlog/spdlog.h>
+#include <iostream>
 
 BodyEnergyParameter::BodyEnergyParameter(
 		const ElasticEnergyModelType &elas_type,
@@ -187,9 +188,7 @@ MatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &W,
 			m(j) = mass(tet[j]);
 		}
 		auto D = GetDs(points, tet);
-		Matrix12d local_hessian = _diss_model->Hessian(*_cons_model,
-													   *_elas_model, W[i], inv[i], m,
-													   v, D);
+		Matrix12d local_hessian = _diss_model->Hessian(*_cons_model, *_elas_model, W[i], inv[i], m, v, D);
 		for (int j = 0; j < 4; j++) {
 			for (int k = 0; k < 4; k++) {
 				hessian.block<3, 3>(3 * tet[j], 3 * tet[k]) += local_hessian.block<3, 3>(3 * j, 3 * k);
@@ -204,6 +203,15 @@ BodyEnergy::~BodyEnergy() {
 	delete _elas_model;
 	delete _diss_model;
 	delete _cons_model;
+}
+
+BodyEnergy::BodyEnergy(const BodyEnergy &body_energy) {
+	delete _elas_model;
+	_elas_model = body_energy._elas_model->Clone();
+	delete _diss_model;
+	_diss_model = body_energy._diss_model->Clone();
+	delete _cons_model;
+	_cons_model = body_energy._cons_model->Clone();
 }
 
 DEFINE_CLONE(BodyEnergy, BodyEnergy)
