@@ -25,7 +25,7 @@ public:
 class Optimizer {
 public:
 	Optimizer() = default;
-	void Initialize(const OptimizerParameter& para);
+	virtual void Initialize(const OptimizerParameter& para);
 	void SetTarget(const Function& func);
 	void AddConstraint(const Function& cons);
 	virtual VectorXd Optimize(const VectorXd& x0) const = 0;

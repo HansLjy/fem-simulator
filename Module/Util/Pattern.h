@@ -52,6 +52,11 @@ public:                                                   									\
 	virtual const MemberType& Get##MemberName() const;            							\
 	virtual MemberType& Get##MemberName();
 
+#define DECLARE_OVERWRITE_ACCESSIBLE_MEMBER_ACCESSOR(MemberType, MemberName) 				\
+public:                                                   									\
+	virtual const MemberType& Get##MemberName() const override;    							\
+	virtual MemberType& Get##MemberName() override;
+
 #define DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(MemberType, MemberName, _member_name) \
 public:                                                   \
 	const MemberType& Get##MemberName() const;            \

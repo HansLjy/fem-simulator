@@ -5,6 +5,7 @@
 #include "../Test.h"
 #include "Function/Function.h"
 #include "Eigen/Dense"
+#include "Constraint/PlaneConstraint.h"
 
 using Eigen::Matrix3d, Eigen::Vector3d;
 
@@ -77,4 +78,43 @@ void Test::TestOptimizerCG() {
 
 		CPPUNIT_ASSERT((A * x - b).norm() < eps);
 	}
+}
+
+void Test::TestOptimizerCons() {
+	// Test optimizer with constraints
+
+	auto val = [](VectorXd x) -> double {
+		return x.dot(x);
+	};
+
+	auto gra = [](VectorXd x) -> VectorXd {
+		return 2 * x;
+	};
+
+	auto hes = [](VectorXd x) -> MatrixXd {
+		VectorXd lambda(x.size());
+		lambda.setConstant(2);
+		return lambda.asDiagonal().toDenseMatrix();
+	};
+
+	SettableFunction func;
+	func.SetValueFunction(val);
+	func.SetGradientFunction(gra);
+	func.SetHessianFunction(hes);
+
+	_interior_pointer_optimizer->SetTarget(func);
+
+	Vector3d point, norm;
+	point << 1, 1, 1;
+	norm << 1, 1, 1;
+
+	_interior_pointer_optimizer->AddConstraint(PlaneConstraint(norm, point));
+
+	Vector3d x0 = Vector3d::Random() + 3 * norm;
+
+	Vector3d sol = _interior_pointer_optimizer->Optimize(x0);
+
+	std::cerr << sol << std::endl;
+
+	CPPUNIT_ASSERT((sol - point).norm() < 1e-5);
 }

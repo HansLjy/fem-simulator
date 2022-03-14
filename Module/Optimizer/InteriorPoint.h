@@ -10,6 +10,8 @@
 class InteriorPointParameter : public OptimizerParameter {
 public:
 	InteriorPointParameter(double max_error, int max_step, double mu);
+
+	DECLARE_OVERWRITE_ACCESSIBLE_MEMBER_ACCESSOR(double, Mu)
 	DERIVED_DECLARE_CLONE(OptimizerParameter)
 
 private:
@@ -18,6 +20,7 @@ private:
 
 class InteriorPoint : public Optimizer {
 public:
+	void Initialize(const OptimizerParameter &para) override;
 	VectorXd Optimize(const VectorXd &x0) const override;
 	~InteriorPoint() = default;
 	DERIVED_DECLARE_CLONE(Optimizer)

@@ -14,7 +14,7 @@
 void Test::setUp() {
 	srand(0);
 	_interior_pointer_optimizer = OptimizerFactory::GetInstance()->GetOptimizer(OptimizerType::kInteriorPoint);
-	_interior_pointer_optimizer->Initialize(InteriorPointParameter(1e-5, 100, 0.1));
+	_interior_pointer_optimizer->Initialize(InteriorPointParameter(1e-5, 5, 0.1));
 
 	_consistency_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(ConsistencyModelType::kStVK);
 	_consistency_model->Initialize(StVKModelParameter(1, 1));
@@ -45,10 +45,11 @@ void Test::tearDown() {
 int main() {
 	CppUnit::TestSuite suite;
 
-	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
-	suite.addTest(new CppUnit::TestCaller<Test>("Test Constitute Model", &Test::TestConstituteModel));
-	suite.addTest(new CppUnit::TestCaller<Test>("Test Elastic Energy Model", &Test::TestElasticForce));
-	suite.addTest(new CppUnit::TestCaller<Test>("Test Body Energy Model", &Test::TestBodyEnergy));
+//	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
+	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer with constraints", &Test::TestOptimizerCons));
+//	suite.addTest(new CppUnit::TestCaller<Test>("Test Constitute Model", &Test::TestConstituteModel));
+//	suite.addTest(new CppUnit::TestCaller<Test>("Test Elastic Energy Model", &Test::TestElasticForce));
+//	suite.addTest(new CppUnit::TestCaller<Test>("Test Body Energy Model", &Test::TestBodyEnergy));
 
 	CppUnit::TestResult result;
 	CppUnit::TestResultCollector collected;

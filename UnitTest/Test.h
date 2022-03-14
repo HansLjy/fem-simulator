@@ -25,6 +25,7 @@ public:
 	void tearDown() override;
 
 	void TestOptimizerCG();
+	void TestOptimizerCons();
 	void TestConstituteModel();
 	void TestElasticForce();
 	void TestBodyEnergy();
