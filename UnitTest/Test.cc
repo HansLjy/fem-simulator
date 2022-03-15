@@ -14,7 +14,7 @@
 void Test::setUp() {
 	srand(0);
 	_interior_pointer_optimizer = OptimizerFactory::GetInstance()->GetOptimizer(OptimizerType::kInteriorPoint);
-	_interior_pointer_optimizer->Initialize(InteriorPointParameter(1e-5, 5, 0.1));
+	_interior_pointer_optimizer->Initialize(InteriorPointParameter(10000, 50, 0.1));
 
 	_consistency_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(ConsistencyModelType::kStVK);
 	_consistency_model->Initialize(StVKModelParameter(1, 1));

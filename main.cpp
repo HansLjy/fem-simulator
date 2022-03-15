@@ -9,19 +9,37 @@
 #include "Mass/VoronoiModel.h"
 #include "BodyEnergy/GroundForce.h"
 
+#include <fstream>
+
 int main() {
+	string output_dir, input_file;
+	double duration, step;
+
+	int max_step;
+	double max_error, mu;
+
+	double alpha1, alpha2;
+	double youngs_module, poisson_ratio;
+
+	std::fstream cfg("./config");
+	cfg >> input_file >> output_dir;
+	cfg >> duration >> step;
+	cfg >> max_error >> max_step >> mu;
+	cfg >> alpha1 >> alpha2;
+	cfg >> youngs_module >> poisson_ratio;
+
 	auto simulator = new Simulator;
 	SimulatorParameter para(
-		"./Resource/output",		// output
-		10.0,						// duration
-		0.1,						// step
+		output_dir,		// output
+		duration,						// duration
+		step,						// step
 		SolverType::kBackward,		// solver type
 		SolverParameter(
 				OptimizerType::kInteriorPoint,	// optimizer type
 				InteriorPointParameter (
-						1e-5,	// max error
-						100,	// max  step
-						0.01	// mu
+						max_error,	// max error
+						max_step,	// max  step
+						mu	// mu
 				),
 				TargetParameter(
 						BodyEnergyParameter(
@@ -29,13 +47,13 @@ int main() {
 								SimpleModelParameter(),
 								DissipationEnergyModelType::kRayleigh,    // dissipation energy model
 								RayleighModelParameter(
-										1,		// alpha1, for mass
-										1    	// alpha2, for K
+										alpha1,		// alpha1, for mass
+										alpha2    	// alpha2, for K
 								),
 								ConsistencyModelType::kStVK,
 								StVKModelParameter(
-										0.0078,    // Young's module
-										0.47    // Poisson's ratio
+										youngs_module,    // Young's module
+										poisson_ratio    // Poisson's ratio
 								)
 						),
 						MassModelType::kVoronoi,
@@ -43,7 +61,7 @@ int main() {
 				)
 		),
 		MeshParameter(
-			"./Resource/vtk/standard-tet.vtk"	// input file
+			input_file	// input file
 		)
 	);
 

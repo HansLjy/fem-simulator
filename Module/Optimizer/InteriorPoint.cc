@@ -3,8 +3,12 @@
 //
 
 #include "InteriorPoint.h"
+#include <Eigen/Sparse>
 #include <spdlog/spdlog.h>
 #include <iostream>
+
+using Eigen::SparseMatrix;
+using Eigen::ConjugateGradient;
 
 InteriorPointParameter::InteriorPointParameter(double max_error, int max_step,
 											   double mu) : OptimizerParameter(max_error, max_step), _mu(mu){}
@@ -56,7 +60,11 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 		RHS.block(0, 0, n, 1) = -_target->Gradient(x) + A * lambda;
 		RHS.block(n, 0, m, 1) = _mu * one - lambda.asDiagonal() * G;
 
-		VectorXd sol = LHS.colPivHouseholderQr().solve(RHS);
+		Eigen::SparseMatrix<double> sparse = LHS.sparseView();
+		ConjugateGradient<SparseMatrix<double> > solver;
+
+		solver.compute(sparse);
+		VectorXd sol = solver.solve(RHS);
 
 		double alpha = 1;
 		for (int i = 0; i < m; i++) {
@@ -80,7 +88,7 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 	}
 
 	if (step <= _max_step) {
-		spdlog::info("Interior Point Optimizer, converge in {} step", step - 1);
+		spdlog::info("Interior Point Optimizer, converge in {} step", step);
 	} else {
 		spdlog::warn("Interior Point Optimizer, fail to converge");
 	}

@@ -4,6 +4,8 @@
 
 #include "BackwardTarget.h"
 #include "BodyEnergy/BodyEnergy.h"
+#include <spdlog/spdlog.h>
+#include <ctime>
 
 double BackwardTarget::Value(const VectorXd &x) const {
 	VectorXd v = (x - _x) / _dt;
@@ -33,6 +35,7 @@ VectorXd BackwardTarget::Gradient(const VectorXd &x) const {
 }
 
 MatrixXd BackwardTarget::Hessian(const VectorXd &x) const {
+	auto start = clock();
 	VectorXd v = (x - _x) / _dt;
 	auto M = _mass_sparse.asDiagonal().toDenseMatrix();
 	MatrixXd result = 1 / (_dt * _dt) * M
@@ -42,6 +45,7 @@ MatrixXd BackwardTarget::Hessian(const VectorXd &x) const {
 	for (const auto& force : _ext_force) {
 		result += force->Hessian(_reference, _mass, x, v);
 	}
+	spdlog::info("finish computing hessian, using {} seconds", (clock() - start) / CLOCKS_PER_SEC);
 	return result;
 }
 

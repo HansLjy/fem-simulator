@@ -3,7 +3,7 @@ project(test)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE "DEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g")
+set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -O3")
 
 include_directories(../Module)
 file(GLOB_RECURSE src ../Module/*.cc)
