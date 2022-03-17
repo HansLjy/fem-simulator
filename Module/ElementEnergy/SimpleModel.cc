@@ -34,6 +34,7 @@ Vector12d SimpleModel::Gradient(const ConsistencyModel &cons_model, double W,
 Matrix12d SimpleModel::Hessian(const ConsistencyModel &cons_model, double W,
 							   const Matrix3d &B,
 							   const Matrix3d &Ds) const {
+	auto start = clock();
 	Matrix3d F = Ds * B;
 	Matrix12d hessian;
 	hessian.setZero();
@@ -56,6 +57,8 @@ Matrix12d SimpleModel::Hessian(const ConsistencyModel &cons_model, double W,
 	for (int i = 0; i < 3; i++) {
 		hessian.col(i + 9) = - hessian.col(i) - hessian.col(i + 3) - hessian.col(i + 6);
 	}
+	spdlog::info("Time for computing a single hessian matrix: {}", clock() - start);
+//	exit(0);
 	return -hessian;
 }
 

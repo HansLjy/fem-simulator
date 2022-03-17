@@ -100,17 +100,25 @@ BodyEnergy::EHessian(const Mesh &reference, const VectorXd &W,
 	hessian.setZero();
 
 	int num_of_tets = tets.size();
+
+	int time_hessian = 0, time_block = 0;
 	for (int i = 0; i < num_of_tets; i++) {
 		auto tet = tets[i];
 		auto D = GetDs(points, tet);
-		Matrix12d local_hessian = _elas_model->Hessian(*_cons_model, W[i], inv[i],
-													   D);
+		auto t = clock();
+		Matrix12d local_hessian = _elas_model->Hessian(*_cons_model, W[i], inv[i], D);
+		time_hessian += clock() - t;
+		t = clock();
 		for (int j = 0; j < 4; j++) {
 			for (int k = 0; k < 4; k++) {
 				hessian.block<3, 3>(3 * tet[j], 3 * tet[k]) += local_hessian.block<3, 3>(3 * j, 3 * k);
 			}
 		}
+		time_block += clock() - t;
 	}
+
+	spdlog::info("Time spent on hessian calculation: {}", time_hessian);
+	spdlog::info("Time spent on putting things in place: {}", time_block);
 
 	return hessian;
 }
