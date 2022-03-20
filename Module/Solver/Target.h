@@ -12,8 +12,6 @@
 #include "BodyEnergy/ExternalForce.h"
 #include "Mass/MassModel.h"
 
-using Eigen::VectorX;
-
 enum class TargetType {
 	kBackward,
 };
@@ -34,7 +32,7 @@ class Target : public Function {
 public:
 	double Value(const VectorXd &x) const override = 0;
 	VectorXd Gradient(const VectorXd &x) const override = 0;
-	MatrixXd Hessian(const VectorXd &x) const override = 0;
+	SparseMatrixXd Hessian(const VectorXd &x) const override = 0;
 
 	virtual void Initialize(const TargetParameter& para);
 	void AddExternalForce(const ExternalForce& ext);

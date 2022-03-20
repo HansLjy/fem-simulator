@@ -5,12 +5,9 @@
 #ifndef FEM_CONSITENCYMODEL_H
 #define FEM_CONSITENCYMODEL_H
 
-#include "Eigen/Dense"
 #include "Util/Pattern.h"
+#include "Util/EigenAll.h"
 
-using Eigen::Matrix3d;
-using Eigen::Vector3d;
-typedef Eigen::Matrix<double, 9, 9> Matrix9d;
 
 enum class ConsistencyModelType {
 	kStVK,

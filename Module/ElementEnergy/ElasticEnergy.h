@@ -5,13 +5,9 @@
 #ifndef FEM_ELEMENTENERGY_H
 #define FEM_ELEMENTENERGY_H
 
-#include "ElementDefinition.h"
 #include "ConsistencyModel/ConsitencyModel.h"
 #include "Util/Pattern.h"
-
-using Eigen::Vector3d;
-using Eigen::Matrix3d;
-
+#include "Util/EigenAll.h"
 
 
 enum class ElasticEnergyModelType {

@@ -3,6 +3,7 @@
 //
 
 #include "GroundForce.h"
+#include "Util/EigenAll.h"
 
 DEFINE_CLONE(ExternalForce, GroundForce)
 
@@ -44,21 +45,21 @@ GroundForce::Gradient(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 	return gradient;
 }
 
-MatrixXd
+SparseMatrixXd
 GroundForce::Hessian(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 					 const VectorXd &V) const {
 	const auto& points = mesh.GetPoints();
-
 	const int num_of_points = points.size() / 3;
 
-	MatrixXd hessian(num_of_points * 3, num_of_points * 3);
-	hessian.setZero();
+	SparseMatrixXd hessian(num_of_points * 3, num_of_points * 3);
+	std::vector<Triplet> triplets;
 
 	for (int i = 0; i < num_of_points; i++) {
 		double z = points(3 * i + 2);
 		if (z < 0) {
-			hessian(3 * i + 2, 3 * i + 2) = 2 * _stiffness;
+			triplets.push_back(Triplet(3 * i + 2, 3 * i + 2, 2 * _stiffness));
 		}
 	}
+	hessian.setFromTriplets(triplets.begin(), triplets.end());
 	return hessian;
 }

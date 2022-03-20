@@ -11,7 +11,7 @@ class BackwardTarget : public Target {
 public:
 	double Value(const VectorXd &x) const override;
 	VectorXd Gradient(const VectorXd &x) const override;
-	MatrixXd Hessian(const VectorXd &x) const override;
+	SparseMatrixXd Hessian(const VectorXd &x) const override;
 
 	DERIVED_DECLARE_CLONE(Function)
 

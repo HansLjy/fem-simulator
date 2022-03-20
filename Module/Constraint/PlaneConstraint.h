@@ -7,15 +7,14 @@
 
 #include "Constraint/Constraint.h"
 #include "Util/Pattern.h"
-
-using Eigen::Vector3d;
+#include "Util/EigenAll.h"
 
 class PlaneConstraint : public Constraint {
 public:
 	PlaneConstraint(const Vector3d& norm, const Vector3d& point);
 	double Value(const VectorXd &x) const override;
 	VectorXd Gradient(const VectorXd &x) const override;
-	MatrixXd Hessian(const VectorXd &x) const override;
+	SparseMatrixXd Hessian(const VectorXd &x) const override;
 
 	DERIVED_DECLARE_CLONE(Function)
 

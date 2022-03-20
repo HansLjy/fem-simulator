@@ -5,11 +5,9 @@
 #ifndef FEM_MASSMODEL_H
 #define FEM_MASSMODEL_H
 
-#include "Eigen/Dense"
 #include "Mesh/Mesh.h"
 #include "Util/Pattern.h"
-
-using Eigen::VectorXd;
+#include "Util/EigenAll.h"
 
 enum class MassModelType {
 	kVoronoi

@@ -10,10 +10,7 @@
 #include "Mesh/Mesh.h"
 #include <vector>
 #include "Util/Pattern.h"
-
-using Eigen::VectorXd;
-using Eigen::MatrixXd;
-using Eigen::VectorX;
+#include "Util/EigenAll.h"
 
 class BodyEnergyParameter {
 public:
@@ -59,12 +56,12 @@ public:
 			  const VectorX<Matrix3d> &inv, const VectorXd &X,
 			  const VectorXd &V);
 
-	MatrixXd
+	SparseMatrixXd
 	EHessian(const Mesh &reference, const VectorXd &W,
 			 const VectorX<Matrix3d> &inv,
 			 const VectorXd &X);
 
-	MatrixXd
+	SparseMatrixXd
 	DHessian(const Mesh &reference, const VectorXd &W, const VectorXd &mass,
 			 const VectorX<Matrix3d> &inv, const VectorXd &X,
 			 const VectorXd &V);

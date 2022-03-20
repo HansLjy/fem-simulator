@@ -24,9 +24,8 @@ VectorXd PlaneConstraint::Gradient(const VectorXd &x) const {
 	return gradient;
 }
 
-MatrixXd PlaneConstraint::Hessian(const VectorXd &x) const {
-	MatrixXd hessian(x.size(), x.size());
-	hessian.setZero();
+SparseMatrixXd PlaneConstraint::Hessian(const VectorXd &x) const {
+	SparseMatrixXd hessian(x.size(), x.size());
 	return hessian;
 }
 

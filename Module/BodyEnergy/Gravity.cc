@@ -34,11 +34,10 @@ Gravity::Gradient(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 	return gradient;
 }
 
-MatrixXd
+SparseMatrixXd
 Gravity::Hessian(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 				 const VectorXd &V) const {
 	const int num_of_points = mesh.GetPoints().size() / 3;
-	MatrixXd hessian(3 * num_of_points, 3 * num_of_points);
-	hessian.setZero();
+	SparseMatrixXd hessian(3 * num_of_points, 3 * num_of_points);
 	return hessian;
 }

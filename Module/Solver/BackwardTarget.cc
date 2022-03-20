@@ -34,13 +34,14 @@ VectorXd BackwardTarget::Gradient(const VectorXd &x) const {
 	return result;
 }
 
-MatrixXd BackwardTarget::Hessian(const VectorXd &x) const {
+SparseMatrixXd BackwardTarget::Hessian(const VectorXd &x) const {
 	auto start = clock();
 	VectorXd v = (x - _x) / _dt;
-	auto M = _mass_sparse.asDiagonal().toDenseMatrix();
-	MatrixXd result = 1 / (_dt * _dt) * M
-		+ _body_energy->EHessian(_reference, _volumn, _inv, x)
+	auto M = _mass_sparse.asDiagonal();
+
+	SparseMatrixXd result = _body_energy->EHessian(_reference, _volumn, _inv, x)
 		+ _body_energy->DHessian(_reference, _volumn, _mass, _inv, _x, v);
+	result.diagonal() += _mass_sparse / (_dt * _dt);
 
 	for (const auto& force : _ext_force) {
 		result += force->Hessian(_reference, _mass, x, v);

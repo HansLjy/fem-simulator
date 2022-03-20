@@ -8,12 +8,10 @@
 #include <string>
 #include <array>
 #include <vector>
-#include "Eigen/Dense"
 #include "Util/Pattern.h"
+#include "Util/EigenAll.h"
 
 using std::string, std::vector, std::array;
-using Eigen::VectorXd;
-using Eigen::Matrix3d;
 
 class MeshParameter {
 public:

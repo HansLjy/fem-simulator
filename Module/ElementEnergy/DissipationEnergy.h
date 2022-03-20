@@ -5,12 +5,10 @@
 #ifndef FEM_DISSIPATIONENERGY_H
 #define FEM_DISSIPATIONENERGY_H
 
-#include "ElementDefinition.h"
 #include "ConsistencyModel/ConsitencyModel.h"
 #include "Util/Pattern.h"
+#include "Util/EigenAll.h"
 #include "ElasticEnergy.h"
-
-using Eigen::Vector4d;
 
 enum class DissipationEnergyModelType {
 	kRayleigh

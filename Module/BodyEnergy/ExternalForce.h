@@ -6,15 +6,14 @@
 #define FEM_EXTERNALFORCE_H
 
 #include "Mesh/Mesh.h"
-#include "Eigen/Dense"
-
-using Eigen::VectorXd, Eigen::MatrixXd;
+#include "Util/EigenAll.h"
 
 class ExternalForce {
 public:
 	virtual double Energy (const Mesh& mesh, const VectorXd& mass, const VectorXd& X, const VectorXd& V) const = 0;
 	virtual VectorXd Gradient (const Mesh& mesh, const VectorXd& mass, const VectorXd& X, const VectorXd& V) const = 0;
-	virtual MatrixXd Hessian (const Mesh& mesh, const VectorXd& mass, const VectorXd& X, const VectorXd& V) const = 0;
+	virtual SparseMatrixXd
+	Hessian (const Mesh& mesh, const VectorXd& mass, const VectorXd& X, const VectorXd& V) const = 0;
 
 	virtual ~ExternalForce() = default;
 
