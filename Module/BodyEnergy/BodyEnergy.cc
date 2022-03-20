@@ -6,6 +6,8 @@
 #include "Util/Factory.h"
 #include <spdlog/spdlog.h>
 #include <iostream>
+#include <vector>
+#include <omp.h>
 
 BodyEnergyParameter::BodyEnergyParameter(
 		const ElasticEnergyModelType &elas_type,
@@ -38,7 +40,7 @@ void BodyEnergy::Initialize(const BodyEnergyParameter &para) {
 	spdlog::info("BodyEnergy initialized");
 }
 
-Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {
+inline Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {
 	Vector3d Xi[4];
 	for (int i = 0; i < 4; i++) {
 		Xi[i] = X.block<3, 1>(3 * tet[i], 0);	// TODO is this working?
@@ -101,25 +103,25 @@ BodyEnergy::EHessian(const Mesh &reference, const VectorXd &W,
 
 	int num_of_tets = tets.size();
 
-	int time_hessian = 0, time_block = 0;
+	std::vector<Matrix12d> local_hessian(num_of_tets);
+
+	auto t = clock();
+
+//	#pragma omp parallel for default(none) shared(num_of_tets, tets, points, local_hessian, W, inv) num_threads(4)
 	for (int i = 0; i < num_of_tets; i++) {
-		auto tet = tets[i];
+		auto& tet = tets[i];
 		auto D = GetDs(points, tet);
-		auto t = clock();
-		Matrix12d local_hessian = _elas_model->Hessian(*_cons_model, W[i], inv[i], D);
-		time_hessian += clock() - t;
-		t = clock();
+		local_hessian[i] = _elas_model->Hessian(*_cons_model, W[i], inv[i], D);
+	}
+	for (int i = 0; i < num_of_tets; i++) {
+		auto& tet = tets[i];
 		for (int j = 0; j < 4; j++) {
 			for (int k = 0; k < 4; k++) {
-				hessian.block<3, 3>(3 * tet[j], 3 * tet[k]) += local_hessian.block<3, 3>(3 * j, 3 * k);
+				hessian.block<3, 3>(3 * tet[j], 3 * tet[k]) += local_hessian[i].block<3, 3>(3 * j, 3 * k);
 			}
 		}
-		time_block += clock() - t;
 	}
-
-	spdlog::info("Time spent on hessian calculation: {}", time_hessian);
-	spdlog::info("Time spent on putting things in place: {}", time_block);
-
+	spdlog::info("Time for computing E-hessian: {} s", (double)(clock() - t) / CLOCKS_PER_SEC);
 	return hessian;
 }
 
@@ -187,8 +189,13 @@ MatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &W,
 	hessian.setZero();
 
 	int num_of_tets = tets.size();
+	std::vector<Matrix12d> local_hessian(num_of_tets);
+
+	auto t = clock();
+
+//	#pragma omp parallel for default(none) shared(num_of_tets, tets, mass, points, local_hessian, W, inv, V) num_threads(4)
 	for (int i = 0; i < num_of_tets; i++) {
-		auto tet = tets[i];
+		auto& tet = tets[i];
 		Vector12d v;
 		Vector4d m;
 		for (int j = 0; j < 4; j++) {
@@ -196,14 +203,20 @@ MatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &W,
 			m(j) = mass(tet[j]);
 		}
 		auto D = GetDs(points, tet);
-		Matrix12d local_hessian = _diss_model->Hessian(*_cons_model, *_elas_model, W[i], inv[i], m, v, D);
+		local_hessian[i] = _diss_model->Hessian(*_cons_model, *_elas_model, W[i], inv[i], m, v, D);
+	}
+
+	for (int i = 0; i < num_of_tets; i++) {
+		auto& tet = tets[i];
 		for (int j = 0; j < 4; j++) {
 			for (int k = 0; k < 4; k++) {
-				hessian.block<3, 3>(3 * tet[j], 3 * tet[k]) += local_hessian.block<3, 3>(3 * j, 3 * k);
+				hessian.block<3, 3>(3 * tet[j],
+									3 * tet[k]) += local_hessian[i].block<3, 3>(
+						3 * j, 3 * k);
 			}
 		}
 	}
-
+	spdlog::info("Time for computing D-hessian: {} s", (double)(clock() - t) / CLOCKS_PER_SEC);
 	return hessian;
 }
 

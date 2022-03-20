@@ -39,6 +39,7 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 	VectorXd x = x0;
 	int step = 0;
 	while (step++ < _max_step) {
+		spdlog::info("Interior point method, round: {}", step);
 		MatrixXd W = _target->Hessian(x);
 		for (int i = 0; i < m; i++) {
 			W -= lambda(i) * _constraints[i]->Hessian(x);

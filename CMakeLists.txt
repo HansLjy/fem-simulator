@@ -5,7 +5,7 @@ message("Start building")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g")
+set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -fopenmp")
 
 include_directories(Module)
 file(GLOB_RECURSE src Module/*.cc)
