@@ -36,30 +36,25 @@ Matrix12d SimpleModel::Hessian(const ConsistencyModel &cons_model, double W,
 							   const Matrix3d &Ds) const {
 	auto start = clock();
 	Matrix3d F = Ds * B;
+	Matrix3d I3 = Matrix3d::Identity();
 	Matrix12d hessian;
-	hessian.setZero();
+
+	Eigen::Matrix<double, 12, 9> pdFX;
+
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
-			Matrix3d dDs;
-			dDs.setZero();
-			dDs(i, j) = 1;
-			Matrix3d dF = dDs * B;
-			Matrix3d dH = - W * cons_model.PiolaDifferential(F, dF) * B.transpose();
-			int col_id = j * 3 + i;
-			for (int k = 0; k < 3; k++) {
-				hessian.col(col_id).block<3, 1>(3 * k, 0) = dH.col(k);
-			}
+			pdFX.block<3, 3>(3 * i, 3 * j) = B(i, j) * I3;
 		}
 	}
 	for (int i = 0; i < 3; i++) {
-		hessian.row(i + 9) = - hessian.row(i) - hessian.row(i + 3) - hessian.row(i + 6);
+		pdFX.row(i + 9) = - pdFX.row(i) - pdFX.row(i + 3) - pdFX.row(i + 6);
 	}
-	for (int i = 0; i < 3; i++) {
-		hessian.col(i + 9) = - hessian.col(i) - hessian.col(i + 3) - hessian.col(i + 6);
-	}
+
+	Matrix9d pdPsiF2 = cons_model.PiolaDifferential(F);
+
+	hessian = W * pdFX * pdPsiF2 * pdFX.transpose();
 	spdlog::info("Time for computing a single hessian matrix: {}", clock() - start);
-//	exit(0);
-	return -hessian;
+	return hessian;
 }
 
 SimpleModel::~SimpleModel() = default;

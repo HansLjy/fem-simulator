@@ -21,7 +21,7 @@ public:
 	void Initialize(const ConsistencyModelParameter &para) override;
 	double EnergyDensity(const Matrix3d &F) const override;
 	Matrix3d Piola(const Matrix3d &F) const override;
-	Matrix3d PiolaDifferential(const Matrix3d &F, const Matrix3d &dF) const override;
+	Matrix9d PiolaDifferential(const Matrix3d &F) const override;
 	~StVKModel();
 
 	DERIVED_DECLARE_CLONE(ConsistencyModel)
