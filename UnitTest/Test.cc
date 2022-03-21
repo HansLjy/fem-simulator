@@ -5,6 +5,7 @@
 #include "Test.h"
 #include "Util/Factory.h"
 #include "Optimizer/InteriorPoint.h"
+#include "Optimizer/NewtonIterator.h"
 #include "ConsistencyModel/StVKModel.h"
 #include "ElementEnergy/SimpleModel.h"
 #include "ElementEnergy/RayleighModel.h"
@@ -13,8 +14,11 @@
 
 void Test::setUp() {
 	srand(0);
-	_interior_pointer_optimizer = OptimizerFactory::GetInstance()->GetOptimizer(OptimizerType::kInteriorPoint);
-	_interior_pointer_optimizer->Initialize(InteriorPointParameter(10000, 50, 0.1));
+//	_interior_pointer_optimizer = OptimizerFactory::GetInstance()->GetOptimizer(OptimizerType::kInteriorPoint);
+//	_interior_pointer_optimizer->Initialize(InteriorPointParameter(10000, 50, 0.1));
+
+	_optimizer = OptimizerFactory::GetInstance()->GetOptimizer(OptimizerType::kNewtonIterator);
+	_optimizer->Initialize(NewtonIteratorParameter(1e-5, 50));
 
 	_consistency_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(ConsistencyModelType::kStVK);
 	_consistency_model->Initialize(StVKModelParameter(1, 1));
@@ -36,7 +40,7 @@ void Test::setUp() {
 }
 
 void Test::tearDown() {
-	delete _interior_pointer_optimizer;
+	delete _optimizer;
 	delete _consistency_model;
 	delete _elas_model;
 	delete _body_energy_model;
@@ -45,10 +49,10 @@ void Test::tearDown() {
 int main() {
 	CppUnit::TestSuite suite;
 
-//	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
+	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer with constraints", &Test::TestOptimizerCons));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Constitute Model", &Test::TestConstituteModel));
-	suite.addTest(new CppUnit::TestCaller<Test>("Test Elastic Energy Model", &Test::TestElasticForce));
+//	suite.addTest(new CppUnit::TestCaller<Test>("Test Elastic Energy Model", &Test::TestElasticForce));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Body Energy Model", &Test::TestBodyEnergy));
 
 	CppUnit::TestResult result;

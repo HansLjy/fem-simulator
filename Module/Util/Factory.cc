@@ -25,8 +25,10 @@ BEGIN_DEFINE_XXX_FACTORY(MassModel)
 END_DEFINE_XXX_FACTORY
 
 #include "Optimizer/InteriorPoint.h"
+#include "Optimizer/NewtonIterator.h"
 BEGIN_DEFINE_XXX_FACTORY(Optimizer)
 		ADD_PRODUCT(OptimizerType::kInteriorPoint, InteriorPoint)
+		ADD_PRODUCT(OptimizerType::kNewtonIterator, NewtonIterator)
 END_DEFINE_XXX_FACTORY
 
 #include "Solver/BackwardSolver.h"

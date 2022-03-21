@@ -35,7 +35,7 @@ int main() {
 		step,						// step
 		SolverType::kBackward,		// solver type
 		SolverParameter(
-				OptimizerType::kInteriorPoint,	// optimizer type
+				OptimizerType::kNewtonIterator,	// optimizer type
 				InteriorPointParameter (
 						max_error,	// max error
 						max_step,	// max  step

@@ -68,13 +68,13 @@ void Test::TestOptimizerCG() {
 		func.SetGradientFunction(gra);
 		func.SetHessianFunction(hes);
 
-		_interior_pointer_optimizer->SetTarget(func);
+		_optimizer->SetTarget(func);
 
 		Vector3d x0 = Vector3d::Zero();
 
-		auto x = _interior_pointer_optimizer->Optimize(x0);
+		auto x = _optimizer->Optimize(x0);
 
-		spdlog::info("Resource round {}, error {}", T, eps);
+		spdlog::info("Round {}, error {}", T, eps);
 
 		CPPUNIT_ASSERT((A * x - b).norm() < eps);
 	}
@@ -102,17 +102,17 @@ void Test::TestOptimizerCons() {
 	func.SetGradientFunction(gra);
 	func.SetHessianFunction(hes);
 
-	_interior_pointer_optimizer->SetTarget(func);
+	_optimizer->SetTarget(func);
 
 	Vector3d point, norm;
 	point << 1, 1, 1;
 	norm << 1, 1, 1;
 
-	_interior_pointer_optimizer->AddConstraint(PlaneConstraint(norm, point));
+	_optimizer->AddConstraint(PlaneConstraint(norm, point));
 
 	Vector3d x0 = Vector3d::Random() + 3 * norm;
 
-	Vector3d sol = _interior_pointer_optimizer->Optimize(x0);
+	Vector3d sol = _optimizer->Optimize(x0);
 
 	std::cerr << sol << std::endl;
 

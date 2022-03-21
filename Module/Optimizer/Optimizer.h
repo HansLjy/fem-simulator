@@ -10,7 +10,8 @@
 #include "Util/Pattern.h"
 
 enum class OptimizerType {
-	kInteriorPoint
+	kInteriorPoint,
+	kNewtonIterator
 };
 
 class OptimizerParameter {
