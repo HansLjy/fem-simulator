@@ -53,7 +53,7 @@ Matrix12d SimpleModel::Hessian(const ConsistencyModel &cons_model, double W,
 	Matrix9d pdPsiF2 = cons_model.PiolaDifferential(F);
 
 	hessian = W * pdFX * pdPsiF2 * pdFX.transpose();
-//	spdlog::info("Time for computing a single hessian matrix: {}", clock() - start);
+	spdlog::info("Time for computing a single hessian matrix: {} s", (double)(clock() - start) / CLOCKS_PER_SEC);
 	return hessian;
 }
 

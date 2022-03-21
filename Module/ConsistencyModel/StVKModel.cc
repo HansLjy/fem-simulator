@@ -35,19 +35,13 @@ Matrix9d StVKModel::PiolaDifferential(const Matrix3d &F) const {
 	double trE = 0.5 * (FTF.trace() - 3);
 	Matrix3d I3 = Matrix3d::Identity();
 	Matrix9d result;
-	result.setZero();
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
-			result.block<3, 3>(3 * i, 3 * j) += _lame_mu * FTF(i, j) * I3 + _lame_lambda * F.col(i) * F.col(j).transpose();
+			result.block<3, 3>(3 * i, 3 * j) = _lame_mu * FTF(i, j) * I3 + _lame_lambda * F.col(i) * F.col(j).transpose();
 		}
 		result.block<3, 3>(3 * i, 3 * i) += _lame_mu * FFT + (-_lame_mu + _lame_lambda * trE) * I3;
 	}
-//	for (int i = 0; i < 3; i++) {
-//		for (int j = i + 1; j < 3; j++) {
-//			result.block<3, 3>(3 * i, 3 * j) = result.block<3, 3>(3 * j, 3 * i).transpose();
-//		}
-//	}
-	Matrix9d FkronFT, FkronFT_permed;
+	Matrix9d FkronFT;
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			FkronFT.block<3, 3>(3 * i, 3 * j) = _lame_mu * F(i, j) * FT;
@@ -57,12 +51,8 @@ Matrix9d StVKModel::PiolaDifferential(const Matrix3d &F) const {
 	static const int K33[] = {0, 3, 6, 1, 4, 7, 2, 5, 8};
 
 	for (int i = 0; i < 9; i++) {
-		FkronFT_permed.row(i) = FkronFT.row(K33[i]);
+		result.row(i) += FkronFT.row(K33[i]);
 	}
-
-//	assert((FkronFT_permed.transpose() - FkronFT_permed).norm() < 1e-5);
-
-	result += FkronFT_permed;
 	return result;
 }
 

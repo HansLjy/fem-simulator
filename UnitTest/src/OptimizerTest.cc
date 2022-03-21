@@ -18,7 +18,7 @@ public:
 	VectorXd Gradient(const VectorXd &x) const override {
 		return _grad(x);
 	}
-	MatrixXd Hessian(const VectorXd &x) const override {
+	SparseMatrixXd Hessian(const VectorXd &x) const override {
 		return _hess(x);
 	}
 
@@ -28,7 +28,7 @@ public:
 	void SetGradientFunction(const std::function<VectorXd(VectorXd)>& func) {
 		_grad = func;
 	}
-	void SetHessianFunction(const std::function<MatrixXd(VectorXd)>& func) {
+	void SetHessianFunction(const std::function<SparseMatrixXd(VectorXd)>& func) {
 		_hess = func;
 	}
 
@@ -37,7 +37,7 @@ public:
 private:
 	std::function<double(VectorXd)> _val;
 	std::function<VectorXd(VectorXd)> _grad;
-	std::function<MatrixXd(VectorXd)> _hess;
+	std::function<SparseMatrixXd(VectorXd)> _hess;
 };
 
 DEFINE_CLONE(Function, SettableFunction)
@@ -59,8 +59,8 @@ void Test::TestOptimizerCG() {
 			return 2 * A * x - 2 * b;
 		};
 
-		auto hes = [A, b](const VectorXd &x) -> MatrixXd {
-			return 2 * A;
+		auto hes = [A, b](const VectorXd &x) -> SparseMatrixXd {
+			return 2 * A.sparseView();
 		};
 
 		SettableFunction func;
@@ -91,10 +91,10 @@ void Test::TestOptimizerCons() {
 		return 2 * x;
 	};
 
-	auto hes = [](VectorXd x) -> MatrixXd {
+	auto hes = [](VectorXd x) -> SparseMatrixXd {
 		VectorXd lambda(x.size());
 		lambda.setConstant(2);
-		return lambda.asDiagonal().toDenseMatrix();
+		return lambda.asDiagonal().toDenseMatrix().sparseView();
 	};
 
 	SettableFunction func;

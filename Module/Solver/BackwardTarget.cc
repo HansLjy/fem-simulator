@@ -37,8 +37,6 @@ VectorXd BackwardTarget::Gradient(const VectorXd &x) const {
 SparseMatrixXd BackwardTarget::Hessian(const VectorXd &x) const {
 	auto start = clock();
 	VectorXd v = (x - _x) / _dt;
-	auto M = _mass_sparse.asDiagonal();
-
 	SparseMatrixXd result = _body_energy->EHessian(_reference, _volumn, _inv, x)
 		+ _body_energy->DHessian(_reference, _volumn, _mass, _inv, _x, v);
 	result.diagonal() += _mass_sparse / (_dt * _dt);
