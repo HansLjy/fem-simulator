@@ -36,7 +36,6 @@ VectorXd BackwardTarget::Gradient(const VectorXd &x) const {
 }
 
 SparseMatrixXd BackwardTarget::Hessian(const VectorXd &x) const {
-	auto start = clock();
 	VectorXd v = (x - _x) / _dt;
 	SparseMatrixXd result = _body_energy->EHessian(_reference, _volumn, _inv, x, _pFpX)
 		+ _body_energy->DHessian(_reference, _volumn, _mass, _inv, _x, v, _pFpX);
@@ -45,7 +44,6 @@ SparseMatrixXd BackwardTarget::Hessian(const VectorXd &x) const {
 	for (const auto& force : _ext_force) {
 		result += force->Hessian(_reference, _mass, x, v);
 	}
-	spdlog::info("finish computing hessian, using {} seconds", (clock() - start) / CLOCKS_PER_SEC);
 	return result;
 }
 

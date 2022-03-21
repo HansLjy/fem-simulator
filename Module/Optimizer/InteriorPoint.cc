@@ -79,13 +79,15 @@ VectorXd InteriorPoint::Optimize(const VectorXd &x0) const {
 		x += alpha * sol.block(0, 0, n, 1);
 		lambda += alpha * sol.block(n, 0, m, 1);
 
-		for (int i = 0; i < m; i++) {
-			assert(lambda(i) >= 0);
-		}
+//		for (int i = 0; i < m; i++) {
+//			assert(lambda(i) >= 0);
+//		}
 
 		if (sol.norm() < _max_error) {
 			break;
 		}
+
+		spdlog::info("Delta x: {}, continue iterating", sol.norm());
 	}
 
 	if (step <= _max_step) {

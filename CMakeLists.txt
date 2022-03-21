@@ -4,7 +4,7 @@ project(fem)
 message("Start building")
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -fopenmp")
 
 include_directories(Module)

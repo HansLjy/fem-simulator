@@ -101,46 +101,50 @@ BodyEnergy::EHessian(const Mesh &reference, const VectorXd &W,
 					 const VectorXd &X, const VectorX<Matrix12x9d> &pFpX) {
 	GET_MEMBERS(reference, tets, points)
 
-	auto t = clock();
+//	auto t = clock();
 
 	int num_of_tets = tets.size();
 
-	auto start_allocation = clock();
+//	auto start_allocation = clock();
 	SparseMatrixXd hessian(X.size(), X.size());
 	std::vector<Matrix12d> local_hessian(num_of_tets);
 	std::vector<Triplet> triplets;
-	spdlog::info("Time spent in allocation: {} s", (double)(clock() - start_allocation) / CLOCKS_PER_SEC);
+//	spdlog::info("Time spent in allocation: {} s", (double)(clock() - start_allocation) / CLOCKS_PER_SEC);
 
-	auto start_computing = clock();
+//	auto start_computing = clock();
 //	#pragma omp parallel for default(none) shared(num_of_tets, tets, points, local_hessian, W, inv) num_threads(4)
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
 		auto D = GetDs(points, tet);
 		local_hessian[i] = _elas_model->Hessian(*_cons_model, W[i], inv[i], D, pFpX[i]);
 	}
-	spdlog::info("Time spent in computing hessian: {} s", (double) (clock() - start_computing) / CLOCKS_PER_SEC);
+//	spdlog::info("Time spent in computing hessian: {} s", (double) (clock() - start_computing) / CLOCKS_PER_SEC);
 
-	auto start_assembly = clock();
+//	auto start_assembly = clock();
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
+		auto& local = local_hessian[i];
 //		#pragma omp parallel for default(none) shared(triplets, tet, local_hessian, i)
 		for (int j = 0; j < 4; j++) {
+			const int base_row = 3 * tet[j];
+			const int base_row_local = 3 * j;
 			for (int k = 0; k < 4; k++) {
-				const int base_row = 3 * tet[j];
 				const int base_col = 3 * tet[k];
-				const int base_row_local = 3 * j;
 				const int base_col_local = 3 * k;
+
+				#pragma unroll
 				for (int  row = 0; row < 3; row++) {
+					#pragma unroll
 					for (int col = 0; col < 3; col++) {
-						triplets.push_back(Triplet(base_row + row, base_col + col, local_hessian[i](base_row_local + row, base_col_local + col)));
+						triplets.push_back(Triplet(base_row + row, base_col + col, local(base_row_local + row, base_col_local + col)));
 					}
 				}
 			}
 		}
 	}
 	hessian.setFromTriplets(triplets.begin(), triplets.end());
-	spdlog::info("Time spent in assembly: {} s", (double)(clock() - start_assembly) / CLOCKS_PER_SEC);
-	spdlog::info("Time spent in computing E-hessian: {} s", (double)(clock() - t) / CLOCKS_PER_SEC);
+//	spdlog::info("Time spent in assembly: {} s", (double)(clock() - start_assembly) / CLOCKS_PER_SEC);
+//	spdlog::info("Time spent in computing E-hessian: {} s", (double)(clock() - t) / CLOCKS_PER_SEC);
 	return hessian;
 }
 
