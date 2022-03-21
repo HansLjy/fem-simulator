@@ -67,7 +67,7 @@ int main() {
 
 	simulator->Initialize(para);
 	simulator->AddExternalForce(Gravity(9.8));
-	simulator->AddExternalForce(GroundForce(2));
+//	simulator->AddExternalForce(GroundForce(2));
 
 //	Vector3d norm, base;
 //	norm << 0, 0, 1;
