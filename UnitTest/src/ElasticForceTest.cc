@@ -23,13 +23,22 @@ void Test::TestElasticForce() {
 	}
 
 	double W = D.determinant() / 6;
-
 	Matrix3d B = D.inverse();
+
+	Matrix12x9d pdFX;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			pdFX.block<3, 3>(3 * i, 3 * j) = B(i, j) * Matrix3d::Identity();
+		}
+	}
+	for (int i = 0; i < 3; i++) {
+		pdFX.row(i + 9) = - pdFX.row(i) - pdFX.row(i + 3) - pdFX.row(i + 6);
+	}
 
 	// Stay put
 	auto energy = _elas_model->Energy(*_consistency_model, W, B, D);
 	auto gradient = _elas_model->Gradient(*_consistency_model, W, B, D);
-	auto hessian = _elas_model->Hessian(*_consistency_model, W, B, D);
+	auto hessian = _elas_model->Hessian(*_consistency_model, W, B, D, pdFX);
 
 	double error_hessian = 0;
 
@@ -50,7 +59,7 @@ void Test::TestElasticForce() {
 	}
 	energy = _elas_model->Energy(*_consistency_model, W, B, D);
 	gradient = _elas_model->Gradient(*_consistency_model, W, B, D);
-	hessian = _elas_model->Hessian(*_consistency_model, W, B, D);
+	hessian = _elas_model->Hessian(*_consistency_model, W, B, D, pdFX);
 
 	error_hessian = 0;
 
@@ -155,7 +164,7 @@ void Test::TestElasticForce() {
 	}
 
 	gradient = _elas_model->Gradient(*_consistency_model, W, B, D);
-	hessian = _elas_model->Hessian(*_consistency_model, W, B, D);
+	hessian = _elas_model->Hessian(*_consistency_model, W, B, D, pdFX);
 
 	spdlog::info("Numeric result: ");
 	std::cerr << num_hessian << std::endl;
