@@ -19,7 +19,7 @@ void RayleighModel::Initialize(const DissipationEnergyModelParameter &para) {
 }
 
 #define GET_DAMPING_MATRIX(C) \
-	Matrix12d K = elas_model.Hessian(cons_model, W, B, Ds);	\
+	Matrix12d K = elas_model.Hessian(cons_model, W, B, Ds, pFpX);	\
 	Vector12d M;											\
 	for (int i = 0; i < 12; i += 3) {						\
 		M(i) = M(i + 1) = M(i + 2) = mass(i / 3);			\
@@ -30,7 +30,7 @@ double RayleighModel::Energy(const ConsistencyModel &cons_model,
 							 const ElasticEnergyModel &elas_model,
 							 double W, const Matrix3d &B, const Vector4d &mass,
 							 const Vector12d &V,
-							 const Matrix3d &Ds) const {
+							 const Matrix3d &Ds, const Matrix12x9d &pFpX) const {
 	GET_DAMPING_MATRIX(C)
 	return 0.5 * V.transpose() * C * V;
 }
@@ -40,7 +40,8 @@ Vector12d RayleighModel::Gradient(const ConsistencyModel &cons_model,
 								  double W,
 								  const Matrix3d &B, const Vector4d &mass,
 								  const Vector12d &V,
-								  const Matrix3d &Ds) const {
+								  const Matrix3d &Ds,
+								  const Matrix12x9d &pFpX) const {
 	GET_DAMPING_MATRIX(C)
 	return C * V;
 }
@@ -49,7 +50,8 @@ Matrix12d RayleighModel::Hessian(const ConsistencyModel &cons_model,
 								 const ElasticEnergyModel &elas_model, double W,
 								 const Matrix3d &B, const Vector4d &mass,
 								 const Vector12d &V,
-								 const Matrix3d &Ds) const {
+								 const Matrix3d &Ds,
+								 const Matrix12x9d &pFpX) const {
 	GET_DAMPING_MATRIX(C)
 	return C;
 }

@@ -24,7 +24,7 @@ public:
 			 const Matrix3d &Ds) const override;
 	Matrix12d
 	Hessian(const ConsistencyModel &cons_model, double W, const Matrix3d &B,
-			const Matrix3d &Ds) const override;
+			const Matrix3d &Ds, const Matrix12x9d &pFpX) const override;
 	~SimpleModel();
 
 	DERIVED_DECLARE_CLONE(ElasticEnergyModel)

@@ -12,6 +12,8 @@
 #include "BodyEnergy/ExternalForce.h"
 #include "Mass/MassModel.h"
 
+using Eigen::Matrix;
+
 enum class TargetType {
 	kBackward,
 };
@@ -52,6 +54,7 @@ protected:
 	void ComputeInverse();
 	void ComputeMass();
 	void ComputeVolumn();
+	void ComputePd();
 
 	// Data
 	Mesh _reference;
@@ -63,6 +66,7 @@ protected:
 	VectorXd _mass;
 	VectorXd _mass_sparse;
 	VectorX<Matrix3d> _inv;
+	VectorX<Matrix12x9d> _pFpX;
 	VectorXd _volumn;
 
 	std::vector<const ExternalForce*> _ext_force;

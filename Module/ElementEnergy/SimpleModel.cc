@@ -33,27 +33,13 @@ Vector12d SimpleModel::Gradient(const ConsistencyModel &cons_model, double W,
 
 Matrix12d SimpleModel::Hessian(const ConsistencyModel &cons_model, double W,
 							   const Matrix3d &B,
-							   const Matrix3d &Ds) const {
-	auto start = clock();
+							   const Matrix3d &Ds,
+							   const Matrix12x9d &pFpX) const {
+//	auto start = clock();
 	Matrix3d F = Ds * B;
-	Matrix3d I3 = Matrix3d::Identity();
-	Matrix12d hessian;
-
-	Eigen::Matrix<double, 12, 9> pdFX;
-
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			pdFX.block<3, 3>(3 * i, 3 * j) = B(i, j) * I3;
-		}
-	}
-	for (int i = 0; i < 3; i++) {
-		pdFX.row(i + 9) = - pdFX.row(i) - pdFX.row(i + 3) - pdFX.row(i + 6);
-	}
-
 	Matrix9d pdPsiF2 = cons_model.PiolaDifferential(F);
-
-	hessian = W * pdFX * pdPsiF2 * pdFX.transpose();
-	spdlog::info("Time for computing a single hessian matrix: {} s", (double)(clock() - start) / CLOCKS_PER_SEC);
+	Matrix12d hessian = W * pFpX * pdPsiF2 * pFpX.transpose();
+//	spdlog::info("Time for computing a single hessian matrix: {} s", (double)(clock() - start) / CLOCKS_PER_SEC);
 	return hessian;
 }
 

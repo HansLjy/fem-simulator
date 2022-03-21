@@ -56,6 +56,7 @@ Target::Target(const Target &target) {
 	_mass_sparse = target._mass_sparse;
 	_volumn = target._volumn;
 	_inv = target._inv;
+	_pFpX = target._pFpX;
 }
 
 void Target::SetX(const VectorXd &x) {
@@ -79,6 +80,7 @@ void Target::PreCompute() {
 	ComputeInverse();
 	ComputeMass();
 	ComputeVolumn();
+	ComputePd();
 }
 
 void Target::ComputeInverse() {
@@ -117,6 +119,25 @@ void Target::ComputeVolumn() {
 			D.col(i) = points.block<3, 1>(3 * tet[i], 0) - points.block<3, 1>(3 * tet[3], 0);
 		}
 		_volumn[index++] = std::abs(D.determinant() / 6.0);
+	}
+}
+
+void Target::ComputePd() {
+	_pFpX.resizeLike(_inv);
+	const int num_of_tets = _inv.size();
+
+	Matrix3d I3 = Matrix3d::Identity();
+	for (int n = 0; n < num_of_tets; n++) {
+		auto& pdFX = _pFpX(n);
+		auto& B = _inv(n);
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				pdFX.block<3, 3>(3 * i, 3 * j) = B(i, j) * I3;
+			}
+		}
+		for (int i = 0; i < 3; i++) {
+			pdFX.row(i + 9) = - pdFX.row(i) - pdFX.row(i + 3) - pdFX.row(i + 6);
+		}
 	}
 }
 

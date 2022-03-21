@@ -61,7 +61,7 @@ inline Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {
 double
 BodyEnergy::EEnergy(const Mesh &reference, const VectorXd &W,
 					const VectorX<Matrix3d> &inv,
-					const VectorXd &X) {
+					const VectorXd &X, const VectorX<Matrix12x9d> &pFpX) {
 	GET_MEMBERS(reference, tets, points)
 	double energy = 0;
 	int num_of_tets = tets.size();
@@ -74,7 +74,8 @@ BodyEnergy::EEnergy(const Mesh &reference, const VectorXd &W,
 
 VectorXd
 BodyEnergy::EGradient(const Mesh &reference, const VectorXd &W,
-					  const VectorX<Matrix3d> &inv, const VectorXd &X) {
+					  const VectorX<Matrix3d> &inv, const VectorXd &X,
+					  const VectorX<Matrix12x9d> &pFpX) {
 	GET_MEMBERS(reference, tets, points)
 
 	VectorXd gradient(X.size());
@@ -97,7 +98,7 @@ BodyEnergy::EGradient(const Mesh &reference, const VectorXd &W,
 SparseMatrixXd
 BodyEnergy::EHessian(const Mesh &reference, const VectorXd &W,
 					 const VectorX<Matrix3d> &inv,
-					 const VectorXd &X) {
+					 const VectorXd &X, const VectorX<Matrix12x9d> &pFpX) {
 	GET_MEMBERS(reference, tets, points)
 
 	auto t = clock();
@@ -115,7 +116,7 @@ BodyEnergy::EHessian(const Mesh &reference, const VectorXd &W,
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
 		auto D = GetDs(points, tet);
-		local_hessian[i] = _elas_model->Hessian(*_cons_model, W[i], inv[i], D);
+		local_hessian[i] = _elas_model->Hessian(*_cons_model, W[i], inv[i], D, pFpX[i]);
 	}
 	spdlog::info("Time spent in computing hessian: {} s", (double) (clock() - start_computing) / CLOCKS_PER_SEC);
 
@@ -147,7 +148,7 @@ double
 BodyEnergy::DEnergy(const Mesh &reference, const VectorXd &W,
 					const VectorXd &mass,
 					const VectorX<Matrix3d> &inv, const VectorXd &X,
-					const VectorXd &V) {
+					const VectorXd &V, const VectorX<Matrix12x9d> &pFpX) {
 	GET_MEMBERS(reference, tets, points)
 
 	double energy = 0;
@@ -161,8 +162,7 @@ BodyEnergy::DEnergy(const Mesh &reference, const VectorXd &W,
 			m(j) = mass(tet[j]);
 		}
 		auto D = GetDs(points, tet);
-		energy += _diss_model->Energy(*_cons_model, *_elas_model, W[i], inv[i], m, v,
-									  D);
+		energy += _diss_model->Energy(*_cons_model, *_elas_model, W[i], inv[i], m, v, D, pFpX[i]);
 	}
 	return energy;
 }
@@ -170,7 +170,8 @@ BodyEnergy::DEnergy(const Mesh &reference, const VectorXd &W,
 VectorXd BodyEnergy::DGradient(const Mesh &reference, const VectorXd &W,
 							   const VectorXd &mass,
 							   const VectorX<Matrix3d> &inv, const VectorXd &X,
-							   const VectorXd &V) {
+							   const VectorXd &V,
+							   const VectorX<Matrix12x9d> &pFpX) {
 	GET_MEMBERS(reference, tets, points)
 
 	VectorXd gradient(X.size());
@@ -187,8 +188,10 @@ VectorXd BodyEnergy::DGradient(const Mesh &reference, const VectorXd &W,
 		}
 		auto D = GetDs(points, tet);
 		Vector12d local_gradient = _diss_model->Gradient(*_cons_model,
-														 *_elas_model, W[i], inv[i],
-														 m, v, D);
+														 *_elas_model, W[i],
+														 inv[i],
+														 m, v, D,
+														 pFpX[i]);
 		for (int j = 0; j < 4; j++) {
 			gradient.block<3, 1>(3 * tet[j], 0) += local_gradient.block<3, 1>(3 * j, 0);
 		}
@@ -199,8 +202,9 @@ VectorXd BodyEnergy::DGradient(const Mesh &reference, const VectorXd &W,
 
 SparseMatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &W,
 									const VectorXd &mass,
-									const VectorX<Matrix3d> &inv, const VectorXd &X,
-									const VectorXd &V) {
+									const VectorX<Matrix3d> &inv,
+									const VectorXd &X, const VectorXd &V,
+									const VectorX<Matrix12x9d> &pFpX) {
 	GET_MEMBERS(reference, tets, points)
 
 	int num_of_tets = tets.size();
@@ -218,7 +222,8 @@ SparseMatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &W,
 			m(j) = mass(tet[j]);
 		}
 		auto D = GetDs(points, tet);
-		local_hessian[i] = _diss_model->Hessian(*_cons_model, *_elas_model, W[i], inv[i], m, v, D);
+		local_hessian[i] = _diss_model->Hessian(*_cons_model, *_elas_model,
+												W[i], inv[i], m, v, D, pFpX[i]);
 	}
 
 	for (int i = 0; i < num_of_tets; i++) {

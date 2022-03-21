@@ -40,31 +40,33 @@ public:
 	double
 	EEnergy(const Mesh &reference, const VectorXd &W,
 			const VectorX<Matrix3d> &inv,
-			const VectorXd &X);
+			const VectorXd &X, const VectorX<Matrix12x9d> &pFpX);
 
 	double
 	DEnergy(const Mesh &reference, const VectorXd &W, const VectorXd &mass,
 			const VectorX<Matrix3d> &inv, const VectorXd &X,
-			const VectorXd &V);
+			const VectorXd &V, const VectorX<Matrix12x9d> &pFpX);
 
 	VectorXd
 	EGradient(const Mesh &reference, const VectorXd &W,
-			  const VectorX<Matrix3d> &inv, const VectorXd &X);
+			  const VectorX<Matrix3d> &inv, const VectorXd &X,
+			  const VectorX<Matrix12x9d> &pFpX);
 
 	VectorXd
 	DGradient(const Mesh &reference, const VectorXd &W, const VectorXd &mass,
 			  const VectorX<Matrix3d> &inv, const VectorXd &X,
-			  const VectorXd &V);
+			  const VectorXd &V,
+			  const VectorX<Matrix12x9d> &pFpX);
 
 	SparseMatrixXd
 	EHessian(const Mesh &reference, const VectorXd &W,
 			 const VectorX<Matrix3d> &inv,
-			 const VectorXd &X);
+			 const VectorXd &X, const VectorX<Matrix12x9d> &pFpX);
 
 	SparseMatrixXd
 	DHessian(const Mesh &reference, const VectorXd &W, const VectorXd &mass,
-			 const VectorX<Matrix3d> &inv, const VectorXd &X,
-			 const VectorXd &V);
+			 const VectorX<Matrix3d> &inv, const VectorXd &X, const VectorXd &V,
+			 const VectorX<Matrix12x9d> &pFpX);
 
 	BodyEnergy() = default;
 	BodyEnergy(const BodyEnergy& body_energy);

@@ -33,19 +33,20 @@ public:
 						  const ElasticEnergyModel &elas_model,
 						  double W, const Matrix3d &B, const Vector4d &mass,
 						  const Vector12d &V,
-						  const Matrix3d &Ds) const = 0;
+						  const Matrix3d &Ds, const Matrix12x9d &pFpX) const = 0;
 
 	virtual Vector12d Gradient(const ConsistencyModel &cons_model,
 							   const ElasticEnergyModel &elas_model, double W,
 							   const Matrix3d &B, const Vector4d &mass,
 							   const Vector12d &V,
-							   const Matrix3d &Ds) const = 0;
+							   const Matrix3d &Ds,
+							   const Matrix12x9d &pFpX) const = 0;
 
 	virtual Matrix12d Hessian(const ConsistencyModel &cons_model,
 							  const ElasticEnergyModel &elas_model, double W,
 							  const Matrix3d &B, const Vector4d &mass,
 							  const Vector12d &V,
-							  const Matrix3d &Ds) const = 0;
+							  const Matrix3d &Ds, const Matrix12x9d &pFpX) const = 0;
 
 	BASE_DECLARE_CLONE(DissipationEnergyModel)
 
