@@ -4,6 +4,8 @@
 
 #include "VoronoiModel.h"
 
+VoronoiModelParameter::VoronoiModelParameter(double density) : MassModelParameter(density) {}
+
 DEFINE_CLONE(MassModelParameter, VoronoiModelParameter)
 
 VectorXd VoronoiModel::GetMassDistribution(const Mesh &mesh) {
@@ -21,7 +23,7 @@ VectorXd VoronoiModel::GetMassDistribution(const Mesh &mesh) {
 		}
 		double W = std::abs(D.determinant());
 		for (int j = 0; j < 4; j++) {
-			mass(tet[j]) += W / 4;
+			mass(tet[j]) += W / 4 * _density;
 		}
 	}
 	return mass;

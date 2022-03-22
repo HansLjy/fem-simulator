@@ -12,13 +12,11 @@ GroundForce::GroundForce(double stiffness) : _stiffness(stiffness) {}
 double
 GroundForce::Energy(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 					const VectorXd &V) const {
-	const auto& points = mesh.GetPoints();
-
-	const int num_of_points = points.size() / 3;
+	const int num_of_points = X.size() / 3;
 
 	double result = 0;
 	for (int i = 0; i < num_of_points; i++) {
-		double z = points(3 * i + 2);
+		double z = X(3 * i + 2);
 		if (z < 0) {
 			result += z * z * _stiffness;
 		}
@@ -30,14 +28,12 @@ GroundForce::Energy(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 VectorXd
 GroundForce::Gradient(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 					  const VectorXd &V) const {
-	const auto& points = mesh.GetPoints();
-
-	const int num_of_points = points.size() / 3;
+	const int num_of_points = X.size() / 3;
 
 	VectorXd gradient(num_of_points * 3);
 	gradient.setZero();
 	for (int i = 0; i < num_of_points; i++) {
-		double z = points(3 * i + 2);
+		double z = X(3 * i + 2);
 		if (z < 0) {
 			gradient(3 * i + 2) = 2 * z * _stiffness;
 		}
@@ -48,14 +44,13 @@ GroundForce::Gradient(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 SparseMatrixXd
 GroundForce::Hessian(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 					 const VectorXd &V) const {
-	const auto& points = mesh.GetPoints();
-	const int num_of_points = points.size() / 3;
+	const int num_of_points = X.size() / 3;
 
 	SparseMatrixXd hessian(num_of_points * 3, num_of_points * 3);
 	std::vector<Triplet> triplets;
 
 	for (int i = 0; i < num_of_points; i++) {
-		double z = points(3 * i + 2);
+		double z = X(3 * i + 2);
 		if (z < 0) {
 			triplets.push_back(Triplet(3 * i + 2, 3 * i + 2, 2 * _stiffness));
 		}

@@ -19,7 +19,7 @@ int main() {
 	double max_error, mu;
 
 	double alpha1, alpha2;
-	double youngs_module, poisson_ratio;
+	double youngs_module, poisson_ratio, density;
 
 	std::fstream cfg("./config");
 	cfg >> input_file >> output_dir;
@@ -27,6 +27,7 @@ int main() {
 	cfg >> max_error >> max_step >> mu;
 	cfg >> alpha1 >> alpha2;
 	cfg >> youngs_module >> poisson_ratio;
+	cfg >> density;
 
 	auto simulator = new Simulator;
 	SimulatorParameter para(
@@ -57,7 +58,7 @@ int main() {
 								)
 						),
 						MassModelType::kVoronoi,
-						VoronoiModelParameter()
+						VoronoiModelParameter(density)
 				)
 		),
 		MeshParameter(
@@ -66,8 +67,8 @@ int main() {
 	);
 
 	simulator->Initialize(para);
+	simulator->AddExternalForce(GroundForce(10000));
 	simulator->AddExternalForce(Gravity(9.8));
-	simulator->AddExternalForce(GroundForce(0.01));
 
 //	Vector3d norm, base;
 //	norm << 0, 0, 1;

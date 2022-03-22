@@ -9,6 +9,7 @@
 
 class VoronoiModelParameter : public MassModelParameter {
 public:
+	VoronoiModelParameter(double density);
 	DERIVED_DECLARE_CLONE(MassModelParameter)
 };
 
