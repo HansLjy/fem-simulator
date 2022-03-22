@@ -37,6 +37,8 @@ void Test::setUp() {
 			StVKModelParameter(1, 1)
 		)
 	);
+
+	_mesh.Initialize(MeshParameter("../Resource/vtk/two-tet.vtk"));
 }
 
 void Test::tearDown() {
@@ -49,11 +51,11 @@ void Test::tearDown() {
 int main() {
 	CppUnit::TestSuite suite;
 
-	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
+//	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer with constraints", &Test::TestOptimizerCons));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Constitute Model", &Test::TestConstituteModel));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Elastic Energy Model", &Test::TestElasticForce));
-//	suite.addTest(new CppUnit::TestCaller<Test>("Test Body Energy Model", &Test::TestBodyEnergy));
+	suite.addTest(new CppUnit::TestCaller<Test>("Test Body Energy Model", &Test::TestBodyEnergy));
 
 	CppUnit::TestResult result;
 	CppUnit::TestResultCollector collected;

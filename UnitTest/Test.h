@@ -36,6 +36,7 @@ private:
 	ConsistencyModel* _consistency_model;
 	ElasticEnergyModel* _elas_model;
 	BodyEnergy* _body_energy_model;
+	Mesh _mesh;
 };
 
 #endif //FEM_TEST_H

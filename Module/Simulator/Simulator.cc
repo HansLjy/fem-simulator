@@ -44,9 +44,9 @@ void Simulator::Simulate() {
 	int index = 0;
 	while(current < _duration) {
 		current += _step;
-		_solver->Step(_step);
 		const auto& mesh = _solver->GetCurrentMesh();
 		mesh.Store(prefix + std::to_string(index++) + suffix);
+		_solver->Step(_step);
 	}
 }
 

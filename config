@@ -1,6 +1,6 @@
-./Resource/vtk/cube.vtk
+./Resource/vtk/bunny.vtk
 ./Resource/output
-10.0 0.1
-1e-5 100 0.01
+0.01 0.001
+10 100 0.01
 1 1
-0.0078 0.47
+0.78 0.47
