@@ -78,9 +78,9 @@ void Test::TestElasticForce() {
 
 	const double h = 0.01;	// single step
 
-	tet[0] << 2, 0, 0;
-	tet[1] << 0, 2, 0;
-	tet[2] << 0, 0, 2;
+	tet[0] << 2, 2, 0;
+	tet[1] << 0, 2, 2;
+	tet[2] << 2, 0, 2;
 	tet[3] << 0, 0, 0;
 
 	for (int i = 0; i < 3; i++) {
@@ -167,9 +167,9 @@ void Test::TestElasticForce() {
 	hessian = _elas_model->Hessian(*_consistency_model, W, B, D, pdFX);
 
 	spdlog::info("Numeric result: ");
-	std::cerr << num_hessian << std::endl;
+	std::cerr << num_gradient << std::endl;
 	spdlog::info("Handcraft method: ");
-	std::cerr << hessian << std::endl;
+	std::cerr << gradient << std::endl;
 
 	CPPUNIT_ASSERT((gradient - num_gradient).norm() < 0.01);
 	CPPUNIT_ASSERT((hessian - num_hessian).norm() < 0.01);

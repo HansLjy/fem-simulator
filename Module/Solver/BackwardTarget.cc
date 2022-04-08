@@ -4,6 +4,7 @@
 
 #include "BackwardTarget.h"
 #include "BodyEnergy/BodyEnergy.h"
+#include <iostream>
 #include <spdlog/spdlog.h>
 #include <ctime>
 
@@ -24,13 +25,21 @@ double BackwardTarget::Value(const VectorXd &x) const {
 VectorXd BackwardTarget::Gradient(const VectorXd &x) const {
 	VectorXd v = (x - _x) / _dt;
 	auto M = _mass_sparse.asDiagonal();
-	VectorXd result =  1.0 / _dt * M * (v - _v)
-		+ _body_energy->EGradient(_reference, _volumn, _inv, x, _pFpX);
+
+	VectorXd f1 = 1.0 / _dt * M * (v - _v);
+	VectorXd f2 = _body_energy->EGradient(_reference, _volumn, _inv, x, _pFpX);
+
+	VectorXd result = f1 + f2;
+
+//	VectorXd result =  1.0 / _dt * M * (v - _v)
+//		+ _body_energy->EGradient(_reference, _volumn, _inv, x, _pFpX);
 //		+ _body_energy->DGradient(_reference, _volumn, _mass, _inv, _x, v, _pFpX);
 
 	for (const auto& force : _ext_force) {
 		result += force->Gradient(_reference, _mass, x, v);
 	}
+//	std::cerr << "f1: \n" << f1.transpose() << "\nf2: \n" << f2.transpose() << "\n";
+
 	return result;
 }
 

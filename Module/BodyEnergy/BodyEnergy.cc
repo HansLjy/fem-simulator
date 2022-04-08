@@ -54,19 +54,14 @@ inline Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {
 	return D;
 }
 
-#define GET_MEMBERS(ref, tets, points)		\
-	const auto& tets = (ref).GetTets();		\
-	const auto& points = (ref).GetPoints();
-
-double
-BodyEnergy::EEnergy(const Mesh &reference, const VectorXd &W,
+double BodyEnergy::EEnergy(const Mesh &reference, const VectorXd &W,
 					const VectorX<Matrix3d> &inv,
 					const VectorXd &X, const VectorX<Matrix12x9d> &pFpX) {
-	GET_MEMBERS(reference, tets, points)
+	const auto& tets = reference.GetTets();
 	double energy = 0;
 	int num_of_tets = tets.size();
 	for (int i = 0; i < num_of_tets; i++) {
-		auto D = GetDs(points, tets[i]);
+		auto D = GetDs(X, tets[i]);
 		energy += _elas_model->Energy(*_cons_model, W[i], inv[i], D);
 	}
 	return energy;
@@ -76,15 +71,14 @@ VectorXd
 BodyEnergy::EGradient(const Mesh &reference, const VectorXd &W,
 					  const VectorX<Matrix3d> &inv, const VectorXd &X,
 					  const VectorX<Matrix12x9d> &pFpX) {
-	GET_MEMBERS(reference, tets, points)
-
+	const auto& tets = reference.GetTets();
 	VectorXd gradient(X.size());
 	gradient.setZero();
 
 	int num_of_tets = tets.size();
 	for (int i = 0; i < num_of_tets; i++) {
 		auto tet = tets[i];
-		auto D = GetDs(points, tet);
+		auto D = GetDs(X, tet);
 		Vector12d local_gradient = _elas_model->Gradient(*_cons_model, W[i], inv[i],
 														 D);
 		for (int j = 0; j < 4; j++) {
@@ -99,8 +93,7 @@ SparseMatrixXd
 BodyEnergy::EHessian(const Mesh &reference, const VectorXd &W,
 					 const VectorX<Matrix3d> &inv,
 					 const VectorXd &X, const VectorX<Matrix12x9d> &pFpX) {
-	GET_MEMBERS(reference, tets, points)
-
+	const auto& tets = reference.GetTets();
 //	auto t = clock();
 
 	int num_of_tets = tets.size();
@@ -115,7 +108,7 @@ BodyEnergy::EHessian(const Mesh &reference, const VectorXd &W,
 //	#pragma omp parallel for default(none) shared(num_of_tets, tets, points, local_hessian, W, inv) num_threads(4)
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
-		auto D = GetDs(points, tet);
+		auto D = GetDs(X, tet);
 		local_hessian[i] = _elas_model->Hessian(*_cons_model, W[i], inv[i], D, pFpX[i]);
 	}
 //	spdlog::info("Time spent in computing hessian: {} s", (double) (clock() - start_computing) / CLOCKS_PER_SEC);
@@ -153,8 +146,7 @@ BodyEnergy::DEnergy(const Mesh &reference, const VectorXd &W,
 					const VectorXd &mass,
 					const VectorX<Matrix3d> &inv, const VectorXd &X,
 					const VectorXd &V, const VectorX<Matrix12x9d> &pFpX) {
-	GET_MEMBERS(reference, tets, points)
-
+	const auto& tets = reference.GetTets();
 	double energy = 0;
 	int num_of_tets = tets.size();
 	for (int i = 0; i < num_of_tets; i++) {
@@ -165,7 +157,7 @@ BodyEnergy::DEnergy(const Mesh &reference, const VectorXd &W,
 			v.block<3, 1>(3 * j, 0) = V.block<3, 1>(3 * tet[j], 0);
 			m(j) = mass(tet[j]);
 		}
-		auto D = GetDs(points, tet);
+		auto D = GetDs(X, tet);
 		energy += _diss_model->Energy(*_cons_model, *_elas_model, W[i], inv[i], m, v, D, pFpX[i]);
 	}
 	return energy;
@@ -176,8 +168,7 @@ VectorXd BodyEnergy::DGradient(const Mesh &reference, const VectorXd &W,
 							   const VectorX<Matrix3d> &inv, const VectorXd &X,
 							   const VectorXd &V,
 							   const VectorX<Matrix12x9d> &pFpX) {
-	GET_MEMBERS(reference, tets, points)
-
+	const auto& tets = reference.GetTets();
 	VectorXd gradient(X.size());
 	gradient.setZero();
 
@@ -190,7 +181,7 @@ VectorXd BodyEnergy::DGradient(const Mesh &reference, const VectorXd &W,
 			v.block<3, 1>(3 * j, 0) = V.block<3, 1>(3 * tet[j], 0);
 			m(j) = mass(tet[j]);
 		}
-		auto D = GetDs(points, tet);
+		auto D = GetDs(X, tet);
 		Vector12d local_gradient = _diss_model->Gradient(*_cons_model,
 														 *_elas_model, W[i],
 														 inv[i],
@@ -209,8 +200,7 @@ SparseMatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &W,
 									const VectorX<Matrix3d> &inv,
 									const VectorXd &X, const VectorXd &V,
 									const VectorX<Matrix12x9d> &pFpX) {
-	GET_MEMBERS(reference, tets, points)
-
+	const auto& tets = reference.GetTets();
 	int num_of_tets = tets.size();
 	SparseMatrixXd hessian(X.size(), X.size());
 	std::vector<Matrix12d> local_hessian(num_of_tets);
@@ -225,7 +215,7 @@ SparseMatrixXd BodyEnergy::DHessian(const Mesh &reference, const VectorXd &W,
 			v.block<3, 1>(3 * j, 0) = V.block<3, 1>(3 * tet[j], 0);
 			m(j) = mass(tet[j]);
 		}
-		auto D = GetDs(points, tet);
+		auto D = GetDs(X, tet);
 		local_hessian[i] = _diss_model->Hessian(*_cons_model, *_elas_model,
 												W[i], inv[i], m, v, D, pFpX[i]);
 	}

@@ -1,7 +1,7 @@
-./Resource/vtk/two-tet.vtk
+./Resource/vtk/bunny.vtk
 ./Resource/output
-10 0.1
-10 100 0.01
+1 0.01
+1e-3 100 0.15 0
 1 1
-0.0078 0.47
-1522
+1e4 0.47
+1

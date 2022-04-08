@@ -1,11 +1,11 @@
 #include "Simulator/Simulator.h"
 #include "Optimizer/InteriorPoint.h"
+#include "Optimizer/NewtonIterator.h"
 #include "Solver/BackwardTarget.h"
 #include "ElementEnergy/SimpleModel.h"
 #include "ElementEnergy/RayleighModel.h"
 #include "ConsistencyModel/StVKModel.h"
 #include "BodyEnergy/Gravity.h"
-#include "Constraint/PlaneConstraint.h"
 #include "Mass/VoronoiModel.h"
 #include "BodyEnergy/GroundForce.h"
 
@@ -16,7 +16,7 @@ int main() {
 	double duration, step;
 
 	int max_step;
-	double max_error, mu;
+	double max_error, mu, armijo, curvature;
 
 	double alpha1, alpha2;
 	double youngs_module, poisson_ratio, density;
@@ -24,7 +24,7 @@ int main() {
 	std::fstream cfg("./config");
 	cfg >> input_file >> output_dir;
 	cfg >> duration >> step;
-	cfg >> max_error >> max_step >> mu;
+	cfg >> max_error >> max_step >> armijo >> curvature;
 	cfg >> alpha1 >> alpha2;
 	cfg >> youngs_module >> poisson_ratio;
 	cfg >> density;
@@ -37,10 +37,11 @@ int main() {
 		SolverType::kBackward,		// solver type
 		SolverParameter(
 				OptimizerType::kNewtonIterator,	// optimizer type
-				InteriorPointParameter (
-						max_error,	// max error
-						max_step,	// max  step
-						mu	// mu
+				NewtonIteratorParameter (
+						max_error,
+						max_step,
+						armijo,
+						curvature
 				),
 				TargetParameter(
 						BodyEnergyParameter(

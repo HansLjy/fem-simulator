@@ -18,7 +18,7 @@ void Test::setUp() {
 //	_interior_pointer_optimizer->Initialize(InteriorPointParameter(10000, 50, 0.1));
 
 	_optimizer = OptimizerFactory::GetInstance()->GetOptimizer(OptimizerType::kNewtonIterator);
-	_optimizer->Initialize(NewtonIteratorParameter(1e-5, 50));
+	_optimizer->Initialize(NewtonIteratorParameter(1e-5, 50, 0.15, 0));
 
 	_consistency_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(ConsistencyModelType::kStVK);
 	_consistency_model->Initialize(StVKModelParameter(1, 1));
@@ -51,11 +51,11 @@ void Test::tearDown() {
 int main() {
 	CppUnit::TestSuite suite;
 
-//	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
+	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer with constraints", &Test::TestOptimizerCons));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Constitute Model", &Test::TestConstituteModel));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Elastic Energy Model", &Test::TestElasticForce));
-	suite.addTest(new CppUnit::TestCaller<Test>("Test Body Energy Model", &Test::TestBodyEnergy));
+//	suite.addTest(new CppUnit::TestCaller<Test>("Test Body Energy Model", &Test::TestBodyEnergy));
 
 	CppUnit::TestResult result;
 	CppUnit::TestResultCollector collected;

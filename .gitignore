@@ -14,3 +14,4 @@ UnitTest/Tester
 UnitTest/*.cmake
 UnitTest/build
 UnitTest/Test
+log

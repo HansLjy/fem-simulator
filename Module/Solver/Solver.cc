@@ -28,6 +28,7 @@ void Solver::Initialize(const SolverParameter &para) {
 	spdlog::info("Solver initialized");
 }
 
+#include <iostream>
 void Solver::Step(double dt) {
 	VectorXd& x = _current.GetPoints();
 	_target->SetX(x);

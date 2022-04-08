@@ -108,10 +108,10 @@ void Mesh::Load(const string &file) {
 	file_stream.close();
 
 	// Shift positive
-	double min_shift = 10;
+	double min_shift = 0;
 	for (int i = 0; i < num_of_points; i++) {
 		if (_points(3 * i + 2) < 0) {
-			min_shift = std::min(min_shift, -_points(3 * i + 2));
+			min_shift = std::max(min_shift, -_points(3 * i + 2));
 		}
 	}
 	for (int i = 0; i < num_of_points; i++) {

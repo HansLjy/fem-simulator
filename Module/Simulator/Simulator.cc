@@ -4,6 +4,7 @@
 
 #include "Simulator.h"
 #include "Util/Factory.h"
+#include <spdlog/spdlog.h>
 
 SimulatorParameter::SimulatorParameter(const string &output_dir,
 									   double duration, double step,
@@ -47,6 +48,7 @@ void Simulator::Simulate() {
 		const auto& mesh = _solver->GetCurrentMesh();
 		mesh.Store(prefix + std::to_string(index++) + suffix);
 		_solver->Step(_step);
+		spdlog::info("Frame id: {}", index);
 	}
 }
 

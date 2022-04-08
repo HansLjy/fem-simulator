@@ -10,6 +10,8 @@ DEFINE_ACCESSIBLE_MEMBER(OptimizerParameter, double, MaxError, _max_error)
 DEFINE_ACCESSIBLE_MEMBER(OptimizerParameter, int, MaxStep, _max_step)
 
 DEFINE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(OptimizerParameter, double, Mu)
+DEFINE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(OptimizerParameter, double, Armijo)
+DEFINE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(OptimizerParameter, double, Curvature)
 
 
 void Optimizer::Initialize(const OptimizerParameter &para) {
