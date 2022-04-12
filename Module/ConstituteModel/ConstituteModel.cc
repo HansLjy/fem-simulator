@@ -7,8 +7,8 @@
 
 ConstituteModelParameter::ConstituteModelParameter() = default;
 
-DEFINE_VIRTUAL_ACCESSIBLE_MEMBER(ConsistencyModelParameter, double, YoungsModule)
-DEFINE_VIRTUAL_ACCESSIBLE_MEMBER(ConsistencyModelParameter, double, PoissonRatio)
+DEFINE_VIRTUAL_ACCESSIBLE_MEMBER(ConstituteModelParameter, double, YoungsModule)
+DEFINE_VIRTUAL_ACCESSIBLE_MEMBER(ConstituteModelParameter, double, PoissonRatio)
 
 void ConstituteModel::Initialize(const ConstituteModelParameter &para) {
 	spdlog::info("ConstituteModel initialized");

@@ -10,9 +10,9 @@ void Test::TestConstituteModel() {
 
 	//<- Identity matrix, psi, piola and piola differential should all be 0
 	Matrix3d I = Matrix3d::Identity();
-	auto psi = _consistency_model->EnergyDensity(I);
-	auto piola = _consistency_model->Piola(I);
-//	auto piola_diff = _consistency_model->PiolaDifferential(I);
+	auto psi = _constitute_model->EnergyDensity(I);
+	auto piola = _constitute_model->Piola(I);
+//	auto piola_diff = _constitute_model->PiolaDifferential(I);
 
 	CPPUNIT_ASSERT(psi < _eps && psi > -_eps);
 	CPPUNIT_ASSERT(piola.norm() < _eps && piola.norm() > -_eps);
@@ -33,9 +33,9 @@ void Test::TestConstituteModel() {
 
 	assert((R.transpose() * R - Matrix3d::Identity()).norm() < _eps);
 
-	psi = _consistency_model->EnergyDensity(R);
-	piola = _consistency_model->Piola(R);
-//	piola_diff = _consistency_model->PiolaDifferential(R);
+	psi = _constitute_model->EnergyDensity(R);
+	piola = _constitute_model->Piola(R);
+//	piola_diff = _constitute_model->PiolaDifferential(R);
 	CPPUNIT_ASSERT(psi < _eps && -_eps < psi);
 	CPPUNIT_ASSERT(piola.norm() < _eps && piola.norm() > -_eps);
 //	CPPUNIT_ASSERT(piola_diff.norm() < _eps && piola_diff.norm() > -_eps);
@@ -60,9 +60,9 @@ void Test::TestConstituteModel() {
 		  -22.2500, -57.5000, 48.7500;
 
 
-	psi = _consistency_model->EnergyDensity(F);
-	piola = _consistency_model->Piola(F);
-//	piola_diff = _consistency_model->PiolaDifferential(F);
+	psi = _constitute_model->EnergyDensity(F);
+	piola = _constitute_model->Piola(F);
+//	piola_diff = _constitute_model->PiolaDifferential(F);
 
 	CPPUNIT_ASSERT(std::abs(psi - 30.375) < _eps);
 	CPPUNIT_ASSERT((P - piola).norm() < _eps);

@@ -22,17 +22,17 @@ public:
 class RayleighModel : public DissipationEnergyModel {
 public:
 	void Initialize(const DissipationEnergyModelParameter &para) override;
-	double Energy(const ConsistencyModel &cons_model,
+	double Energy(const ConstituteModel &cons_model,
 				  const ElasticEnergyModel &elas_model,
 				  double W, const Matrix3d &B, const Vector4d &mass,
 				  const Vector12d &V,
 				  const Matrix3d &Ds, const Matrix12x9d &pFpX) const override;
-	Vector12d Gradient(const ConsistencyModel &cons_model,
+	Vector12d Gradient(const ConstituteModel &cons_model,
 					   const ElasticEnergyModel &elas_model, double W,
 					   const Matrix3d &B, const Vector4d &mass,
 					   const Vector12d &V,
 					   const Matrix3d &Ds, const Matrix12x9d &pFpX) const override;
-	Matrix12d Hessian(const ConsistencyModel &cons_model,
+	Matrix12d Hessian(const ConstituteModel &cons_model,
 					  const ElasticEnergyModel &elas_model, double W,
 					  const Matrix3d &B, const Vector4d &mass,
 					  const Vector12d &V,

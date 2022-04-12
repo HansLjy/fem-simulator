@@ -8,7 +8,7 @@
 using Eigen::AngleAxisd;
 
 // Don't take this seriously, it only judges whether this point is inside the box or not
-double Rectangular::Distance(Vector3d point) const {
+double Rectangular::Distance(const Vector3d& point) const {
 	Vector3d coord = _rotation.transpose() * (point - _center);
 	double dis[3];
 	for (int i = 0; i < 3; i++) {
@@ -17,7 +17,7 @@ double Rectangular::Distance(Vector3d point) const {
 	return *std::max_element(dis, dis + 3);
 }
 
-Vector3d Rectangular::Normal(Vector3d point) const {
+Vector3d Rectangular::Normal(const Vector3d& point) const {
 	Vector3d coord = _rotation.transpose() * (point - _center);
 
 	double min_dis = +_shape.sum();

@@ -5,7 +5,7 @@
 #ifndef FEM_ELEMENTENERGY_H
 #define FEM_ELEMENTENERGY_H
 
-#include "ConsistencyModel/ConsitencyModel.h"
+#include "ConstituteModel/ConstituteModel.h"
 #include "Util/Pattern.h"
 #include "Util/EigenAll.h"
 
@@ -28,13 +28,13 @@ public:
 
 	// Here B is the inverse of [X1 - X4, X2 - X4, X3 - X4]
 	virtual double
-	Energy(const ConsistencyModel &cons_model, double W, const Matrix3d &B,
+	Energy(const ConstituteModel &cons_model, double W, const Matrix3d &B,
 		   const Matrix3d &Ds) const = 0;
 	virtual Vector12d
-	Gradient(const ConsistencyModel &cons_model, double W, const Matrix3d &B,
+	Gradient(const ConstituteModel &cons_model, double W, const Matrix3d &B,
 			 const Matrix3d &Ds) const = 0;
 	virtual Matrix12d
-	Hessian(const ConsistencyModel &cons_model, double W, const Matrix3d &B,
+	Hessian(const ConstituteModel &cons_model, double W, const Matrix3d &B,
 			const Matrix3d &Ds, const Matrix12x9d &pFpX) const = 0;
 
 	BASE_DECLARE_CLONE(ElasticEnergyModel)

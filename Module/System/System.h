@@ -24,17 +24,7 @@ public:
 
 class System {
 public:
-	void Initialize(const SystemParameter& para) {
-		const auto& input_files = para.GetInputFiles();
-		const auto& mass_model_types = para.GetMassModelTypes();
-		int size = input_files.size();
-		for (int i = 0; i < size; i++) {
-			Mesh new_mesh;
-			new_mesh.Initialize(MeshParameter(input_files[i]));
-			MassModel *mass_model = MassModelFactory::GetInstance()->GetMassModel(mass_model_types[i]);
-			_soft_bodies.push_back(SoftBody(new_mesh, *mass_model));
-		}
-	}
+	void Initialize(const SystemParameter& para);
 
 	void AddSoftBody(const SoftBody& soft_body) {
 		_soft_bodies.push_back(soft_body);

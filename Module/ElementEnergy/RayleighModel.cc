@@ -26,7 +26,7 @@ void RayleighModel::Initialize(const DissipationEnergyModelParameter &para) {
 	}                         								\
 	Matrix12d C = _alpha1 * M.asDiagonal().toDenseMatrix() + _alpha2 * K;
 
-double RayleighModel::Energy(const ConsistencyModel &cons_model,
+double RayleighModel::Energy(const ConstituteModel &cons_model,
 							 const ElasticEnergyModel &elas_model,
 							 double W, const Matrix3d &B, const Vector4d &mass,
 							 const Vector12d &V,
@@ -35,7 +35,7 @@ double RayleighModel::Energy(const ConsistencyModel &cons_model,
 	return 0.5 * V.transpose() * C * V;
 }
 
-Vector12d RayleighModel::Gradient(const ConsistencyModel &cons_model,
+Vector12d RayleighModel::Gradient(const ConstituteModel &cons_model,
 								  const ElasticEnergyModel &elas_model,
 								  double W,
 								  const Matrix3d &B, const Vector4d &mass,
@@ -46,7 +46,7 @@ Vector12d RayleighModel::Gradient(const ConsistencyModel &cons_model,
 	return C * V;
 }
 
-Matrix12d RayleighModel::Hessian(const ConsistencyModel &cons_model,
+Matrix12d RayleighModel::Hessian(const ConstituteModel &cons_model,
 								 const ElasticEnergyModel &elas_model, double W,
 								 const Matrix3d &B, const Vector4d &mass,
 								 const Vector12d &V,

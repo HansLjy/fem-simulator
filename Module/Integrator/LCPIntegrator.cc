@@ -27,7 +27,7 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 
 	int size = JnT.cols();	// size for u, x, M and all such matrices
 	VectorXd M(size), u(size), f(size);
-	SparseMatrixXd W(size, size);
+	MatrixXd W(size, size);
 
 	int current_size = 0;
 	for (int i = 0; i < num_soft; i++) {
@@ -46,20 +46,19 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	VectorXd c = M.asDiagonal() * u + h * f;
 	W.diagonal() += M;
 
-	Eigen::BiCGSTAB<SparseMatrixXd> linear_solver;
-	linear_solver.compute(W);
+	Eigen::HouseholderQR<MatrixXd> dec(W);
 
-	SparseMatrixXd WiJn = linear_solver.solve(JnT.transpose());
-	SparseMatrixXd WiJt = linear_solver.solve(JtT.transpose());
-	VectorXd Wic = linear_solver.solve(c);
+	MatrixXd WiJn = dec.solve(JnT.transpose().toDense());
+	MatrixXd WiJt = dec.solve(JtT.transpose().toDense());
+	VectorXd Wic = dec.solve(c);
 
-	SparseMatrixXd E(num_contact * num_tangent, num_contact);
+	MatrixXd E(num_contact * num_tangent, num_contact);
 	for (int i = 0; i < num_contact; i++) {
-		E.block(i * num_tangent, i, num_tangent, 1) = VectorXd::Ones();
+		E.block(i * num_tangent, i, num_tangent, 1).setOnes();
 	}
 
 	const int sizeA = num_contact * (2 + num_tangent);
-	SparseMatrixXd A(sizeA, sizeA);
+	MatrixXd A(sizeA, sizeA);
 	VectorXd b(sizeA);
 
 	A.block(0, 0, num_contact, num_contact) = JnT * WiJn;

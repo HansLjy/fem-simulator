@@ -9,7 +9,7 @@
 
 class PivotingMethod : public LCPSolver {
 public:
-	VectorXd Solve(const SparseMatrixXd &A, const VectorXd &b, const VectorXd &x0 = VectorXd()) const override;
+	VectorXd Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0 = VectorXd()) const override;
 };
 
 #endif //FEM_PIVOT_H

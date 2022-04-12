@@ -36,7 +36,7 @@ public:
 private:
 	const double _eps = 1e-12;
 	Optimizer *_optimizer;
-	ConstituteModel	*_consistency_model;
+	ConstituteModel	*_constitute_model;
 	ElasticEnergyModel *_elas_model;
 	BodyEnergy *_body_energy_model;
 	LCPSolver *_lcp_solver;

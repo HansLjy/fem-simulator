@@ -31,8 +31,8 @@ public:
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(ElasticEnergyModelParameter, ElasticEnergyModelParameter, _elas_para)
 	DECLARE_ACCESSIBLE_MEMBER(DissipationEnergyModelType, DissipationEnergyModelType, _diss_type)
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(DissipationEnergyModelParameter, DissipationEnergyModelParameter, _diss_para)
-	DECLARE_ACCESSIBLE_MEMBER(ConstituteModelType, ConsistencyModelType, _cons_type)
-	DECLARE_ACCESSIBLE_POINTER_MEMBER(ConstituteModelParameter, ConsistencyModelParameter, _cons_para)
+	DECLARE_ACCESSIBLE_MEMBER(ConstituteModelType, ConstituteModelType, _cons_type)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER(ConstituteModelParameter, ConstituteModelParameter, _cons_para)
 };
 
 class BodyEnergy {

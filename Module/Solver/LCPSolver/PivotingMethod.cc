@@ -4,7 +4,7 @@
 
 #include "PivotingMethod.h"
 
-VectorXd PivotingMethod::Solve(const SparseMatrixXd &A, const VectorXd &b,
+VectorXd PivotingMethod::Solve(const MatrixXd &A, const VectorXd &b,
 							   const VectorXd &x0) const {
 
 }

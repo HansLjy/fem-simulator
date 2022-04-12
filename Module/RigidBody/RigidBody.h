@@ -16,8 +16,8 @@ public:
 	double GetMu() const {
 		return _mu;
 	}
-	virtual double Distance(Vector3d point) const = 0;
-	virtual Vector3d Normal(Vector3d point) const = 0;
+	virtual double Distance(const Vector3d &point) const { return 1;}
+	virtual Vector3d Normal(const Vector3d &point) const { return Vector3d::Zero(); }
 
 protected:
 	double _mu;

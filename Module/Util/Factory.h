@@ -7,8 +7,8 @@
 
 #include "Pattern.h"
 
-#include "ConsistencyModel/ConsitencyModel.h"
-DECLARE_XXX_FACTORY(ConsistencyModel)
+#include "ConstituteModel/ConstituteModel.h"
+DECLARE_XXX_FACTORY(ConstituteModel)
 
 #include "ElementEnergy/ElasticEnergy.h"
 DECLARE_XXX_FACTORY(ElasticEnergyModel)

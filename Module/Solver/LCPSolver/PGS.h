@@ -9,14 +9,18 @@
 
 class PGSParameter : public LCPSolverParameter {
 public:
-	PGSParameter(int max_step, double lambda) : LCPSolverParameter(max_step), _lambda(lambda){}
+	PGSParameter(int max_step, double max_error,  double lambda) : LCPSolverParameter(max_step, max_error), _lambda(lambda){}
 
 	DECLARE_ACCESSIBLE_MEMBER(double, Lambda, _lambda)
 };
 
 class PGS : public LCPSolver {
 public:
-	VectorXd Solve(const SparseMatrixXd &A, const VectorXd &b, const VectorXd &x0 = VectorXd()) const override;
+	void Initialize(const LCPSolverParameter &para) override {
+		LCPSolver::Initialize(para);
+		_lambda = para.GetLambda();
+	}
+	VectorXd Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0 = VectorXd()) const override;
 
 protected:
 	double _lambda;

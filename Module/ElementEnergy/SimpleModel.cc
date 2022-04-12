@@ -11,14 +11,14 @@ void SimpleModel::Initialize(const ElasticEnergyModelParameter &para) {
 	spdlog::info("SimpleModel initialized");
 }
 
-double SimpleModel::Energy(const ConsistencyModel &cons_model, double W,
+double SimpleModel::Energy(const ConstituteModel &cons_model, double W,
 						   const Matrix3d &B,
 						   const Matrix3d &Ds) const {
 	Matrix3d F = Ds * B;
 	return W * cons_model.EnergyDensity(F);
 }
 
-Vector12d SimpleModel::Gradient(const ConsistencyModel &cons_model, double W,
+Vector12d SimpleModel::Gradient(const ConstituteModel &cons_model, double W,
 								const Matrix3d &B,
 								const Matrix3d &Ds) const {
 	Matrix3d F = Ds * B;
@@ -31,7 +31,7 @@ Vector12d SimpleModel::Gradient(const ConsistencyModel &cons_model, double W,
 	return -gradient;
 }
 
-Matrix12d SimpleModel::Hessian(const ConsistencyModel &cons_model, double W,
+Matrix12d SimpleModel::Hessian(const ConstituteModel &cons_model, double W,
 							   const Matrix3d &B,
 							   const Matrix3d &Ds,
 							   const Matrix12x9d &pFpX) const {

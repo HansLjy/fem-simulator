@@ -17,13 +17,13 @@ public:
 	void Initialize(const ElasticEnergyModelParameter &para) override;
 
 	double
-	Energy(const ConsistencyModel &cons_model, double W, const Matrix3d &B,
+	Energy(const ConstituteModel &cons_model, double W, const Matrix3d &B,
 		   const Matrix3d &Ds) const override;
 	Vector12d
-	Gradient(const ConsistencyModel &cons_model, double W, const Matrix3d &B,
+	Gradient(const ConstituteModel &cons_model, double W, const Matrix3d &B,
 			 const Matrix3d &Ds) const override;
 	Matrix12d
-	Hessian(const ConsistencyModel &cons_model, double W, const Matrix3d &B,
+	Hessian(const ConstituteModel &cons_model, double W, const Matrix3d &B,
 			const Matrix3d &Ds, const Matrix12x9d &pFpX) const override;
 	~SimpleModel();
 

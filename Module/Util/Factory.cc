@@ -4,9 +4,9 @@
 
 #include "Factory.h"
 
-#include "ConsistencyModel/StVKModel.h"
-BEGIN_DEFINE_XXX_FACTORY(ConsistencyModel)
-		ADD_PRODUCT(ConsistencyModelType::kStVK, StVKModel)
+#include "ConstituteModel//StVKModel.h"
+BEGIN_DEFINE_XXX_FACTORY(ConstituteModel)
+		ADD_PRODUCT(ConstituteModelType::kStVK, StVKModel)
 END_DEFINE_XXX_FACTORY
 
 #include "ElementEnergy/SimpleModel.h"

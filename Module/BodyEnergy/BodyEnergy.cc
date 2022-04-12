@@ -16,8 +16,8 @@ BodyEnergyParameter::BodyEnergyParameter(
 		const ElasticEnergyModelParameter &elas_para,
 		const DissipationEnergyModelType &diss_type,
 		const DissipationEnergyModelParameter &diss_para,
-		const ConsistencyModelType &cons_type,
-		const ConsistencyModelParameter &cons_para) :
+		const ConstituteModelType &cons_type,
+		const ConstituteModelParameter &cons_para) :
 		_elas_type(elas_type), _elas_para(elas_para.Clone()),
 		_diss_type(diss_type), _diss_para(diss_para.Clone()),
 		_cons_type(cons_type), _cons_para(cons_para.Clone()) {}
@@ -28,12 +28,12 @@ DEFINE_ACCESSIBLE_MEMBER(BodyEnergyParameter, ElasticEnergyModelType, ElasticEne
 DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, ElasticEnergyModelParameter, ElasticEnergyModelParameter, _elas_para)
 DEFINE_ACCESSIBLE_MEMBER(BodyEnergyParameter, DissipationEnergyModelType, DissipationEnergyModelType, _diss_type)
 DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, DissipationEnergyModelParameter, DissipationEnergyModelParameter, _diss_para)
-DEFINE_ACCESSIBLE_MEMBER(BodyEnergyParameter, ConsistencyModelType, ConsistencyModelType, _cons_type)
-DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, ConsistencyModelParameter, ConsistencyModelParameter, _cons_para)
+DEFINE_ACCESSIBLE_MEMBER(BodyEnergyParameter, ConstituteModelType, ConstituteModelType, _cons_type)
+DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, ConstituteModelParameter, ConstituteModelParameter, _cons_para)
 
 void BodyEnergy::Initialize(const BodyEnergyParameter &para) {
-	_cons_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(para.GetConsistencyModelType());
-	_cons_model->Initialize(*para.GetConsistencyModelParameter());
+	_cons_model = ConstituteModelFactory::GetInstance()->GetConstituteModel(para.GetConstituteModelType());
+	_cons_model->Initialize(*para.GetConstituteModelParameter());
 	_elas_model = ElasticEnergyModelFactory::GetInstance()->GetElasticEnergyModel(para.GetElasticEnergyModelType());
 	_elas_model->Initialize(*para.GetElasticEnergyModelParameter());
 	_diss_model = DissipationEnergyModelFactory::GetInstance()->GetDissipationEnergyModel(para.GetDissipationEnergyModelType());
