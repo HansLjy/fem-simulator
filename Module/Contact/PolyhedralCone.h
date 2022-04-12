@@ -7,6 +7,11 @@
 
 #include "ContactGenerator.h"
 
+class PolyhedralConeParameter : public ContactGeneratorParameter {
+public:
+	DERIVED_DECLARE_CLONE(ContactGeneratorParameter)
+};
+
 class PolyhedralCone : public ContactGenerator {
 public:
 	void

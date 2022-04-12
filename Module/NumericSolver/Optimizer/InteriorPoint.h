@@ -11,11 +11,9 @@ class InteriorPointParameter : public OptimizerParameter {
 public:
 	InteriorPointParameter(double max_error, int max_step, double mu);
 
-	DECLARE_OVERWRITE_ACCESSIBLE_MEMBER(double, Mu)
 	DERIVED_DECLARE_CLONE(OptimizerParameter)
+	DECLARE_OVERWRITE_ACCESSIBLE_MEMBER(double, Mu, _mu)
 
-private:
-	double _mu;
 };
 
 class InteriorPoint : public Optimizer {

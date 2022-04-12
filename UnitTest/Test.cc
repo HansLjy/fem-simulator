@@ -4,12 +4,12 @@
 
 #include "Test.h"
 #include "Util/Factory.h"
-#include "Optimizer/InteriorPoint.h"
-#include "Optimizer/NewtonIterator.h"
+#include "NumericSolver/Optimizer/InteriorPoint.h"
+#include "NumericSolver/Optimizer/NewtonIterator.h"
 #include "ConstituteModel/StVKModel.h"
 #include "ElementEnergy/SimpleModel.h"
 #include "ElementEnergy/RayleighModel.h"
-#include "Solver/LCPSolver/PGS.h"
+#include "NumericSolver/LCPSolver/PGS.h"
 #include <ctime>
 #include <algorithm>
 
@@ -57,8 +57,8 @@ int main() {
 	CppUnit::TestSuite suite;
 
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
-//	suite.addTest(new CppUnit::TestCaller<Test>("Test LCP Solver", &Test::TestLCPCommon));
-	suite.addTest(new CppUnit::TestCaller<Test>("Test LCP Solver for friction", &Test::TestLCPFrictionMatrix));
+//	suite.addTest(new CppUnit::TestCaller<Test>("Test LCP NumericSolver", &Test::TestLCPCommon));
+	suite.addTest(new CppUnit::TestCaller<Test>("Test LCP NumericSolver for friction", &Test::TestLCPFrictionMatrix));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer with constraints", &Test::TestOptimizerCons));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Constitute Model", &Test::TestConstituteModel));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Elastic Energy Model", &Test::TestElasticForce));

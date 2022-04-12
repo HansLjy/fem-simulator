@@ -3,17 +3,20 @@
 //
 
 #include "LCPIntegrator.h"
+#include "Util/Factory.h"
 #include <Eigen/IterativeLinearSolvers>
+
+DEFINE_ACCESSIBLE_MEMBER(LCPIntegratorParameter, LCPSolverType, LCPSolverType, _lcp_type)
+DEFINE_ACCESSIBLE_POINTER_MEMBER(LCPIntegratorParameter, LCPSolverParameter, LCPSolverParameter, _lcp_para)
+
+void LCPIntegrator::Initialize(const IntegratorParameter &para) {
+	_solver = LCPSolverFactory::GetInstance()->GetLCPSolver(para.GetLCPSolverType());
+	_solver->Initialize(*para.GetLCPSolverParameter());
+}
 
 void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 						 const BodyEnergy &body_energy, double h,
 						 const Solver &solver) {
-	auto& ext_force = system.GetExternalForces();
-	const int num_ext = ext_force.size();
-
-	auto& soft_bodies = system.GetSoftBodies();
-	const int num_soft = soft_bodies.size();
-
 	const int num_tangent = contact.GetNumTangent();
 
 	SparseMatrixXd JnT, JtT;
@@ -23,34 +26,25 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 
 	const int num_contact = JnT.rows();
 
-	// TODO: add dissipation force
+	int size = system.GetCoordSize();	// size for u, x, M and all such matrices
+	SparseMatrixXd W(size, size);
 
-	int size = JnT.cols();	// size for u, x, M and all such matrices
-	VectorXd M(size), u(size), f(size);
-	MatrixXd W(size, size);
+	VectorXd M, u, f;
+	system.GetSysMass(M);
+	system.GetSysV(u);
+	system.GetSysF(f, body_energy);
+	system.GetSysPFPX(W, body_energy);
 
-	int current_size = 0;
-	for (int i = 0; i < num_soft; i++) {
-		int single_size = soft_bodies[i]._sparse_mass.size();
-		M.block(current_size, 0, single_size, 1) = soft_bodies[i]._sparse_mass;
-		u.block(current_size, 0, single_size, 1) = soft_bodies[i]._v;
-		f.block(current_size, 0, single_size, 1).setZero();
-		for (int j = 0; j < num_ext; j++) {
-			f.block(current_size, 0, single_size, 1) -= ext_force[j]->Gradient(soft_bodies[i]);
-		}
-		f.block(current_size, 0, single_size, 1) -= body_energy.EGradient(soft_bodies[i]);
-		W.block(current_size, current_size, single_size, single_size) = h * h * body_energy.EHessian(soft_bodies[i]);
-		current_size += single_size;
-	}
-
-	VectorXd c = M.asDiagonal() * u + h * f;
+	W *= h * h;
 	W.diagonal() += M;
+	VectorXd c = M.asDiagonal() * u + h * f;
 
-	Eigen::HouseholderQR<MatrixXd> dec(W);
+	Eigen::BiCGSTAB<SparseMatrixXd> linear_solver;
+	linear_solver.compute(W);
 
-	MatrixXd WiJn = dec.solve(JnT.transpose().toDense());
-	MatrixXd WiJt = dec.solve(JtT.transpose().toDense());
-	VectorXd Wic = dec.solve(c);
+	MatrixXd WiJn = linear_solver.solve(JnT.transpose().toDense());
+	MatrixXd WiJt = linear_solver.solve(JtT.transpose().toDense());
+	VectorXd Wic = linear_solver.solve(c);
 
 	MatrixXd E(num_contact * num_tangent, num_contact);
 	for (int i = 0; i < num_contact; i++) {
@@ -77,11 +71,5 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 
 	VectorXd u_plus = Wic + WiJn * sol.block(0, 0, num_contact, 1) + WiJt * sol.block(num_contact, 0, num_contact * num_tangent, 1);
 
-	current_size = 0;
-	for (int i = 0; i < num_soft; i++) {
-		int size_single = soft_bodies[i]._v.size();
-		soft_bodies[i]._mesh.GetPoints() += h * u_plus.block(current_size, 0, size_single, 1);
-		soft_bodies[i]._v = u_plus.block(current_size, 0, size_single, 1);
-		current_size += size_single;
-	}
+	system.Update(u_plus, h);
 }

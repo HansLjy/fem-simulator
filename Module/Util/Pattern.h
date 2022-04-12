@@ -52,10 +52,12 @@ public:                                                   									\
 	virtual const MemberType& Get##MemberName() const;            							\
 	virtual MemberType& Get##MemberName();
 
-#define DECLARE_OVERWRITE_ACCESSIBLE_MEMBER(MemberType, MemberName) 				\
+#define DECLARE_OVERWRITE_ACCESSIBLE_MEMBER(MemberType, MemberName, _member_name)			\
 public:                                                   									\
 	virtual const MemberType& Get##MemberName() const override;    							\
-	virtual MemberType& Get##MemberName() override;
+	virtual MemberType& Get##MemberName() override;                                    		\
+protected:                                             	  									\
+	MemberType _member_name;
 
 #define DECLARE_ACCESSIBLE_MEMBER(MemberType, MemberName, _member_name) \
 public:                                                   \
@@ -85,6 +87,26 @@ public:                                                   \
 	const MemberType* Get##MemberName() const;            \
 	MemberType* Get##MemberName();                        \
 protected:                                             	  \
+	MemberType* _member_name;
+
+#define DECLARE_VIRTUAL_ACCESSIBLE_POINTER_MEMBER(MemberType, MemberName) \
+public:                                                   \
+	virtual const MemberType* Get##MemberName() const;            \
+	virtual MemberType* Get##MemberName();
+
+#define DEFINE_VIRTUAL_ACCESSIBLE_POINTER_MEMBER(classname, MemberType, MemberName) \
+const MemberType* classname::Get##MemberName() const {                               \
+    throw "Access unsupported accessor";                                             \
+}                                                                                    \
+MemberType* classname::Get##MemberName() {                                           \
+    throw "Access unsupported accesor";                                              \
+}
+
+#define DECLARE_OVERWRITE_ACCESSIBLE_POINTER_MEMBER(MemberType, MemberName, _member_name) \
+public:                                                   \
+	const MemberType* Get##MemberName() const override;            \
+	MemberType* Get##MemberName() override;                                                  \
+protected:\
 	MemberType* _member_name;
 
 #define DEFINE_ACCESSIBLE_POINTER_MEMBER(classname, MemberType, MemberName, _member_name)	\

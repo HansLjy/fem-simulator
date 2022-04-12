@@ -11,6 +11,9 @@
 class LCPSolverParameter {
 public:
 	LCPSolverParameter(int max_step, double max_error) : _max_step(max_step), _max_error(max_error) {}
+	BASE_DECLARE_CLONE(LCPSolverParameter)
+
+	virtual ~LCPSolverParameter() = default;
 
 	DECLARE_ACCESSIBLE_MEMBER(int, MaxStep, _max_step)
 

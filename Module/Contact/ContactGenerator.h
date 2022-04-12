@@ -15,6 +15,8 @@ enum class ContactGeneratorType {
 class ContactGeneratorParameter {
 public:
 	explicit ContactGeneratorParameter(int num_tangent) : _num_tagent(num_tangent) {}
+	BASE_DECLARE_CLONE(ContactGeneratorParameter)
+	virtual ~ContactGeneratorParameter() = default;
 
 	DECLARE_ACCESSIBLE_MEMBER(int, NumTangent, _num_tagent)
 };

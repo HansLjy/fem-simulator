@@ -5,7 +5,8 @@
 #ifndef FEM_SOLVER_H
 #define FEM_SOLVER_H
 
-#include "Solver/LCPSolver/LCPSolver.h"
+#include "LCPSolver/LCPSolver.h"
+#include "Optimizer/Optimizer.h"
 
 enum class ProblemType {
 	kLCP,

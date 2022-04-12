@@ -4,7 +4,7 @@
 
 #include "Factory.h"
 
-#include "ConstituteModel//StVKModel.h"
+#include "ConstituteModel/StVKModel.h"
 BEGIN_DEFINE_XXX_FACTORY(ConstituteModel)
 		ADD_PRODUCT(ConstituteModelType::kStVK, StVKModel)
 END_DEFINE_XXX_FACTORY
@@ -24,8 +24,8 @@ BEGIN_DEFINE_XXX_FACTORY(MassModel)
 		ADD_PRODUCT(MassModelType::kVoronoi, VoronoiModel)
 END_DEFINE_XXX_FACTORY
 
-#include "Optimizer/InteriorPoint.h"
-#include "Optimizer/NewtonIterator.h"
+#include "NumericSolver/Optimizer/InteriorPoint.h"
+#include "NumericSolver/Optimizer/NewtonIterator.h"
 BEGIN_DEFINE_XXX_FACTORY(Optimizer)
 		ADD_PRODUCT(OptimizerType::kInteriorPoint, InteriorPoint)
 		ADD_PRODUCT(OptimizerType::kNewtonIterator, NewtonIterator)
@@ -36,7 +36,7 @@ BEGIN_DEFINE_XXX_FACTORY(Integrator)
 		ADD_PRODUCT(IntegratorType::kLCPIntegrator, LCPIntegrator)
 END_DEFINE_XXX_FACTORY
 
-#include "Solver/LCPSolver/PGS.h"
+#include "NumericSolver/LCPSolver/PGS.h"
 BEGIN_DEFINE_XXX_FACTORY(LCPSolver)
 		ADD_PRODUCT(LCPSolverType::kPGS, PGS)
 END_DEFINE_XXX_FACTORY

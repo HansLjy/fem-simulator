@@ -5,6 +5,8 @@
 #include "PolyhedralCone.h"
 #include <cmath>
 
+DEFINE_CLONE(ContactGeneratorParameter, PolyhedralConeParameter)
+
 const double pi = acos(-1);
 
 void PolyhedralCone::GetContact(const System &system, SparseMatrixXd &Jn,

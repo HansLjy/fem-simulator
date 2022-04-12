@@ -6,6 +6,7 @@
 #include <iostream>
 #include <spdlog/spdlog.h>
 
+DEFINE_CLONE(LCPSolverParameter, PGSParameter)
 DEFINE_ACCESSIBLE_MEMBER(PGSParameter, double, Lambda, _lambda)
 
 VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b,
@@ -14,12 +15,12 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b,
 	std::cerr << "A: \n" << A << std::endl << "b: \n" << b.transpose() << std::endl;
 	const int size = b.size();
 
-	int step = 0;
-
 	VectorXd x = x0;
 	if (x.size() == 0) {
 		x.resizeLike(b);
 	}
+
+	int step = 0;
 	while (step++ < _max_step) {
 		for (int i = 0; i < size; i++) {
 			double ri = A.row(i).dot(x) + b(i);
@@ -30,7 +31,6 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b,
 		if ((A * x + b).minCoeff() >= 0) {
 			break;
 		}
-		std::cerr << step << ": " << x.transpose() << std::endl;
 	}
 
 	std::cerr << "x: \n" << x.transpose() << std::endl;

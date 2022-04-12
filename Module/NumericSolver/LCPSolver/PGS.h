@@ -11,6 +11,7 @@ class PGSParameter : public LCPSolverParameter {
 public:
 	PGSParameter(int max_step, double max_error,  double lambda) : LCPSolverParameter(max_step, max_error), _lambda(lambda){}
 
+	DERIVED_DECLARE_CLONE(LCPSolverParameter)
 	DECLARE_ACCESSIBLE_MEMBER(double, Lambda, _lambda)
 };
 

@@ -9,12 +9,12 @@
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, double, Duration, _duration)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, double, Step, _step)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, string, OutputDir, _output_dir)
-DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, SystemParameter, SystemPara, _system_para)
+DEFINE_ACCESSIBLE_POINTER_MEMBER(SimulatorParameter, SystemParameter, SystemPara, _system_para)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, IntegratorType, IntegratorType, _integrator_type)
-DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, IntegratorParameter, IntegratorPara, _integrator_para)
+DEFINE_ACCESSIBLE_POINTER_MEMBER(SimulatorParameter, IntegratorParameter, IntegratorPara, _integrator_para)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, ContactGeneratorType, ContactGenType, _contact_gen_type)
-DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, ContactGeneratorParameter, ContactGenPara, _contact_gen_para)
-DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, BodyEnergyParameter, BodyEngPara, _body_eng_para)
+DEFINE_ACCESSIBLE_POINTER_MEMBER(SimulatorParameter, ContactGeneratorParameter, ContactGenPara, _contact_gen_para)
+DEFINE_ACCESSIBLE_POINTER_MEMBER(SimulatorParameter, BodyEnergyParameter, BodyEngPara, _body_eng_para)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, ProblemType, ProbType, _prob_type)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, SolverType, SolverType, _sol_type)
 
@@ -23,15 +23,15 @@ void Simulator::Initialize(const SimulatorParameter &para) {
 	_step = para.GetStep();
 	_output_dir = para.GetOutputDir();
 
-	_system.Initialize(para.GetSystemPara());
+	_system.Initialize(*para.GetSystemPara());
 
 	_integrator = IntegratorFactory::GetInstance()->GetIntegrator(para.GetIntegratorType());
-	_integrator->Initialize(para.GetIntegratorPara());
+	_integrator->Initialize(*para.GetIntegratorPara());
 
 	_contact = ContactGeneratorFactory::GetInstance()->GetContactGenerator(para.GetContactGenType());
-	_contact->Initialize(para.GetContactGenPara());
+	_contact->Initialize(*para.GetContactGenPara());
 
-	_body_energy->Initialize(para.GetBodyEngPara());
+	_body_energy->Initialize(*para.GetBodyEngPara());
 
 	switch (para.GetProbType()) {
 		case ProblemType::kLCP:

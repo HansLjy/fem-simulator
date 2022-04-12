@@ -19,10 +19,10 @@ DECLARE_XXX_FACTORY(DissipationEnergyModel)
 #include "Mass/MassModel.h"
 DECLARE_XXX_FACTORY(MassModel)
 
-#include "Optimizer/Optimizer.h"
+#include "NumericSolver/Optimizer/Optimizer.h"
 DECLARE_XXX_FACTORY(Optimizer)
 
-#include "Solver/LCPSolver/LCPSolver.h"
+#include "NumericSolver/LCPSolver/LCPSolver.h"
 DECLARE_XXX_FACTORY(LCPSolver)
 
 #include "Integrator/Integrator.h"

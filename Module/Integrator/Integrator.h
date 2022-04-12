@@ -6,7 +6,7 @@
 #define FEM_INTEGRATOR_H
 
 #include "System/System.h"
-#include "Solver/Solver.h"
+#include "NumericSolver/NumericSolver.h"
 #include "Contact/ContactGenerator.h"
 #include "BodyEnergy/BodyEnergy.h"
 
@@ -16,7 +16,14 @@ enum class IntegratorType {
 
 class IntegratorParameter {
 public:
-	DERIVED_DECLARE_CLONE(IntegratorParameter);
+	BASE_DECLARE_CLONE(IntegratorParameter);
+
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER(LCPSolverType, LCPSolverType)
+	DECLARE_VIRTUAL_ACCESSIBLE_POINTER_MEMBER(LCPSolverParameter, LCPSolverParameter)
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER(OptimizerType, OptimizerType)
+	DECLARE_VIRTUAL_ACCESSIBLE_POINTER_MEMBER(OptimizerParameter, OptimizerParameter)
+
+	virtual ~IntegratorParameter() = default;
 };
 
 /**
@@ -24,7 +31,7 @@ public:
  */
 class Integrator {
 public:
-	virtual void Initialize(const IntegratorParameter& para) {};
+	virtual void Initialize(const IntegratorParameter& para) = 0;
 	virtual void Step(System &system, const ContactGenerator &contact,
 					  const BodyEnergy &body_energy, double h,
 					  const Solver &solver) = 0;

@@ -14,11 +14,12 @@
 #include <functional>
 #include <cppunit/CompilerOutputter.h>
 #include "spdlog/spdlog.h"
-#include "Optimizer/Optimizer.h"
+#include "NumericSolver/Optimizer/Optimizer.h"
 #include "ConstituteModel/ConstituteModel.h"
 #include "ElementEnergy/ElasticEnergy.h"
 #include "BodyEnergy/BodyEnergy.h"
-#include "Solver/LCPSolver/LCPSolver.h"
+#include "NumericSolver/LCPSolver/LCPSolver.h"
+#include "RigidBody/RigidBody.h"
 
 class Test : public CppUnit::TestFixture {
 public:
@@ -32,6 +33,7 @@ public:
 	void TestBodyEnergy();
 	void TestLCPCommon();
 	void TestLCPFrictionMatrix();
+	void TestRigidBodyContact();
 
 private:
 	const double _eps = 1e-12;

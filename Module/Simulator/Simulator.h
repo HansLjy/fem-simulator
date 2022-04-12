@@ -10,7 +10,7 @@
 #include "System/System.h"
 #include "Integrator/Integrator.h"
 #include "Mass/MassModel.h"
-#include "Solver/LCPSolver/LCPSolver.h"
+#include "NumericSolver/LCPSolver/LCPSolver.h"
 
 using std::string;
 
@@ -31,12 +31,12 @@ public:
 	) : _duration(duration),
 		_step(step),
 		_output_dir(output_dir),
-		_system_para(*system_para.Clone()),
+		_system_para(system_para.Clone()),
 		_integrator_type(integrator_type),
-		_integrator_para(*integrator_para.Clone()),
+		_integrator_para(integrator_para.Clone()),
 		_contact_gen_type(contact_type),
-		_contact_gen_para(contact_para),
-		_body_eng_para(*body_energy_para.Clone()),
+		_contact_gen_para(contact_para.Clone()),
+		_body_eng_para(body_energy_para.Clone()),
 		_prob_type(prob_type),
 		_sol_type(sol_type)
 	{}
@@ -44,14 +44,21 @@ public:
 	DECLARE_ACCESSIBLE_MEMBER(double, Duration, _duration)
 	DECLARE_ACCESSIBLE_MEMBER(double, Step, _step)
 	DECLARE_ACCESSIBLE_MEMBER(string, OutputDir, _output_dir)
-	DECLARE_ACCESSIBLE_MEMBER(SystemParameter, SystemPara, _system_para)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER(SystemParameter, SystemPara, _system_para)
 	DECLARE_ACCESSIBLE_MEMBER(IntegratorType, IntegratorType, _integrator_type)
-	DECLARE_ACCESSIBLE_MEMBER(IntegratorParameter, IntegratorPara, _integrator_para)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER(IntegratorParameter, IntegratorPara, _integrator_para)
 	DECLARE_ACCESSIBLE_MEMBER(ContactGeneratorType, ContactGenType, _contact_gen_type)
-	DECLARE_ACCESSIBLE_MEMBER(ContactGeneratorParameter, ContactGenPara, _contact_gen_para)
-	DECLARE_ACCESSIBLE_MEMBER(BodyEnergyParameter, BodyEngPara, _body_eng_para)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER(ContactGeneratorParameter, ContactGenPara, _contact_gen_para)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, BodyEngPara, _body_eng_para)
 	DECLARE_ACCESSIBLE_MEMBER(ProblemType, ProbType, _prob_type)
 	DECLARE_ACCESSIBLE_MEMBER(SolverType, SolverType, _sol_type)
+
+	~SimulatorParameter() {
+		delete _system_para;
+		delete _integrator_para;
+		delete _contact_gen_para;
+		delete _body_eng_para;
+	}
 };
 
 
