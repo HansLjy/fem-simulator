@@ -15,8 +15,8 @@ public:
 
 	DERIVED_DECLARE_CLONE(DissipationEnergyModelParameter)
 
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Alpha1, _alpha1)
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Alpha2, _alpha2)
+	DECLARE_ACCESSIBLE_MEMBER(double, Alpha1, _alpha1)
+	DECLARE_ACCESSIBLE_MEMBER(double, Alpha2, _alpha2)
 };
 
 class RayleighModel : public DissipationEnergyModel {

@@ -31,13 +31,17 @@ BEGIN_DEFINE_XXX_FACTORY(Optimizer)
 		ADD_PRODUCT(OptimizerType::kNewtonIterator, NewtonIterator)
 END_DEFINE_XXX_FACTORY
 
-#include "Solver/BackwardSolver.h"
-
-BEGIN_DEFINE_XXX_FACTORY(Solver)
-		ADD_PRODUCT(SolverType::kBackward, BackwardSolver)
+#include "Integrator/LCPIntegrator.h"
+BEGIN_DEFINE_XXX_FACTORY(Integrator)
+		ADD_PRODUCT(IntegratorType::kLCPIntegrator, LCPIntegrator)
 END_DEFINE_XXX_FACTORY
 
-#include "Solver/BackwardTarget.h"
-BEGIN_DEFINE_XXX_FACTORY(Target)
-		ADD_PRODUCT(TargetType::kBackward, BackwardTarget)
+#include "Solver/LCPSolver/PGS.h"
+BEGIN_DEFINE_XXX_FACTORY(LCPSolver)
+		ADD_PRODUCT(LCPSolverType::kPGS, PGS)
+END_DEFINE_XXX_FACTORY
+
+#include "Contact/PolyhedralCone.h"
+BEGIN_DEFINE_XXX_FACTORY(ContactGenerator)
+		ADD_PRODUCT(ContactGeneratorType::kPolyhedralCone, PolyhedralCone)
 END_DEFINE_XXX_FACTORY

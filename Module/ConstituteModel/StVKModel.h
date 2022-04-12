@@ -5,26 +5,26 @@
 #ifndef FEM_STVKMODEL_H
 #define FEM_STVKMODEL_H
 
-#include "ConsitencyModel.h"
+#include "ConstituteModel.h"
 
-class StVKModelParameter : public ConsistencyModelParameter {
+class StVKModelParameter : public ConstituteModelParameter {
 public:
 	StVKModelParameter(double youngs_module, double poisson_ratio);
-	DERIVED_DECLARE_CLONE(ConsistencyModelParameter)
+	DERIVED_DECLARE_CLONE(ConstituteModelParameter)
 
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, YoungsModule, _youngs_module)
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, PoissonRatio, _poisson_ratio)
+	DECLARE_ACCESSIBLE_MEMBER(double, YoungsModule, _youngs_module)
+	DECLARE_ACCESSIBLE_MEMBER(double, PoissonRatio, _poisson_ratio)
 };
 
-class StVKModel : public ConsistencyModel {
+class StVKModel : public ConstituteModel {
 public:
-	void Initialize(const ConsistencyModelParameter &para) override;
+	void Initialize(const ConstituteModelParameter &para) override;
 	double EnergyDensity(const Matrix3d &F) const override;
 	Matrix3d Piola(const Matrix3d &F) const override;
 	Matrix9d PiolaDifferential(const Matrix3d &F) const override;
 	~StVKModel();
 
-	DERIVED_DECLARE_CLONE(ConsistencyModel)
+	DERIVED_DECLARE_CLONE(ConstituteModel)
 
 protected:
 	double _lame_mu;

@@ -8,7 +8,7 @@ VoronoiModelParameter::VoronoiModelParameter(double density) : MassModelParamete
 
 DEFINE_CLONE(MassModelParameter, VoronoiModelParameter)
 
-VectorXd VoronoiModel::GetMassDistribution(const Mesh &mesh) {
+VectorXd VoronoiModel::GetMassDistribution(const Mesh &mesh) const {
 	const VectorXd& points = mesh.GetPoints();
 	const auto& tets = mesh.GetTets();
 	int num_of_points = points.size() / 3;

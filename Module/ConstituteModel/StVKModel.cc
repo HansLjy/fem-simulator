@@ -8,11 +8,11 @@
 StVKModelParameter::StVKModelParameter(double youngs_module,
 									   double poisson_ratio) : _youngs_module(youngs_module), _poisson_ratio(poisson_ratio) {}
 
-DEFINE_CLONE(ConsistencyModelParameter, StVKModelParameter)
+DEFINE_CLONE(ConstituteModelParameter, StVKModelParameter)
 DEFINE_ACCESSIBLE_MEMBER(StVKModelParameter, double, YoungsModule, _youngs_module)
 DEFINE_ACCESSIBLE_MEMBER(StVKModelParameter, double, PoissonRatio, _poisson_ratio)
 
-void StVKModel::Initialize(const ConsistencyModelParameter& para) {
+void StVKModel::Initialize(const ConstituteModelParameter& para) {
 	_lame_mu = para.GetYoungsModule() / (2 * (1 + para.GetPoissonRatio()));
 	_lame_lambda = para.GetYoungsModule() * para.GetPoissonRatio() / ((1 + para.GetPoissonRatio()) * (1 - 2 * para.GetPoissonRatio()));
 	spdlog::info("StVKModel initialized");
@@ -58,4 +58,4 @@ Matrix9d StVKModel::PiolaDifferential(const Matrix3d &F) const {
 
 StVKModel::~StVKModel() = default;
 
-DEFINE_CLONE(ConsistencyModel, StVKModel)
+DEFINE_CLONE(ConstituteModel, StVKModel)

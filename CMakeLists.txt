@@ -15,3 +15,5 @@ find_package (spdlog REQUIRED)
 add_executable(fem main.cpp ${src})
 target_link_libraries(fem Eigen3::Eigen)
 target_link_libraries(fem spdlog::spdlog)
+
+message("Fuck")

@@ -5,7 +5,6 @@
 #include "../Test.h"
 #include "Function/Function.h"
 #include "Eigen/Dense"
-#include "Constraint/PlaneConstraint.h"
 
 using Eigen::Matrix3d, Eigen::Vector3d;
 
@@ -108,7 +107,7 @@ void Test::TestOptimizerCons() {
 	point << 1, 1, 1;
 	norm << 1, 1, 1;
 
-	_optimizer->AddConstraint(PlaneConstraint(norm, point));
+//	_optimizer->AddConstraint(PlaneConstraint(norm, point));
 
 	Vector3d x0 = Vector3d::Random() + 3 * norm;
 

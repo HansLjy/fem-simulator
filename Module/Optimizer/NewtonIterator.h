@@ -12,8 +12,8 @@ public:
 	NewtonIteratorParameter(double max_error, int max_step, double armijo, double curvature);
 	DERIVED_DECLARE_CLONE(OptimizerParameter)
 
-	DECLARE_OVERWRITE_ACCESSIBLE_MEMBER_ACCESSOR(double, Armijo)
-	DECLARE_OVERWRITE_ACCESSIBLE_MEMBER_ACCESSOR(double, Curvature)
+	DECLARE_OVERWRITE_ACCESSIBLE_MEMBER(double, Armijo)
+	DECLARE_OVERWRITE_ACCESSIBLE_MEMBER(double, Curvature)
 
 private:
 	double _armijo, _curvature;

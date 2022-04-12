@@ -17,7 +17,7 @@ class MeshParameter {
 public:
 	MeshParameter(const string& input_file);
 
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(string, InputFile, _input_file)
+	DECLARE_ACCESSIBLE_MEMBER(string, InputFile, _input_file)
 };
 
 #define TETS vector<array<int, 4>>
@@ -30,9 +30,9 @@ public:
 private:
 	void Load(const string& file);
 
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(VectorXd, Points, _points)
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(string, Title, _title)
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(TETS, Tets, _tets)
+	DECLARE_ACCESSIBLE_MEMBER(VectorXd, Points, _points)
+	DECLARE_ACCESSIBLE_MEMBER(string, Title, _title)
+	DECLARE_ACCESSIBLE_MEMBER(TETS, Tets, _tets)
 };
 
 #undef TETS

@@ -3,7 +3,7 @@
 //
 
 #include "../Test.h"
-#include "ConsistencyModel/StVKModel.h"
+#include "ConstituteModel/StVKModel.h"
 
 void Test::TestConstituteModel() {
 	spdlog::info("Start Constitute Model Resource");

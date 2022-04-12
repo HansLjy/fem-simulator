@@ -47,24 +47,24 @@ base* derived::Clone() const {      \
 	return new derived(*this);      \
 }
 
-#define DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(MemberType, MemberName) 					\
+#define DECLARE_VIRTUAL_ACCESSIBLE_MEMBER(MemberType, MemberName) 					\
 public:                                                   									\
 	virtual const MemberType& Get##MemberName() const;            							\
 	virtual MemberType& Get##MemberName();
 
-#define DECLARE_OVERWRITE_ACCESSIBLE_MEMBER_ACCESSOR(MemberType, MemberName) 				\
+#define DECLARE_OVERWRITE_ACCESSIBLE_MEMBER(MemberType, MemberName) 				\
 public:                                                   									\
 	virtual const MemberType& Get##MemberName() const override;    							\
 	virtual MemberType& Get##MemberName() override;
 
-#define DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(MemberType, MemberName, _member_name) \
+#define DECLARE_ACCESSIBLE_MEMBER(MemberType, MemberName, _member_name) \
 public:                                                   \
 	const MemberType& Get##MemberName() const;            \
 	MemberType& Get##MemberName();                        \
 protected:                                             	  \
 	MemberType _member_name;
 
-#define DEFINE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(classname, MemberType, MemberName) \
+#define DEFINE_VIRTUAL_ACCESSIBLE_MEMBER(classname, MemberType, MemberName) \
 const MemberType& classname::Get##MemberName() const {                               \
     throw "Access unsupported accessor";                                             \
 }                                                                                    \
@@ -80,20 +80,12 @@ MemberType& classname::Get##MemberName() {                         					\
 	return _member_name;                                          					\
 }
 
-#define DECLARE_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(MemberType, MemberName, _member_name) \
+#define DECLARE_ACCESSIBLE_POINTER_MEMBER(MemberType, MemberName, _member_name) \
 public:                                                   \
 	const MemberType* Get##MemberName() const;            \
 	MemberType* Get##MemberName();                        \
 protected:                                             	  \
 	MemberType* _member_name;
-
-#define DEFINE_VIRTUAL_ACCESSIBLE_POINTER_MEMBER_ACCESSOR(classname, MemberType, MemberName) \
-const MemberType* classname::Get##MemberName() const {                               \
-    throw "Access unsupported accessor";                                             \
-}                                                                                    \
-MemberType* classname::Get##MemberName() {                                           \
-    throw "Access unsupported accesor";                                              \
-}
 
 #define DEFINE_ACCESSIBLE_POINTER_MEMBER(classname, MemberType, MemberName, _member_name)	\
 const MemberType* classname::Get##MemberName() const {								\

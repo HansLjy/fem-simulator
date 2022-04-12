@@ -4,14 +4,15 @@
 
 #include "GroundForce.h"
 #include "Util/EigenAll.h"
+#include "SoftBody/SoftBody.h"
 
 DEFINE_CLONE(ExternalForce, GroundForce)
 
 GroundForce::GroundForce(double stiffness) : _stiffness(stiffness) {}
 
 double
-GroundForce::Energy(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
-					const VectorXd &V) const {
+GroundForce::Energy(const SoftBody &body) const {
+	const auto& X = body._mesh.GetPoints();
 	const int num_of_points = X.size() / 3;
 
 	double result = 0;
@@ -26,8 +27,8 @@ GroundForce::Energy(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 }
 
 VectorXd
-GroundForce::Gradient(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
-					  const VectorXd &V) const {
+GroundForce::Gradient(const SoftBody &body) const {
+	const auto& X = body._mesh.GetPoints();
 	const int num_of_points = X.size() / 3;
 
 	VectorXd gradient(num_of_points * 3);
@@ -42,8 +43,8 @@ GroundForce::Gradient(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
 }
 
 SparseMatrixXd
-GroundForce::Hessian(const Mesh &mesh, const VectorXd &mass, const VectorXd &X,
-					 const VectorXd &V) const {
+GroundForce::Hessian(const SoftBody &body) const {
+	const auto& X = body._mesh.GetPoints();
 	const int num_of_points = X.size() / 3;
 
 	SparseMatrixXd hessian(num_of_points * 3, num_of_points * 3);

@@ -4,7 +4,7 @@
 
 #include "../Test.h"
 #include "ElementEnergy/SimpleModel.h"
-#include "ConsistencyModel/StVKModel.h"
+#include "ConstituteModel/StVKModel.h"
 #include <array>
 typedef std::array<Vector3d, 4> Tet;
 

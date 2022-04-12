@@ -22,10 +22,13 @@ DECLARE_XXX_FACTORY(MassModel)
 #include "Optimizer/Optimizer.h"
 DECLARE_XXX_FACTORY(Optimizer)
 
-#include "Solver/Solver.h"
-DECLARE_XXX_FACTORY(Solver)
+#include "Solver/LCPSolver/LCPSolver.h"
+DECLARE_XXX_FACTORY(LCPSolver)
 
-#include "Solver/Target.h"
-DECLARE_XXX_FACTORY(Target)
+#include "Integrator/Integrator.h"
+DECLARE_XXX_FACTORY(Integrator)
+
+#include "Contact/ContactGenerator.h"
+DECLARE_XXX_FACTORY(ContactGenerator)
 
 #endif //FEM_FACTORY_H

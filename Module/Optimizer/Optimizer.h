@@ -18,11 +18,11 @@ class OptimizerParameter {
 public:
 	OptimizerParameter(double max_error, int max_step);
 	BASE_DECLARE_CLONE(OptimizerParameter)
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, MaxError, _max_error)
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(int, MaxStep, _max_step)
-	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, Mu)
-	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, Armijo)
-	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, Curvature)
+	DECLARE_ACCESSIBLE_MEMBER(double, MaxError, _max_error)
+	DECLARE_ACCESSIBLE_MEMBER(int, MaxStep, _max_step)
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER(double, Mu)
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER(double, Armijo)
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER(double, Curvature)
 };
 
 class Optimizer {

@@ -12,5 +12,5 @@ void DissipationEnergyModel::Initialize(
 	spdlog::info("DissipationEnergyModel initialized");
 }
 
-DEFINE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(DissipationEnergyModelParameter, double, Alpha1)
-DEFINE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(DissipationEnergyModelParameter, double, Alpha2)
+DEFINE_VIRTUAL_ACCESSIBLE_MEMBER(DissipationEnergyModelParameter, double, Alpha1)
+DEFINE_VIRTUAL_ACCESSIBLE_MEMBER(DissipationEnergyModelParameter, double, Alpha2)

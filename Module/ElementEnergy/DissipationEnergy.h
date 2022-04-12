@@ -19,8 +19,8 @@ public:
 	DissipationEnergyModelParameter();
 	BASE_DECLARE_CLONE(DissipationEnergyModelParameter)
 
-	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, Alpha1)
-	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER_ACCESSOR(double, Alpha2)
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER(double, Alpha1)
+	DECLARE_VIRTUAL_ACCESSIBLE_MEMBER(double, Alpha2)
 
 };
 

@@ -18,13 +18,13 @@ public:
 	MassModelParameter(double density);
 	BASE_DECLARE_CLONE(MassModelParameter)
 
-	DECLARE_ACCESSIBLE_MEMBER_ACCESSOR(double, Density, _density)
+	DECLARE_ACCESSIBLE_MEMBER(double, Density, _density)
 };
 
 class MassModel {
 public:
 	virtual void Initialize(const MassModelParameter& para);
-	virtual VectorXd GetMassDistribution(const Mesh& mesh) = 0;
+	virtual VectorXd GetMassDistribution(const Mesh& mesh) const = 0;
 
 	virtual ~MassModel();
 	BASE_DECLARE_CLONE(MassModel)

@@ -6,60 +6,61 @@
 #include "Util/Factory.h"
 #include <spdlog/spdlog.h>
 
-SimulatorParameter::SimulatorParameter(const string &output_dir,
-									   double duration, double step,
-									   SolverType sol_type,
-									   const SolverParameter&sol_para,
-									   const MeshParameter& mesh_para)
-									   : _output_dir(output_dir),
-									     _duration(duration), _step(step),
-										 _sol_type(sol_type),
-										 _sol_para(sol_para.Clone()),
-										 _mesh_para(mesh_para)
-									   {}
-
-DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, string, OutputDir, _output_dir)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, double, Duration, _duration)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, double, Step, _step)
+DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, string, OutputDir, _output_dir)
+DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, SystemParameter, SystemPara, _system_para)
+DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, IntegratorType, IntegratorType, _integrator_type)
+DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, IntegratorParameter, IntegratorPara, _integrator_para)
+DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, ContactGeneratorType, ContactGenType, _contact_gen_type)
+DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, BodyEnergyParameter, BodyEngPara, _body_eng_para)
+DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, ProblemType, ProbType, _prob_type)
 DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, SolverType, SolverType, _sol_type)
-DEFINE_ACCESSIBLE_POINTER_MEMBER(SimulatorParameter, SolverParameter, SolverParameter, _sol_para)
-DEFINE_ACCESSIBLE_MEMBER(SimulatorParameter, MeshParameter, MeshParameter, _mesh_para)
 
 void Simulator::Initialize(const SimulatorParameter &para) {
-	_output_dir = para.GetOutputDir();
 	_duration = para.GetDuration();
 	_step = para.GetStep();
-	_solver = SolverFactory::GetInstance()->GetSolver(para.GetSolverType());
-	_solver->Initialize(*para.GetSolverParameter());
+	_output_dir = para.GetOutputDir();
 
-	Mesh mesh;
-	mesh.Initialize(para.GetMeshParameter());
-	_title = mesh.GetTitle();
-	_solver->SetMesh(mesh);
+	_system.Initialize(para.GetSystemPara());
+
+	_integrator = IntegratorFactory::GetInstance()->GetIntegrator(para.GetIntegratorType());
+	_integrator->Initialize(para.GetIntegratorPara());
+
+	_contact = ContactGeneratorFactory::GetInstance()->GetContactGenerator(para.GetContactGenType());
+	_contact->Initialize(para.GetContactGenPara());
+
+	_body_energy->Initialize(para.GetBodyEngPara());
+
+	switch (para.GetProbType()) {
+		case ProblemType::kLCP:
+			_solver.LCP = LCPSolverFactory::GetInstance()->GetLCPSolver(para.GetSolverType().LCP);
+		default:
+			exit(1);
+	}
 }
 
 void Simulator::Simulate() {
 	double current = 0;
-	string prefix = _output_dir + "/" + _title;
-	string suffix = ".vtk";
 	int index = 0;
 	while(current < _duration) {
 		current += _step;
-		const auto& mesh = _solver->GetCurrentMesh();
-		mesh.Store(prefix + std::to_string(index++) + suffix);
-		_solver->Step(_step);
-		spdlog::info("Frame id: {}", index);
+		_system.Store(_output_dir, index);
+		_integrator->Step(_system, *_contact, *_body_energy, _step, _solver);
+		spdlog::info("Frame id: {}", index++);
 	}
 }
 
 Simulator::~Simulator() {
-	delete _solver;
+	delete _integrator;
+	delete _contact;
+	delete _body_energy;
 }
 
-void Simulator::AddConstraint(const Constraint &cons) {
-	_solver->AddConstraint(cons);
+void Simulator::AddRigidBody(const RigidBody &body) {
+	_system.AddRigidBody(body);
 }
 
 void Simulator::AddExternalForce(const ExternalForce &ext) {
-	_solver->AddExternalForce(ext);
+	_system.AddExternalForce(ext);
 }

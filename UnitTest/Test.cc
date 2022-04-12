@@ -6,7 +6,7 @@
 #include "Util/Factory.h"
 #include "Optimizer/InteriorPoint.h"
 #include "Optimizer/NewtonIterator.h"
-#include "ConsistencyModel/StVKModel.h"
+#include "ConstituteModel/StVKModel.h"
 #include "ElementEnergy/SimpleModel.h"
 #include "ElementEnergy/RayleighModel.h"
 #include <ctime>
@@ -20,7 +20,7 @@ void Test::setUp() {
 	_optimizer = OptimizerFactory::GetInstance()->GetOptimizer(OptimizerType::kNewtonIterator);
 	_optimizer->Initialize(NewtonIteratorParameter(1e-5, 50, 0.15, 0));
 
-	_consistency_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(ConsistencyModelType::kStVK);
+	_consistency_model = ConsistencyModelFactory::GetInstance()->GetConsistencyModel(ConstituteModelType::kStVK);
 	_consistency_model->Initialize(StVKModelParameter(1, 1));
 
 	_elas_model = ElasticEnergyModelFactory::GetInstance()->GetElasticEnergyModel(ElasticEnergyModelType::kSimple);
@@ -33,12 +33,14 @@ void Test::setUp() {
 			SimpleModelParameter(),
 			DissipationEnergyModelType::kRayleigh,
 			RayleighModelParameter(1, 0),	// purely mass
-			ConsistencyModelType::kStVK,
+			ConstituteModelType::kStVK,
 			StVKModelParameter(1, 1)
 		)
 	);
 
 	_mesh.Initialize(MeshParameter("../Resource/vtk/two-tet.vtk"));
+
+	_lcp_solver = LCPSolverFactory::GetInstance()->GetLCPSolver(LCPSolverType::kPGS);
 }
 
 void Test::tearDown() {
@@ -46,12 +48,14 @@ void Test::tearDown() {
 	delete _consistency_model;
 	delete _elas_model;
 	delete _body_energy_model;
+	delete _lcp_solver;
 }
 
 int main() {
 	CppUnit::TestSuite suite;
 
-	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
+//	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer", &Test::TestOptimizerCG));
+	suite.addTest(new CppUnit::TestCaller<Test>("Test LCP Solver", &Test::TestLCPCommon));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Optimizer with constraints", &Test::TestOptimizerCons));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Constitute Model", &Test::TestConstituteModel));
 //	suite.addTest(new CppUnit::TestCaller<Test>("Test Elastic Energy Model", &Test::TestElasticForce));

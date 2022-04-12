@@ -6,15 +6,16 @@
 #define FEM_GROUNDFORCE_H
 
 #include "ExternalForce.h"
+#include "SoftBody/SoftBody.h"
 
 class GroundForce : public ExternalForce {
 public:
 	explicit GroundForce(double stiffness);
 
-	double Energy(const Mesh &mesh, const VectorXd &mass, const VectorXd &X, const VectorXd &V) const override;
-	VectorXd Gradient(const Mesh &mesh, const VectorXd &mass, const VectorXd &X, const VectorXd &V) const override;
+	double Energy(const SoftBody &body) const override;
+	VectorXd Gradient(const SoftBody &body) const override;
 	SparseMatrixXd
-	Hessian(const Mesh &mesh, const VectorXd &mass, const VectorXd &X, const VectorXd &V) const override;
+	Hessian(const SoftBody &body) const override;
 
 	DERIVED_DECLARE_CLONE(ExternalForce)
 
