@@ -25,9 +25,7 @@ public:
 			const IntegratorParameter& integrator_para,
 			ContactGeneratorType contact_type,
 			const ContactGeneratorParameter& contact_para,
-			const BodyEnergyParameter& body_energy_para,
-			ProblemType prob_type,
-			SolverType sol_type
+			const BodyEnergyParameter& body_energy_para
 	) : _duration(duration),
 		_step(step),
 		_output_dir(output_dir),
@@ -36,9 +34,7 @@ public:
 		_integrator_para(integrator_para.Clone()),
 		_contact_gen_type(contact_type),
 		_contact_gen_para(contact_para.Clone()),
-		_body_eng_para(body_energy_para.Clone()),
-		_prob_type(prob_type),
-		_sol_type(sol_type)
+		_body_eng_para(body_energy_para.Clone())
 	{}
 
 	DECLARE_ACCESSIBLE_MEMBER(double, Duration, _duration)
@@ -50,9 +46,8 @@ public:
 	DECLARE_ACCESSIBLE_MEMBER(ContactGeneratorType, ContactGenType, _contact_gen_type)
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(ContactGeneratorParameter, ContactGenPara, _contact_gen_para)
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, BodyEngPara, _body_eng_para)
-	DECLARE_ACCESSIBLE_MEMBER(ProblemType, ProbType, _prob_type)
-	DECLARE_ACCESSIBLE_MEMBER(SolverType, SolverType, _sol_type)
 
+public:
 	~SimulatorParameter() {
 		delete _system_para;
 		delete _integrator_para;
@@ -65,13 +60,25 @@ public:
 
 class Simulator {
 public:
+	Simulator() = default;
 	void Initialize(const SimulatorParameter& para);
-	void AddRigidBody(const RigidBody& body);
-	void AddExternalForce(const ExternalForce& ext);
+	void AddSoftBody(const Mesh& mesh, const MassModel& mass_model) {
+		_system.AddSoftBody(mesh, mass_model);
+	}
+	void AddRigidBody(const RigidBody& body) {
+		_system.AddRigidBody(body);
+	}
+	void AddExternalForce(const ExternalForce& ext) {
+		_system.AddExternalForce(ext);
+	}
 	void Simulate();
 
 	Simulator(const Simulator&) = delete;
-	~Simulator();
+	~Simulator() {
+		delete _integrator;
+		delete _contact;
+		delete _body_energy;
+	}
 
 private:
 	double _duration;
@@ -83,7 +90,6 @@ private:
 	Integrator* _integrator = nullptr;
 	ContactGenerator* _contact = nullptr;
 	BodyEnergy* _body_energy = nullptr;
-	Solver _solver;	// Note this is also a base class, I just use a union instead
 };
 
 #endif //FEM_SIMULATOR_H

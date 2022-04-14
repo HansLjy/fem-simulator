@@ -33,8 +33,7 @@ class Integrator {
 public:
 	virtual void Initialize(const IntegratorParameter& para) = 0;
 	virtual void Step(System &system, const ContactGenerator &contact,
-					  const BodyEnergy &body_energy, double h,
-					  const Solver &solver) = 0;
+					  const BodyEnergy &body_energy, double h) = 0;
 
 	virtual ~Integrator() = default;
 };

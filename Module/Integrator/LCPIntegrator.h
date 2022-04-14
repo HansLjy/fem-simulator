@@ -13,6 +13,12 @@ public:
 	: _lcp_type(lcp_type), _lcp_para(lcp_para.Clone()) {}
 
 	DERIVED_DECLARE_CLONE(IntegratorParameter)
+
+	LCPIntegratorParameter(const LCPIntegratorParameter& rhs) {
+		_lcp_type = rhs._lcp_type;
+		_lcp_para = rhs.GetLCPSolverParameter()->Clone();
+	}
+
 	~LCPIntegratorParameter() override {
 		delete _lcp_para;
 	}
@@ -26,8 +32,7 @@ public:
 	void Initialize(const IntegratorParameter &para) override;
 
 	void Step(System &system, const ContactGenerator &contact,
-			  const BodyEnergy &body_energy, double h,
-			  const Solver &solver) override;
+			  const BodyEnergy &body_energy, double h) override;
 
 	~LCPIntegrator() {
 		delete _solver;

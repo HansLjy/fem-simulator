@@ -23,7 +23,9 @@ public:
 };
 
 enum class LCPSolverType {
-	kPGS
+	kPGS,
+	kBGS,
+	kPivot,
 };
 
 class LCPSolver {
@@ -32,8 +34,7 @@ public:
 		_max_step = para.GetMaxStep();
 		_max_error = para.GetMaxError();
 	}
-
-	virtual VectorXd Solve(const MatrixXd &A, const VectorXd& b, const VectorXd& x0 = VectorXd()) const = 0;
+	virtual VectorXd Solve(const MatrixXd &A, const VectorXd& b, const VectorXd& x0 = VectorXd(), int block_size = 1) const = 0;
 	virtual ~LCPSolver() = default;
 
 protected:

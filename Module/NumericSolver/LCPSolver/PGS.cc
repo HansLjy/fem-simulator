@@ -9,16 +9,12 @@
 DEFINE_CLONE(LCPSolverParameter, PGSParameter)
 DEFINE_ACCESSIBLE_MEMBER(PGSParameter, double, Lambda, _lambda)
 
-VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b,
-					const VectorXd &x0) const {
-
+VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
+					int block_size) const {
 	std::cerr << "A: \n" << A << std::endl << "b: \n" << b.transpose() << std::endl;
 	const int size = b.size();
 
 	VectorXd x = x0;
-	if (x.size() == 0) {
-		x.resizeLike(b);
-	}
 
 	int step = 0;
 	while (step++ < _max_step) {
@@ -27,8 +23,13 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b,
 			x(i) = std::max(0.0, x(i) - _lambda * ri / A(i, i));
  		}
 		VectorXd y = A * x + b;
-		if (y.minCoeff() >= 0 && x.dot(y) < _max_error)
-		if ((A * x + b).minCoeff() >= 0) {
+		bool y_ok = true;
+		for (int i = 0; i < size; i++) {
+			if (y(i) < 0) {
+				y_ok = false;
+			}
+		}
+		if (y_ok && x.dot(y) < _max_error) {
 			break;
 		}
 	}

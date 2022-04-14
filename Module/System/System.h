@@ -28,7 +28,7 @@ public:
 	}
 
 	void AddRigidBody(const RigidBody& rigid_body) {
-		_rigid_bodies.push_back(rigid_body);
+		_rigid_bodies.push_back(rigid_body.Clone());
 	}
 
 	void AddExternalForce(const ExternalForce& external_force) {
@@ -43,7 +43,7 @@ public:
 		return _soft_bodies;
 	}
 
-	const std::vector<RigidBody>& GetRigidBodies() const {
+	const std::vector<RigidBody*>& GetRigidBodies() const {
 		return _rigid_bodies;
 	}
 
@@ -55,6 +55,10 @@ public:
 		int index = 0;
 		for (auto& soft_body : _soft_bodies) {
 			soft_body._mesh.Store(path + "/soft_obj" + std::to_string(index++) + "f" + std::to_string(frame_id) + ".vtk");
+		}
+		index = 0;
+		for (auto& ridig_body : _rigid_bodies) {
+			ridig_body->Store(path + "/rigid_obj" + std::to_string(index++) + "f" + std::to_string(frame_id) + ".vtk");
 		}
 	}
 
@@ -153,10 +157,19 @@ public:
 		}
 	}
 
+	virtual ~System() {
+		for (auto& rigid_body : _rigid_bodies) {
+			delete rigid_body;
+		}
+		for (auto& force : _external_forces) {
+			delete force;
+		}
+	}
+
 private:
 	std::vector<const ExternalForce*> _external_forces;
 	std::vector<SoftBody> _soft_bodies;
-	std::vector<RigidBody> _rigid_bodies;
+	std::vector<RigidBody*> _rigid_bodies;
 	VectorXd _sys_sparse_mass;
 
 	// the size of status vector (for example, x) for the whole system

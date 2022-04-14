@@ -41,8 +41,8 @@ void PolyhedralCone::GetContact(const System &system, SparseMatrixXd &Jn,
 		for (int i = 0; i < num_nodes; i++, node_id++) {
 			Vector3d X = points.block<3, 1>(3 * i, 0);
 			for (int rigid_id = 0; rigid_id < num_rigid; rigid_id++) {
-				if (rigid_bodies[rigid_id].Distance(X) < 0) {
-					Vector3d normal = rigid_bodies[rigid_id].Normal(X);
+				if (rigid_bodies[rigid_id]->Distance(X) < 0) {
+					Vector3d normal = rigid_bodies[rigid_id]->Normal(X);
 					for (int j = 0; j < 3; j++) {
 						triplets_n.push_back(Triplet(num_contact, 3 * node_id + j, normal(j)));
 					}
@@ -62,7 +62,7 @@ void PolyhedralCone::GetContact(const System &system, SparseMatrixXd &Jn,
 						}
 					}
 
-					mu_vec.push_back(rigid_bodies[rigid_id].GetMu());
+					mu_vec.push_back(rigid_bodies[rigid_id]->GetMu());
 					num_contact++;
 				}
 			}

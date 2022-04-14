@@ -1,7 +1,13 @@
-./Resource/vtk/bunny.vtk
-./Resource/output
+Resource/output/new_demo
 1 0.01
-1e-3 100 0.15 0
+1e-3 100
+4
 1 1
 1e4 0.47
 1
+1
+Resource/vtk/one-tet.vtk
+1
+0 0 -1
+10 10 2
+0 0 0

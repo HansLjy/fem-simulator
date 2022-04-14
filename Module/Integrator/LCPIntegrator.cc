@@ -5,7 +5,9 @@
 #include "LCPIntegrator.h"
 #include "Util/Factory.h"
 #include <Eigen/IterativeLinearSolvers>
+#include <iostream>
 
+DEFINE_CLONE(IntegratorParameter, LCPIntegratorParameter)
 DEFINE_ACCESSIBLE_MEMBER(LCPIntegratorParameter, LCPSolverType, LCPSolverType, _lcp_type)
 DEFINE_ACCESSIBLE_POINTER_MEMBER(LCPIntegratorParameter, LCPSolverParameter, LCPSolverParameter, _lcp_para)
 
@@ -15,8 +17,7 @@ void LCPIntegrator::Initialize(const IntegratorParameter &para) {
 }
 
 void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
-						 const BodyEnergy &body_energy, double h,
-						 const Solver &solver) {
+						 const BodyEnergy &body_energy, double h) {
 	const int num_tangent = contact.GetNumTangent();
 
 	SparseMatrixXd JnT, JtT;
@@ -55,21 +56,40 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	MatrixXd A(sizeA, sizeA);
 	VectorXd b(sizeA);
 
-	A.block(0, 0, num_contact, num_contact) = JnT * WiJn;
-	A.block(0, num_contact, num_contact, num_tangent * num_contact) = JnT * WiJt;
-	A.block(num_contact, 0, num_tangent * num_contact, num_contact) = JtT * WiJn;
-	A.block(num_contact, num_contact, num_tangent * num_contact, num_tangent * num_contact) = JtT * WiJt;
+	const int block_size = 2 + num_tangent;
+	for (int i = 0; i < num_contact; i++) {
+		const int base_i = i * block_size;
+		for (int j = 0; j < num_contact; j++) {
+			const int base_j = j * block_size;
+			A(base_i, base_j) = JnT.row(i) * WiJn.col(j);
+			A.block(base_i, base_j + 1, 1, num_tangent) = JnT.row(i) * WiJt.block(0, j * num_tangent, size, num_tangent);
+			A.block(base_i + 1, base_j, num_tangent, 1) = JtT.block(i * num_tangent, 0, num_tangent, size) * WiJn.col(j);
+			A.block(base_i + 1, base_j + 1, num_tangent, num_tangent) = JtT.block(i * num_tangent, 0, num_tangent, size) * WiJt.block(0, j * num_tangent, size, num_tangent);
+		}
+		A(base_i + 1 + num_tangent, base_i) = Mu(i);
+		A.block(base_i + 1 + num_tangent, base_i + 1, 1, num_tangent).setConstant(-1);
+		A.block(base_i + 1, base_i + 1 + num_tangent, num_tangent, 1).setConstant(1);
+	}
 
-	A.block(num_contact * (num_tangent + 1), 0, num_contact, num_contact) = Mu;
-	A.block(num_contact * (num_tangent + 1), num_contact, num_contact, num_contact * num_tangent) = - E.transpose();
-	A.block(num_contact, num_contact * (num_tangent + 1), num_tangent * num_contact, num_contact) = E;
+	std::cerr << "A: " << A << std::endl;
 
-	b.block(0, 0, num_contact, 1) = JnT * Wic;
-	b.block(num_contact, 0, num_contact * num_tangent, 1) = JtT * Wic;
+	for (int i = 0; i < num_contact; i++) {
+		const int base_i = i * block_size;
+		b(base_i) = JnT.row(i) * Wic;
+		b.block(base_i + 1, 0, num_tangent, 1) = JtT.block(i * num_tangent, 0, num_tangent, size) * Wic;
+	}
 
-	VectorXd sol = solver.LCP->Solve(A, b);
+	std::cerr << "b: " << b << std::endl;
 
-	VectorXd u_plus = Wic + WiJn * sol.block(0, 0, num_contact, 1) + WiJt * sol.block(num_contact, 0, num_contact * num_tangent, 1);
+	VectorXd sol = _solver->Solve(A, b, VectorXd(sizeA), block_size);
+	VectorXd lambda_n, lambda_t, beta;
+	for (int i = 0; i < num_contact; i++) {
+		lambda_n(i) = sol(i * block_size);
+		lambda_t(Eigen::seqN(i * num_tangent, num_tangent)) = sol(Eigen::seqN(i * block_size + 1, num_tangent));
+		beta(i) = sol(i * block_size + 1 + num_tangent);
+	}
+
+	VectorXd u_plus = Wic + WiJn * lambda_n + WiJt * lambda_t;
 
 	system.Update(u_plus, h);
 }

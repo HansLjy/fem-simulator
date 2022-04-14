@@ -19,8 +19,11 @@ public:
 				  * AngleAxisd(euler_angles(2), Vector3d::UnitZ());
 	}
 
+	DERIVED_DECLARE_CLONE(RigidBody)
+
 	double Distance(const Vector3d& point) const override;
 	Vector3d Normal(const Vector3d& point) const override;
+	void Store(const std::string &path) override;
 
 protected:
 	Matrix3d _rotation;					// rotation matrix for euler angles

@@ -9,6 +9,7 @@
 
 class PolyhedralConeParameter : public ContactGeneratorParameter {
 public:
+	PolyhedralConeParameter(int num_tangent) : ContactGeneratorParameter(num_tangent) {}
 	DERIVED_DECLARE_CLONE(ContactGeneratorParameter)
 };
 

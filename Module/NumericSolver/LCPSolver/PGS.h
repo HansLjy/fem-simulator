@@ -21,7 +21,7 @@ public:
 		LCPSolver::Initialize(para);
 		_lambda = para.GetLambda();
 	}
-	VectorXd Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0 = VectorXd()) const override;
+	VectorXd Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0 = VectorXd(), int block_size = 1) const override;
 
 protected:
 	double _lambda;

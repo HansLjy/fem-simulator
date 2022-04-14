@@ -37,8 +37,12 @@ BEGIN_DEFINE_XXX_FACTORY(Integrator)
 END_DEFINE_XXX_FACTORY
 
 #include "NumericSolver/LCPSolver/PGS.h"
+#include "NumericSolver/LCPSolver/BGS.h"
+#include "NumericSolver/LCPSolver/PivotingMethod.h"
 BEGIN_DEFINE_XXX_FACTORY(LCPSolver)
 		ADD_PRODUCT(LCPSolverType::kPGS, PGS)
+		ADD_PRODUCT(LCPSolverType::kBGS, BGS)
+		ADD_PRODUCT(LCPSolverType::kPivot, PivotingMethod)
 END_DEFINE_XXX_FACTORY
 
 #include "Contact/PolyhedralCone.h"
