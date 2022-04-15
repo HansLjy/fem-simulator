@@ -5,7 +5,7 @@
 #include "../Test.h"
 
 void Test::TestLCPCommon() {
-	const int size = 10;
+	const int size = 100;
 	typedef Eigen::Matrix<double, size, size> MatrixOfSize;
 	typedef Eigen::Vector<double, size> VectorOfSize;
 
@@ -44,11 +44,7 @@ void Test::TestLCPFrictionMatrix() {
 	Vector<double, num_contact * block_size> b;
 
 	W.setRandom();
-	for (int i = 0; i < num_coord; i++) {
-		for (int j = 0; j < i; j++) {
-			W(i, j) = W(j, i);
-		}
-	}
+	W = W * W.transpose();
 	Jn.setRandom();
 	Jt.setRandom();
 	mu.setZero();

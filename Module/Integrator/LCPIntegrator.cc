@@ -5,6 +5,7 @@
 #include "LCPIntegrator.h"
 #include "Util/Factory.h"
 #include <Eigen/IterativeLinearSolvers>
+#include <spdlog/spdlog.h>
 #include <iostream>
 
 DEFINE_CLONE(IntegratorParameter, LCPIntegratorParameter)
@@ -40,26 +41,54 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	W.diagonal() += M;
 	VectorXd c = M.asDiagonal() * u + h * f;
 
-	Eigen::BiCGSTAB<SparseMatrixXd> linear_solver;
-	linear_solver.compute(W);
+	double alpha = 0.01;
+	Eigen::ConjugateGradient<SparseMatrixXd> PCG_solver;
+	PCG_solver.compute(W);
+	while (PCG_solver.info() != Eigen::Success) {
+		spdlog::info("Making W SPD");
+		W.diagonal() += alpha * M;
+		PCG_solver.compute(W);
+	}
 
-	MatrixXd WiJn = linear_solver.solve(JnT.transpose().toDense());
-	MatrixXd WiJt = linear_solver.solve(JtT.transpose().toDense());
-	VectorXd Wic = linear_solver.solve(c);
+	MatrixXd WiJn = PCG_solver.solve(JnT.transpose().toDense());
+	MatrixXd WiJt = PCG_solver.solve(JtT.transpose().toDense());
+	VectorXd Wic = PCG_solver.solve(c);
 
 	MatrixXd E(num_contact * num_tangent, num_contact);
 	for (int i = 0; i < num_contact; i++) {
 		E.block(i * num_tangent, i, num_tangent, 1).setOnes();
 	}
 
-	const int sizeA = num_contact * (2 + num_tangent);
+	const int block_size = 1 + num_tangent;
+	const int sizeA = num_contact * block_size;
 	MatrixXd A(sizeA, sizeA);
 	VectorXd b(sizeA);
 
 	A.setZero();
 	b.setZero();
 
-	const int block_size = 1 + num_tangent;
+	/* test A is SPD or not */
+
+	MatrixXd Wi = W.toDense().inverse();
+
+	A.block(0, 0, num_contact, num_contact) = JnT * Wi * JnT.transpose();
+	A.block(0, num_contact, num_contact, num_contact * num_tangent) = JnT * Wi * JtT.transpose();
+	A.block(num_contact, 0, num_contact * num_tangent, num_contact) = JtT * Wi * JnT.transpose();
+	A.block(num_contact, num_contact, num_contact * num_tangent, num_contact * num_tangent) = JtT * Wi * JtT.transpose();
+
+	Eigen::LLT<MatrixXd> llt;
+	llt.compute(W);
+	if (llt.info() == Eigen::NumericalIssue) {
+		spdlog::error("W is not SPD!");
+		exit(-1);
+	}
+	llt.compute(A);
+	if (llt.info() == Eigen::NumericalIssue) {
+		spdlog::error("A is not SPD!");
+		exit(-1);
+	}
+
+
 	for (int i = 0; i < num_contact; i++) {
 		const int base_i = i * block_size;
 		for (int j = 0; j < num_contact; j++) {
@@ -74,15 +103,14 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 //		A.block(base_i + 1, base_i + 1 + num_tangent, num_tangent, 1).setConstant(1);
 	}
 
-//	std::cerr << "A: " << A << std::endl;
-
 	for (int i = 0; i < num_contact; i++) {
 		const int base_i = i * block_size;
 		b(base_i) = JnT.row(i) * Wic;
 		b.block(base_i + 1, 0, num_tangent, 1) = JtT.block(i * num_tangent, 0, num_tangent, size) * Wic;
 	}
 
-//	std::cerr << "b: " << b << std::endl;
+//	std::cerr << "A: \n" << A << std::endl;
+//	std::cerr << "b: \n" << b.transpose() << std::endl;
 
 	VectorXd sol = _solver->Solve(A, b, VectorXd(sizeA), block_size);
 	VectorXd lambda_n(num_contact), lambda_t(num_contact * num_tangent); // beta(num_contact);

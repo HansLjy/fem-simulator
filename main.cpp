@@ -88,7 +88,7 @@ int main() {
 
 	int num_rectangles;
 	cfg >> num_rectangles;
-	for (int i = 0; i < num_soft_bodies; i++) {
+	for (int i = 0; i < num_rectangles; i++) {
 		double x, y, z;
 		double length, width, height;
 		double theta, phi, psi;
@@ -106,6 +106,7 @@ int main() {
 	}
 
 	simulator->Initialize(para);
+//	simulator->AddExternalForce(GroundForce(10));
 	simulator->AddExternalForce(Gravity(9.8));
 
 	simulator->Simulate();

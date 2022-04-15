@@ -43,8 +43,8 @@ void Test::setUp() {
 
 	_mesh.Initialize(MeshParameter("../Resource/vtk/two-tet.vtk"));
 
-	_lcp_solver = LCPSolverFactory::GetInstance()->GetLCPSolver(LCPSolverType::kPivot);
-	_lcp_solver->Initialize(PivotingMethodParameter(50, _eps));
+	_lcp_solver = LCPSolverFactory::GetInstance()->GetLCPSolver(LCPSolverType::kPGS);
+	_lcp_solver->Initialize(PGSParameter(1000, _eps, 1));
 }
 
 void Test::tearDown() {

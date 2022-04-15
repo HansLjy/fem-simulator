@@ -19,26 +19,28 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 
 	const double dbl_max = std::numeric_limits<double>::max();
 
-	double merit_current = dbl_max;
-	double merit_previous = dbl_max;
-
 	int step = 0;
 	bool diverge = false;
 	while (step++ < _max_step) {
-		merit_previous = merit_current;
-		merit_current = 0;
+		double inf_norm = 0;
 		for (int i = 0; i < size; i++) {
 			double ri = A.row(i).dot(x) + b(i);
+			if (A(i, i) < _max_error && A(i, i) > -_max_error) {
+				spdlog::error("Zero diagonal number at ({}, {})!", i, i);
+				exit(0);
+			}
 			x(i) = std::max(0.0, x(i) - _lambda * ri / A(i, i));
-			if (x(i) > merit_current) {
-				merit_current = x(i);
+			if (x(i) > inf_norm) {
+				inf_norm = x(i);
 			}
  		}
-		if (merit_current > merit_previous) {
-			diverge = true;
-			break;
+		VectorXd y = A * x + b;
+		double min_y = 0, max_violate = 0;
+		for (int i = 0; i < size; i++) {
+			min_y = std::min(min_y, y(i));
+			max_violate = std::max(max_violate, std::min(x(i), y(i)));
 		}
-		if ((merit_previous - merit_current) / merit_current < _max_error) {
+		if (min_y > -inf_norm * _max_error && inf_norm != 0 && max_violate / inf_norm < _max_error) {
 			break;
 		}
 	}
