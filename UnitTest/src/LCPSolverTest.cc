@@ -27,7 +27,7 @@ void Test::TestLCPCommon() {
  * LCP we will encounter in contact friction simu
  */
 void Test::TestLCPFrictionMatrix() {
-	const int num_contact = 2;
+	const int num_contact = 1;
 	const int num_tangent = 2;
 	const int num_coord = 6;
 
@@ -60,24 +60,21 @@ void Test::TestLCPFrictionMatrix() {
 	Matrix<double, num_contact * (2 + num_tangent), num_contact * (2 + num_tangent)> A;
 	A.setZero();
 	A.block<num_contact, num_contact>(0, 0) = Jn.transpose() * W * Jn;
-	std::cerr << "======================\n" << A << std::endl;
 	A.block<num_contact * num_tangent, num_contact>(num_contact, 0) = Jt.transpose() * W * Jn;
-	std::cerr << "======================\n" << A << std::endl;
 	A.block<num_contact, num_contact * num_tangent>(0, num_contact) = Jn.transpose() * W * Jt;
-	std::cerr << "======================\n" << A << std::endl;
 	A.block<num_contact * num_tangent, num_contact * num_tangent>(num_contact, num_contact) = Jt.transpose() * W * Jt;
-	std::cerr << "======================\n" << A << std::endl;
 	A.block<num_contact, num_contact>(num_contact * (num_tangent + 1), 0) = mu;
-	std::cerr << "======================\n" << A << std::endl;
 	A.block<num_contact, num_contact * num_tangent>(num_contact * (num_tangent + 1), num_contact) = -E.transpose();
-	std::cerr << "======================\n" << A << std::endl;
 	A.block<num_contact * num_tangent, num_contact>(num_contact, num_contact * (num_tangent + 1)) = E;
-	std::cerr << "======================\n" << A << std::endl;
 
-	VectorXd x = _lcp_solver->Solve(A, b);
+	VectorXd x = _lcp_solver->Solve(A, b, VectorXd(b.size()), 2 + num_tangent);
 	VectorXd y = A * x + b;
 
 	for (int i = 0; i < num_contact * (2 + num_tangent); i++) {
 		CPPUNIT_ASSERT(x(i) >= 0 && y(i) >= 0 && x(i) * y(i) < _eps);
 	}
+}
+
+void Test::TestLCPSmallScale() {
+
 }

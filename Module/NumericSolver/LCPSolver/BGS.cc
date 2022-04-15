@@ -21,16 +21,24 @@ VectorXd BGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 	int step = 0;
 	while (step++ < _max_step) {
 		for (int i = 0; i < num_block; i++) {
-			VectorXd bi(block_size);
+			VectorXd bi = b.block(i * block_size, 0, block_size, 1);
 			for (int j = 0; j < num_block; j++) {
 				if (j != i) {
-					bi += A.block(i * block_size, j * block_size, block_size, block_size) * x.block(j * block_size, 0, block_size, 1)
-						 + b.block(j * block_size, 0, block_size, 1);
+					bi += A.block(i * block_size, j * block_size, block_size, block_size)
+						  * x.block(j * block_size, 0, block_size, 1);
 				}
 			}
 			x.block(i * block_size, 0, block_size, 1) = small_scale_solver->Solve(A.block(i * block_size, i * block_size, block_size, block_size), bi);
 		}
-		if (x.dot(A * x + b) < _max_error) {
+		VectorXd y = A * x + b;
+		bool y_positive = true;
+		for (int i = 0; i < size; i++) {
+			if (y(i) < 0) {
+				y_positive = false;
+				break;
+			}
+		}
+		if (y_positive && x.dot(y) < _max_error) {
 			break;
 		}
 	}

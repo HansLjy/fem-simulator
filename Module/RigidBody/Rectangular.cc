@@ -46,7 +46,7 @@ Vector3d Rectangular::Normal(const Vector3d& point) const {
 		}
 	}
 	assert(normal.norm() != 0);
-	return normal;
+	return _rotation * normal;
 }
 
 void Rectangular::Store(const std::string &path) {

@@ -56,6 +56,9 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	MatrixXd A(sizeA, sizeA);
 	VectorXd b(sizeA);
 
+	A.setZero();
+	b.setZero();
+
 	const int block_size = 2 + num_tangent;
 	for (int i = 0; i < num_contact; i++) {
 		const int base_i = i * block_size;
@@ -81,8 +84,15 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 
 	std::cerr << "b: " << b << std::endl;
 
+	if (num_contact > 0) {
+		std::cerr << JnT.toDense() << std::endl << "=============\n"
+				  << JtT.toDense() << std::endl;
+//		exit(0);
+	}
+
+
 	VectorXd sol = _solver->Solve(A, b, VectorXd(sizeA), block_size);
-	VectorXd lambda_n, lambda_t, beta;
+	VectorXd lambda_n(num_contact), lambda_t(num_contact * num_tangent), beta(num_contact);
 	for (int i = 0; i < num_contact; i++) {
 		lambda_n(i) = sol(i * block_size);
 		lambda_t(Eigen::seqN(i * num_tangent, num_tangent)) = sol(Eigen::seqN(i * block_size + 1, num_tangent));

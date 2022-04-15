@@ -10,6 +10,7 @@
 #include "ElementEnergy/SimpleModel.h"
 #include "ElementEnergy/RayleighModel.h"
 #include "NumericSolver/LCPSolver/PGS.h"
+#include "NumericSolver/LCPSolver/BGS.h"
 #include <ctime>
 #include <algorithm>
 
@@ -41,8 +42,8 @@ void Test::setUp() {
 
 	_mesh.Initialize(MeshParameter("../Resource/vtk/two-tet.vtk"));
 
-	_lcp_solver = LCPSolverFactory::GetInstance()->GetLCPSolver(LCPSolverType::kPGS);
-	_lcp_solver->Initialize(PGSParameter(100, _eps, 1));
+	_lcp_solver = LCPSolverFactory::GetInstance()->GetLCPSolver(LCPSolverType::kBGS);
+	_lcp_solver->Initialize(BGSParameter(50, _eps));
 }
 
 void Test::tearDown() {

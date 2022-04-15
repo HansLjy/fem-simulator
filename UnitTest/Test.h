@@ -33,6 +33,7 @@ public:
 	void TestBodyEnergy();
 	void TestLCPCommon();
 	void TestLCPFrictionMatrix();
+	void TestLCPSmallScale();
 	void TestRigidBodyContact();
 
 private:
