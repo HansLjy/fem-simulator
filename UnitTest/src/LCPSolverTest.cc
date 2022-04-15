@@ -15,10 +15,10 @@ void Test::TestLCPCommon() {
 	VectorOfSize b;
 	b.setRandom();
 
-	VectorOfSize x = _lcp_solver->Solve(A.sparseView(), b);
+	VectorOfSize x = _lcp_solver->Solve(A, b, VectorXd(b.size()), size);
 	VectorOfSize y = A * x + b;
 	for (int i = 0; i < size; i++) {
-		CPPUNIT_ASSERT(x(i) >= 0 && y(i) >= 0 && x(i) * y(i) < _eps);
+		CPPUNIT_ASSERT(x(i) > -_eps && y(i) > -_eps && x(i) * y(i) / std::max(std::abs(x(i)), std::abs(y(i))) < _eps);
 	}
 }
 
@@ -34,12 +34,14 @@ void Test::TestLCPFrictionMatrix() {
 	using Eigen::Matrix;
 	using Eigen::Vector;
 
+	const int block_size = 1 + num_tangent;
+
 	Matrix<double, num_coord, num_coord> W;
 	Matrix<double, num_coord, num_contact> Jn;
 	Matrix<double, num_coord, num_contact * num_tangent> Jt;
 	Matrix<double, num_contact, num_contact> mu;
 	Matrix<double, num_contact * num_tangent, num_contact> E;
-	Vector<double, num_contact * (2 + num_tangent)> b;
+	Vector<double, num_contact * block_size> b;
 
 	W.setRandom();
 	for (int i = 0; i < num_coord; i++) {
@@ -57,21 +59,21 @@ void Test::TestLCPFrictionMatrix() {
 		E.block<num_tangent, 1>(num_tangent * i, i).setOnes();
 	}
 
-	Matrix<double, num_contact * (2 + num_tangent), num_contact * (2 + num_tangent)> A;
+	Matrix<double, num_contact * block_size, num_contact * block_size> A;
 	A.setZero();
 	A.block<num_contact, num_contact>(0, 0) = Jn.transpose() * W * Jn;
 	A.block<num_contact * num_tangent, num_contact>(num_contact, 0) = Jt.transpose() * W * Jn;
 	A.block<num_contact, num_contact * num_tangent>(0, num_contact) = Jn.transpose() * W * Jt;
 	A.block<num_contact * num_tangent, num_contact * num_tangent>(num_contact, num_contact) = Jt.transpose() * W * Jt;
-	A.block<num_contact, num_contact>(num_contact * (num_tangent + 1), 0) = mu;
-	A.block<num_contact, num_contact * num_tangent>(num_contact * (num_tangent + 1), num_contact) = -E.transpose();
-	A.block<num_contact * num_tangent, num_contact>(num_contact, num_contact * (num_tangent + 1)) = E;
+//	A.block<num_contact, num_contact>(num_contact * (num_tangent + 1), 0) = mu;
+//	A.block<num_contact, num_contact * num_tangent>(num_contact * (num_tangent + 1), num_contact) = -E.transpose();
+//	A.block<num_contact * num_tangent, num_contact>(num_contact, num_contact * (num_tangent + 1)) = E;
 
-	VectorXd x = _lcp_solver->Solve(A, b, VectorXd(b.size()), 2 + num_tangent);
+	VectorXd x = _lcp_solver->Solve(A, b, VectorXd(b.size()), block_size);
 	VectorXd y = A * x + b;
 
-	for (int i = 0; i < num_contact * (2 + num_tangent); i++) {
-		CPPUNIT_ASSERT(x(i) >= 0 && y(i) >= 0 && x(i) * y(i) < _eps);
+	for (int i = 0; i < num_contact * block_size; i++) {
+		CPPUNIT_ASSERT(x(i) > -_eps && y(i) > -_eps && x(i) * y(i) / std::max(std::abs(x(i)), std::abs(y(i))) < _eps);
 	}
 }
 

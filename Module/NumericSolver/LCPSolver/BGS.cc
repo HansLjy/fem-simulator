@@ -16,6 +16,7 @@ VectorXd BGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 
 	const auto& small_scale_solver = LCPSolverFactory::GetInstance()->GetLCPSolver(LCPSolverType::kPivot);
 	small_scale_solver->Initialize(PivotingMethodParameter(_max_step, _max_error));
+
 	VectorXd x = x0;
 
 	int step = 0;

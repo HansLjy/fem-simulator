@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.21)
 project(fem)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -fopenmp")
+set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g -fopenmp -O3")
 
 include_directories(Module)
 file(GLOB_RECURSE src Module/*.cc)

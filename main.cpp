@@ -1,5 +1,7 @@
 #include "Simulator/Simulator.h"
 #include "NumericSolver/LCPSolver/BGS.h"
+#include "NumericSolver/LCPSolver/PGS.h"
+#include "NumericSolver/LCPSolver/PivotingMethod.h"
 #include "ElementEnergy/SimpleModel.h"
 #include "ElementEnergy/RayleighModel.h"
 #include "ConstituteModel/StVKModel.h"
@@ -42,10 +44,11 @@ int main() {
 		SystemParameter(),
 		IntegratorType::kLCPIntegrator,
 		LCPIntegratorParameter(
-			LCPSolverType::kBGS,
-			BGSParameter (
+			LCPSolverType::kPGS,
+			PGSParameter (
 				max_step,
-				max_error
+				max_error,
+				0.5
 			)
 		),
 		ContactGeneratorType::kPolyhedralCone,
