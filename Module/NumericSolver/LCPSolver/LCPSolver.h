@@ -26,6 +26,7 @@ enum class LCPSolverType {
 	kPGS,
 	kBGS,
 	kPivot,
+	kOSQP,
 };
 
 class LCPSolver {

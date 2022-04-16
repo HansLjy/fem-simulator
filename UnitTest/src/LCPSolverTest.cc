@@ -5,13 +5,13 @@
 #include "../Test.h"
 
 void Test::TestLCPCommon() {
-	const int size = 100;
+	const int size = 120;
 	typedef Eigen::Matrix<double, size, size> MatrixOfSize;
 	typedef Eigen::Vector<double, size> VectorOfSize;
 
-	MatrixOfSize A;
-	A.setRandom();
-	A = A.transpose() * A;	// make it spd
+	Eigen::Matrix<double, size - 1, size> A_half;
+	A_half.setRandom();
+	MatrixOfSize A = A_half.transpose() * A_half;	// make it spd
 	VectorOfSize b;
 	b.setRandom();
 
@@ -27,7 +27,7 @@ void Test::TestLCPCommon() {
  * LCP we will encounter in contact friction simu
  */
 void Test::TestLCPFrictionMatrix() {
-	const int num_contact = 1;
+	const int num_contact = 4;
 	const int num_tangent = 2;
 	const int num_coord = 6;
 

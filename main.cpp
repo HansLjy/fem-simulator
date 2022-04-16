@@ -2,6 +2,7 @@
 #include "NumericSolver/LCPSolver/BGS.h"
 #include "NumericSolver/LCPSolver/PGS.h"
 #include "NumericSolver/LCPSolver/PivotingMethod.h"
+#include "NumericSolver/LCPSolver/OSQPWrapper.h"
 #include "ElementEnergy/SimpleModel.h"
 #include "ElementEnergy/RayleighModel.h"
 #include "ConstituteModel/StVKModel.h"
@@ -30,7 +31,7 @@ int main() {
 	std::fstream cfg("./config");
 	cfg >> output_dir;
 	cfg >> duration >> step;
-	cfg >> max_error >> max_step;
+	cfg >> max_error >> max_step >> lambda;
 	cfg >> num_tangent;
 	cfg >> alpha1 >> alpha2;
 	cfg >> youngs_module >> poisson_ratio;
@@ -44,11 +45,10 @@ int main() {
 		SystemParameter(),
 		IntegratorType::kLCPIntegrator,
 		LCPIntegratorParameter(
-			LCPSolverType::kPGS,
-			PGSParameter (
+			LCPSolverType::kOSQP,
+			OSQPWrapperParameter (
 				max_step,
-				max_error,
-				0.5
+				max_error
 			)
 		),
 		ContactGeneratorType::kPolyhedralCone,

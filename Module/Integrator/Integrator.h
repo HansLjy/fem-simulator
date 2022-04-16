@@ -6,7 +6,8 @@
 #define FEM_INTEGRATOR_H
 
 #include "System/System.h"
-#include "NumericSolver/NumericSolver.h"
+#include "NumericSolver/LCPSolver/LCPSolver.h"
+#include "NumericSolver/Optimizer/Optimizer.h"
 #include "Contact/ContactGenerator.h"
 #include "BodyEnergy/BodyEnergy.h"
 

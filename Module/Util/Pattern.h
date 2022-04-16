@@ -5,6 +5,8 @@
 #ifndef FEM_PATTERN_H
 #define FEM_PATTERN_H
 
+#include <iostream>
+
 #define DECLARE_GET_INSTANCE(classname) \
 static classname* GetInstance();
 
@@ -29,7 +31,7 @@ classname *classname##Factory::Get##classname(const classname##Type &type) { \
 
 
 #define ADD_PRODUCT(type, classname) \
-		case type: return new classname;
+		case type: std::cerr << "New " << #classname << std::endl; return new classname;
 
 #define END_DEFINE_XXX_FACTORY \
 		default: return nullptr;          \
@@ -44,6 +46,7 @@ classname *classname##Factory::Get##classname(const classname##Type &type) { \
 
 #define DEFINE_CLONE(base, derived) \
 base* derived::Clone() const {      \
+    std::cerr << #derived << " cloned" << std::endl; \
 	return new derived(*this);      \
 }
 

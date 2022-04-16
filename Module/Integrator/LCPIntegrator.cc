@@ -27,20 +27,26 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	contact.GetContact(system, JnT, JtT, Mu);
 
 	const int num_contact = JnT.rows();
+	spdlog::info("Number of contact points: {}", num_contact);
 
 	int size = system.GetCoordSize();	// size for u, x, M and all such matrices
 	SparseMatrixXd W(size, size);
 
+	auto t = clock();
 	VectorXd M, u, f;
 	system.GetSysMass(M);
 	system.GetSysV(u);
 	system.GetSysF(f, body_energy);
 	system.GetSysPFPX(W, body_energy);
+	spdlog::info("Time spent on calculation phy-info: {}s", (clock() - t) / CLOCKS_PER_SEC);
 
 	W *= h * h;
 	W.diagonal() += M;
 	VectorXd c = M.asDiagonal() * u + h * f;
 
+	spdlog::info("Non-zero W elements: {}", W.nonZeros());
+
+	t = clock();
 	double alpha = 0.01;
 	Eigen::ConjugateGradient<SparseMatrixXd> PCG_solver;
 	PCG_solver.compute(W);
@@ -54,11 +60,14 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	MatrixXd WiJt = PCG_solver.solve(JtT.transpose().toDense());
 	VectorXd Wic = PCG_solver.solve(c);
 
+	spdlog::info("Time spent on solving linear equations: {}s", (clock() - t) / CLOCKS_PER_SEC);
+
 	MatrixXd E(num_contact * num_tangent, num_contact);
 	for (int i = 0; i < num_contact; i++) {
 		E.block(i * num_tangent, i, num_tangent, 1).setOnes();
 	}
 
+	t = clock();
 	const int block_size = 1 + num_tangent;
 	const int sizeA = num_contact * block_size;
 	MatrixXd A(sizeA, sizeA);
@@ -66,28 +75,6 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 
 	A.setZero();
 	b.setZero();
-
-	/* test A is SPD or not */
-
-	MatrixXd Wi = W.toDense().inverse();
-
-	A.block(0, 0, num_contact, num_contact) = JnT * Wi * JnT.transpose();
-	A.block(0, num_contact, num_contact, num_contact * num_tangent) = JnT * Wi * JtT.transpose();
-	A.block(num_contact, 0, num_contact * num_tangent, num_contact) = JtT * Wi * JnT.transpose();
-	A.block(num_contact, num_contact, num_contact * num_tangent, num_contact * num_tangent) = JtT * Wi * JtT.transpose();
-
-	Eigen::LLT<MatrixXd> llt;
-	llt.compute(W);
-	if (llt.info() == Eigen::NumericalIssue) {
-		spdlog::error("W is not SPD!");
-		exit(-1);
-	}
-	llt.compute(A);
-	if (llt.info() == Eigen::NumericalIssue) {
-		spdlog::error("A is not SPD!");
-		exit(-1);
-	}
-
 
 	for (int i = 0; i < num_contact; i++) {
 		const int base_i = i * block_size;
@@ -108,10 +95,12 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 		b(base_i) = JnT.row(i) * Wic;
 		b.block(base_i + 1, 0, num_tangent, 1) = JtT.block(i * num_tangent, 0, num_tangent, size) * Wic;
 	}
+	spdlog::info("Time spent on assembling: {}s", (clock() - t) / CLOCKS_PER_SEC);
 
 //	std::cerr << "A: \n" << A << std::endl;
 //	std::cerr << "b: \n" << b.transpose() << std::endl;
 
+	t = clock();
 	VectorXd sol = _solver->Solve(A, b, VectorXd(sizeA), block_size);
 	VectorXd lambda_n(num_contact), lambda_t(num_contact * num_tangent); // beta(num_contact);
 	for (int i = 0; i < num_contact; i++) {
@@ -119,6 +108,8 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 		lambda_t(Eigen::seqN(i * num_tangent, num_tangent)) = sol(Eigen::seqN(i * block_size + 1, num_tangent));
 //		beta(i) = sol(i * block_size + 1 + num_tangent);
 	}
+	spdlog::info("Time spent on de-assembling: {}s", (clock() - t) / CLOCKS_PER_SEC);
+
 
 	VectorXd u_plus = Wic + WiJn * lambda_n + WiJt * lambda_t;
 
