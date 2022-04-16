@@ -5,6 +5,9 @@
 #include "LCPIntegrator.h"
 #include "Util/Factory.h"
 #include <Eigen/IterativeLinearSolvers>
+#include <Eigen/SparseCholesky>
+#include <Eigen/Cholesky>
+#include <Eigen/CholmodSupport>
 #include <spdlog/spdlog.h>
 #include <iostream>
 
@@ -48,17 +51,23 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 
 	t = clock();
 	double alpha = 0.01;
-	Eigen::ConjugateGradient<SparseMatrixXd> PCG_solver;
-	PCG_solver.compute(W);
-	while (PCG_solver.info() != Eigen::Success) {
+
+	Eigen::CholmodSupernodalLLT<SparseMatrixXd> LLT_solver;
+	LLT_solver.compute(W);
+	while (LLT_solver.info() != Eigen::Success) {
 		spdlog::info("Making W SPD");
 		W.diagonal() += alpha * M;
-		PCG_solver.compute(W);
+		alpha *= 2;
+		LLT_solver.compute(W);
 	}
 
-	MatrixXd WiJn = PCG_solver.solve(JnT.transpose().toDense());
-	MatrixXd WiJt = PCG_solver.solve(JtT.transpose().toDense());
-	VectorXd Wic = PCG_solver.solve(c);
+	auto sub_t = clock();
+	MatrixXd WiJn = LLT_solver.solve(JnT.transpose().toDense());
+	MatrixXd WiJt = LLT_solver.solve(JtT.transpose().toDense());
+	spdlog::info("Time spent solving J: {}", clock() - sub_t);
+	sub_t = clock();
+	VectorXd Wic = LLT_solver.solve(c);
+	spdlog::info("Time spent solving c: {}", clock() - sub_t);
 
 	spdlog::info("Time spent on solving linear equations: {}s", (clock() - t) / CLOCKS_PER_SEC);
 
