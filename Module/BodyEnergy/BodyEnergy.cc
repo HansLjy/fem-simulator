@@ -31,6 +31,27 @@ DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, DissipationEnergyModelPara
 DEFINE_ACCESSIBLE_MEMBER(BodyEnergyParameter, ConstituteModelType, ConstituteModelType, _cons_type)
 DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, ConstituteModelParameter, ConstituteModelParameter, _cons_para)
 
+#include <Eigen/Eigenvalues>
+
+/**
+ * Project a matrix into a positive definite one
+ */
+
+template<int dim>
+void PositiveProject(Eigen::Matrix<double, dim, dim>& matrix) {
+	typedef Eigen::Matrix<double, dim, dim> MatrixOfSize;
+	typedef Eigen::Vector<double, dim> VectorOfSize;
+	Eigen::SelfAdjointEigenSolver<MatrixOfSize> eigens(matrix);
+	MatrixOfSize eigen_vectors = eigens.eigenvectors();
+	VectorOfSize eigen_values = eigens.eigenvalues();
+	for (int i = 0; i < dim; i++) {
+		if (eigen_values[i] < 0) {
+			eigen_values[i] = 0;
+		}
+	}
+	matrix = eigen_vectors * eigen_values.asDiagonal() * eigen_vectors.transpose();
+}
+
 void BodyEnergy::Initialize(const BodyEnergyParameter &para) {
 	_cons_model = ConstituteModelFactory::GetInstance()->GetConstituteModel(para.GetConstituteModelType());
 	_cons_model->Initialize(*para.GetConstituteModelParameter());
@@ -106,6 +127,9 @@ BodyEnergy::EHessian(const SoftBody &body) const {
 		auto& tet = tets[i];
 		auto D = GetDs(X, tet);
 		local_hessian[i] = _elas_model->Hessian(*_cons_model, body._volume[i], body._inv[i], D, body._pFpX[i]);
+	}
+	for (int i = 0; i < num_of_tets; i++) {
+		PositiveProject(local_hessian[i]);
 	}
 //	spdlog::info("Time spent in computing hessian: {} s", (double) (clock() - start_computing) / CLOCKS_PER_SEC);
 
@@ -206,6 +230,9 @@ SparseMatrixXd BodyEnergy::DHessian(const SoftBody &body) const {
 		auto D = GetDs(X, tet);
 		local_hessian[i] = _diss_model->Hessian(*_cons_model, *_elas_model,
 												body._volume[i], body._inv[i], m, v, D, body._pFpX[i]);
+	}
+	for (int i = 0; i < num_of_tets; i++) {
+		PositiveProject(local_hessian[i]);
 	}
 
 	for (int i = 0; i < num_of_tets; i++) {

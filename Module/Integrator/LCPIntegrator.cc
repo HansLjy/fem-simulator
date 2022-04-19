@@ -47,8 +47,6 @@ void LCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	W.diagonal() += M;
 	VectorXd c = M.asDiagonal() * u + h * f;
 
-	spdlog::info("Non-zero W elements: {}", W.nonZeros());
-
 	t = clock();
 	double alpha = 0.01;
 

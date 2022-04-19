@@ -20,7 +20,6 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 	const double dbl_max = std::numeric_limits<double>::max();
 
 	int step = 0;
-	bool diverge = false;
 	while (step++ < _max_step) {
 		double inf_norm = 0;
 		for (int i = 0; i < size; i++) {
@@ -48,7 +47,7 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 //	std::cerr << "x: \n" << x.transpose() << std::endl;
 //	std::cerr << "y: \n" << (A * x + b).transpose() << std::endl;
 
-	if (step < _max_step + 1 && !diverge) {
+	if (step < _max_step + 1) {
 		spdlog::info("PGS method, converge in {} steps", step);
 	} else {
 		spdlog::warn("PGS method, fail to converge");
