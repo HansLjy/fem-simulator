@@ -21,6 +21,7 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 
 	int step = 0;
 	while (step++ < _max_step) {
+		double change = 0;
 		double inf_norm = 0;
 		for (int i = 0; i < size; i++) {
 			double ri = A.row(i).dot(x) + b(i);
@@ -28,7 +29,9 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 				spdlog::error("Zero diagonal number at ({}, {})!", i, i);
 				exit(0);
 			}
+			double x_pre = x(i);
 			x(i) = std::max(0.0, x(i) - _lambda * ri / A(i, i));
+			change = std::max(std::abs(x_pre - x(i)), change);
 			if (x(i) > inf_norm) {
 				inf_norm = x(i);
 			}
@@ -37,9 +40,16 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 		double min_y = 0, max_violate = 0;
 		for (int i = 0; i < size; i++) {
 			min_y = std::min(min_y, y(i));
-			max_violate = std::max(max_violate, std::min(x(i), y(i)));
+			if (min_y < -_max_error * inf_norm) {
+				max_violate = dbl_max;
+			} else {
+				max_violate = std::max(max_violate, std::min(x(i), y(i)));
+			}
 		}
-		if (min_y > -inf_norm * _max_error && inf_norm != 0 && max_violate / inf_norm < _max_error) {
+		if (max_violate < _max_error) {
+			break;
+		}
+		if (change < _max_error) {
 			break;
 		}
 	}
@@ -50,7 +60,7 @@ VectorXd PGS::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 	if (step < _max_step + 1) {
 		spdlog::info("PGS method, converge in {} steps", step);
 	} else {
-		spdlog::warn("PGS method, fail to converge");
+		spdlog::warn("PGS method, fail to converge, steps: {}", step);
 	}
 
 	return x;

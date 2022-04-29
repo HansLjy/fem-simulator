@@ -33,9 +33,11 @@ BEGIN_DEFINE_XXX_FACTORY(Optimizer)
 		ADD_PRODUCT(OptimizerType::kNewtonIterator, NewtonIterator)
 END_DEFINE_XXX_FACTORY
 
-#include "Integrator/LCPIntegrator.h"
+#include "Integrator/NonFricLCPIntegrator.h"
+#include "Integrator/StaggerLCPIntegrator.h"
 BEGIN_DEFINE_XXX_FACTORY(Integrator)
-		ADD_PRODUCT(IntegratorType::kLCPIntegrator, LCPIntegrator)
+		ADD_PRODUCT(IntegratorType::kNonFrictionLCP, NonFricLCPIntegrator)
+		ADD_PRODUCT(IntegratorType::kStaggeringLCP, StaggerLCPIntegrator)
 END_DEFINE_XXX_FACTORY
 
 #include "NumericSolver/LCPSolver/PGS.h"

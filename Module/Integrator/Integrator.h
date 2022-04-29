@@ -12,7 +12,8 @@
 #include "BodyEnergy/BodyEnergy.h"
 
 enum class IntegratorType {
-	kLCPIntegrator
+	kNonFrictionLCP,
+	kStaggeringLCP
 };
 
 class IntegratorParameter {

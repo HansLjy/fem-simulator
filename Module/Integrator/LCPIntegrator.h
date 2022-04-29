@@ -30,11 +30,8 @@ public:
 class LCPIntegrator : public Integrator {
 public:
 	void Initialize(const IntegratorParameter &para) override;
-
-	void Step(System &system, const ContactGenerator &contact,
-			  const BodyEnergy &body_energy, double h) override;
-
-	~LCPIntegrator() {
+	void Step(System &system, const ContactGenerator &contact, const BodyEnergy &body_energy, double h) override = 0;
+	virtual ~LCPIntegrator() {
 		delete _solver;
 	}
 

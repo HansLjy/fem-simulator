@@ -43,7 +43,7 @@ int main() {
 		step,						// step
 		output_dir,					// output
 		SystemParameter(),
-		IntegratorType::kLCPIntegrator,
+		IntegratorType::kStaggeringLCP,
 		LCPIntegratorParameter(
 			LCPSolverType::kOSQP,
 			OSQPWrapperParameter (
