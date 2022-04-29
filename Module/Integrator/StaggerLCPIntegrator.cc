@@ -63,6 +63,7 @@ void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	spdlog::info("Time spent on solving linear equations: {}s", (clock() - t) / CLOCKS_PER_SEC);
 
 	MatrixXd E(num_contact * num_tangent, num_contact);
+	E.setZero();
 	for (int i = 0; i < num_contact; i++) {
 		E.block(i * num_tangent, i, num_tangent, 1).setOnes();
 	}
@@ -85,7 +86,9 @@ void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	static VectorXd xn(0), xt(0);
 	if (xn.size() != num_contact) {
 		xn.resize(num_contact);
+		xn.setZero();
 		xt.resize(num_contact * num_tangent);
+		xt.setZero();
 	}
 
 	if (num_contact != 0) {

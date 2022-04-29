@@ -30,4 +30,4 @@ target_link_libraries(fem spdlog::spdlog)
 target_link_libraries(fem OsqpEigen::OsqpEigen)
 target_link_libraries(fem SuiteSparse::CHOLMOD)
 
-message("Success!")
+#message("Success!")
