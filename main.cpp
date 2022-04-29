@@ -106,7 +106,6 @@ int main() {
 	}
 
 	simulator->Initialize(para);
-//	simulator->AddExternalForce(GroundForce(10));
 	simulator->AddExternalForce(Gravity(9.8));
 
 	simulator->Simulate();

@@ -7,6 +7,7 @@
 #include <Eigen/CholmodSupport>
 #include <spdlog/spdlog.h>
 #include "Util/Factory.h"
+#include "Util/Timing.h"
 
 void StaggerLCPIntegrator::Initialize(const IntegratorParameter &para) {
 	LCPIntegrator::Initialize(para);
@@ -16,36 +17,31 @@ void StaggerLCPIntegrator::Initialize(const IntegratorParameter &para) {
 
 void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
 								const BodyEnergy &body_energy, double h) {
-	const int num_tangent = contact.GetNumTangent();
-
 	SparseMatrixXd JnT, JtT;
 	VectorXd Mu;
-
 	contact.GetContact(system, JnT, JtT, Mu);
 
+	const int num_tangent = contact.GetNumTangent();
 	const int num_contact = JnT.rows();
 	spdlog::info("Number of contact points: {}", num_contact);
 
 	int size = system.GetCoordSize();	// size for u, x, M and all such matrices
 	SparseMatrixXd W(size, size);
 
-	auto t = clock();
 	VectorXd M, u, f;
 	system.GetSysMass(M);
 	system.GetSysV(u);
 	system.GetSysF(f, body_energy);
 	system.GetSysPFPX(W, body_energy);
-	spdlog::info("Time spent on calculation phy-info: {}s", (clock() - t) / CLOCKS_PER_SEC);
 
 	W *= h * h;
 	W.diagonal() += M;
 	VectorXd c = M.asDiagonal() * u + h * f;
 
-	t = clock();
-	double alpha = 0.01;
 
 	Eigen::CholmodSupernodalLLT<SparseMatrixXd> LLT_solver;
 	LLT_solver.compute(W);
+	double alpha = 0.01;
 	while (LLT_solver.info() != Eigen::Success) {
 		spdlog::info("Making W SPD");
 		W.diagonal() += alpha * M;
@@ -53,22 +49,17 @@ void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
 		LLT_solver.compute(W);
 	}
 
-	auto sub_t = clock();
+	START_TIMING(t)
 	MatrixXd WiJn = LLT_solver.solve(JnT.transpose().toDense());
 	MatrixXd WiJt = LLT_solver.solve(JtT.transpose().toDense());
-	spdlog::info("Time spent solving J: {}", clock() - sub_t);
-	sub_t = clock();
 	VectorXd Wic = LLT_solver.solve(c);
-	spdlog::info("Time spent solving c: {}", clock() - sub_t);
-	spdlog::info("Time spent on solving linear equations: {}s", (clock() - t) / CLOCKS_PER_SEC);
+	STOP_TIMING_TICK(t, "solving linear equations")
 
 	MatrixXd E(num_contact * num_tangent, num_contact);
 	E.setZero();
 	for (int i = 0; i < num_contact; i++) {
 		E.block(i * num_tangent, i, num_tangent, 1).setOnes();
 	}
-
-	t = clock();
 
 	MatrixXd Ann = JnT * WiJn, Ant = JnT * WiJt, Atn = JtT * WiJn, Att = JtT * WiJt;
 
@@ -77,8 +68,6 @@ void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
 
 	VectorXd bn = JnT * Wic;
 	VectorXd bt = JtT * Wic;
-
-	spdlog::info("Time spent on assembling: {}s", (clock() - t) / CLOCKS_PER_SEC);
 
 //	std::cerr << "A: \n" << A << std::endl;
 //	std::cerr << "b: \n" << b.transpose() << std::endl;
@@ -160,10 +149,10 @@ void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
 
 		contact_solver.initSolver();
 		friction_solver.initSolver();
-		spdlog::info("all initialized");
 
 		int step = 0;
 		VectorXd pre_xn = xn, pre_xt = xt;
+		START_TIMING(t_iter)
 		while (step++ < _max_step) {
 			contact_solver.updateGradient(bn + Ant * xt);
 			contact_solver.solveProblem();
@@ -181,6 +170,7 @@ void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
 			pre_xn = xn;
 			pre_xt = xt;
 		}
+		STOP_TIMING_SEC(t_iter, "Staggering iteration")
 		if (step <= _max_step) {
 			spdlog::info("Staggering Method, converges in {} steps", step);
 		} else {
