@@ -22,6 +22,9 @@ public:
 	virtual Vector3d Normal(const Vector3d &point) const { return Vector3d::Zero(); }
 	virtual void Store(const std::string& path) = 0;
 
+	virtual void Move(const Vector3d& delta_x) = 0;
+	virtual void Rotate(const Vector3d& delta_angle) = 0;
+
 	virtual ~RigidBody() = default;
 
 	BASE_DECLARE_CLONE(RigidBody)

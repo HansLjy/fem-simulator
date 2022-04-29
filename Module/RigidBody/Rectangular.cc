@@ -76,3 +76,14 @@ void Rectangular::Store(const std::string &path) {
 	file_stream << "CELL_TYPES " << 1 << std::endl;
 	file_stream << "11" << std::endl;
 }
+
+void Rectangular::Move(const Vector3d &delta_x) {
+	_center += delta_x;
+}
+
+void Rectangular::Rotate(const Vector3d &delta_angle) {
+	_rotation = _rotation
+	 * AngleAxisd(delta_angle(0), Vector3d::UnitZ())
+	 * AngleAxisd(delta_angle(1), Vector3d::UnitX())
+	 * AngleAxisd(delta_angle(2), Vector3d::UnitZ());
+}
