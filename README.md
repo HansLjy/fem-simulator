@@ -18,3 +18,19 @@ However, the simulator in itself is of course incomplete, there are some other f
 2. Contact & friction between:
     1. soft body and soft body(including itself)
     2. rigid body and rigid body
+3. Better IO: the configuration is not user-friendly now, I consider changing it into json format.
+4. Parallel: I did try to make some parts of the code parallel (for example, compute the hessian matrix for each tet parallelly and then assemble them in a sequential way), but I didn't achieve the expected speedup.
+
+
+# Usage
+
+First you should edit the config in the root directory. The default one is for the demo.
+
+Then make sure the output dir exists. For the demo, the output dir exists at ./Resource/output/three-slab.
+
+After that, simply:
+
+```
+cmake .
+make
+```
