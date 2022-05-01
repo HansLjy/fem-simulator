@@ -82,7 +82,7 @@ void Mesh::Load(const string &file) {
 			spdlog::error("Unsupported grid, use tet instead");
 			throw std::exception();
 		}
-		std::array<int, 4> tet;
+		std::vector<int> tet(4);
 		for (int j = 0; j < points_per_tet; j++) {
 			file_stream >> tet[j];
 		}
@@ -143,7 +143,7 @@ void Mesh::Store(const string &file) const {
 	file_stream.close();
 }
 
-#define TETS vector<array<int, 4>>
+#define TETS vector<vector<int>>
 DEFINE_ACCESSIBLE_MEMBER(Mesh, VectorXd, Points, _points)
 DEFINE_ACCESSIBLE_MEMBER(Mesh, string, Title, _title)
 DEFINE_ACCESSIBLE_MEMBER(Mesh, TETS, Tets, _tets)

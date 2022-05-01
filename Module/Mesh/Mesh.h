@@ -20,7 +20,7 @@ public:
 	DECLARE_ACCESSIBLE_MEMBER(string, InputFile, _input_file)
 };
 
-#define TETS vector<array<int, 4>>
+#define TETS vector<vector<int>>
 
 class Mesh {
 public:

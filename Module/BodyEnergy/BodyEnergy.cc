@@ -63,7 +63,7 @@ void BodyEnergy::Initialize(const BodyEnergyParameter &para) {
 	spdlog::info("BodyEnergy initialized");
 }
 
-inline Matrix3d GetDs(const VectorXd& X, const std::array<int, 4>& tet) {
+inline Matrix3d GetDs(const VectorXd& X, const std::vector<int>& tet) {
 	Vector3d Xi[4];
 	for (int i = 0; i < 4; i++) {
 		Xi[i] = X.block<3, 1>(3 * tet[i], 0);
