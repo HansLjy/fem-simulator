@@ -53,6 +53,10 @@ struct SoftBody {
 		}
 	}
 
+	SoftBody(const Mesh& rest, const Mesh& initial, const MassModel& mass_model) : SoftBody(rest, mass_model) {
+		_mesh = initial;
+	}
+
 	Mesh _mesh;					// Note: the x item in it stores the current status
 	VectorXd _v;				// velocity of each node
 	VectorXd _mass;				// mass of each node

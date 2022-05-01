@@ -28,6 +28,12 @@ public:
 		return _soft_bodies.size() - 1;
 	}
 
+	int AddSoftBody(const Mesh& rest, const Mesh& initial, const MassModel& mass_model) {
+		_soft_bodies.push_back(SoftBody(rest, initial, mass_model));
+		OnSoftBodyChange();
+		return _soft_bodies.size() - 1;
+	}
+
 	void RemoveSoftBody(int index) {
 		_soft_bodies.erase(_soft_bodies.begin() + index);
 	}
