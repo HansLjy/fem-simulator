@@ -22,17 +22,28 @@ class System {
 public:
 	void Initialize(const SystemParameter& para) {};
 
-	void AddSoftBody(const Mesh& mesh, const MassModel& mass_model) {
+	int AddSoftBody(const Mesh& mesh, const MassModel& mass_model) {
 		_soft_bodies.push_back(SoftBody(mesh, mass_model));
 		OnSoftBodyChange();
+		return _soft_bodies.size() - 1;
 	}
 
-	void AddRigidBody(const RigidBody& rigid_body) {
+	void RemoveSoftBody(int index) {
+		_soft_bodies.erase(_soft_bodies.begin() + index);
+	}
+
+	int AddRigidBody(const RigidBody& rigid_body) {
 		_rigid_bodies.push_back(rigid_body.Clone());
+		return _rigid_bodies.size() - 1;
 	}
 
-	void AddExternalForce(const ExternalForce& external_force) {
+	void RemoveRigidBody(int index) {
+		_rigid_bodies.erase(_rigid_bodies.begin() + index);
+	}
+
+	int AddExternalForce(const ExternalForce& external_force) {
 		_external_forces.push_back(external_force.Clone());
+		return _external_forces.size() - 1;
 	}
 
 	void RemoveExternalForce(int index) {
