@@ -35,6 +35,10 @@ public:
 		_external_forces.push_back(external_force.Clone());
 	}
 
+	void RemoveExternalForce(int index) {
+		_external_forces.erase(_external_forces.begin() + index);
+	}
+
 	const std::vector<SoftBody>& GetSoftBodies() const {
 		return _soft_bodies;
 	}
