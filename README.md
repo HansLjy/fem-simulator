@@ -24,9 +24,16 @@ However, the simulator in itself is of course incomplete, there are some other f
 
 # Usage
 
+There are few dependencies:
+
+1. Eigen
+2. SparseSuite
+3. OsqpEigen
+4. spdlog
+
 First you should edit the config in the root directory. The default one is for the demo.
 
-Then make sure the output dir exists. For the demo, the output dir exists at ./Resource/output/three-slab.
+Then make sure the output dir exists. For the demo, the output dir exists at ./Resource/output/moving_slabs.
 
 After that, simply:
 
@@ -34,3 +41,5 @@ After that, simply:
 cmake .
 make
 ```
+
+A demo can be found in Resource/Demo
