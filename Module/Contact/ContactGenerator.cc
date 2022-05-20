@@ -1,8 +1,9 @@
 //
-// Created by hansljy on 2022/4/9.
+// Created by hansljy on 22-5-20.
 //
 
 #include "ContactGenerator.h"
-#include "Util/Factory.h"
+#include "Util/Pattern.h"
 
-DEFINE_ACCESSIBLE_MEMBER(ContactGeneratorParameter, int, NumTangent, _num_tagent)
+DEFINE_VIRTUAL_ACCESSIBLE_MEMBER(ContactGeneratorParameter, DCDType, DCDType)
+DEFINE_VIRTUAL_ACCESSIBLE_POINTER_MEMBER(ContactGeneratorParameter, DCDParameter, DCDPara)

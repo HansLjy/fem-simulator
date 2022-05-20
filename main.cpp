@@ -6,12 +6,12 @@
 #include "ElementEnergy/SimpleModel.h"
 #include "ElementEnergy/RayleighModel.h"
 #include "ConstituteModel/StVKModel.h"
-#include "BodyEnergy/Gravity.h"
 #include "Mass/VoronoiModel.h"
-#include "BodyEnergy/GroundForce.h"
 #include "Integrator/LCPIntegrator.h"
-#include "Contact/PolyhedralCone.h"
-#include "RigidBody/Rectangular.h"
+#include "Contact/DCDContactGenerator.h"
+#include "Contact/PolygonFrictionModel.h"
+#include "Object/RigidBody/RobotArm.h"
+#include "Object/Object.h"
 #include "Util/Factory.h"
 #include <iostream>
 #include <fstream>
@@ -21,21 +21,18 @@ int main() {
 	double duration, step;
 
 	int max_step;
-	double max_error, lambda;
+	double max_error;
 
 	int num_tangent;
 
 	double alpha1, alpha2;
-	double youngs_module, poisson_ratio, density;
 
 	std::fstream cfg("./config");
 	cfg >> output_dir;
 	cfg >> duration >> step;
-	cfg >> max_error >> max_step >> lambda;
+	cfg >> max_error >> max_step;
 	cfg >> num_tangent;
 	cfg >> alpha1 >> alpha2;
-	cfg >> youngs_module >> poisson_ratio;
-	cfg >> density;
 
 	auto simulator = new Simulator;
 	SimulatorParameter para(
@@ -51,11 +48,36 @@ int main() {
 				max_error
 			)
 		),
-		ContactGeneratorType::kPolyhedralCone,
-		PolyhedralConeParameter (
-			num_tangent
+		ContactGeneratorType::kDCD,
+		DCDContactGeneratorParameter(
+			DCDType::kFast,
+			DCDParameter(
+				max_step,	// max iteration
+				1e-6	// tolerance
+			)
 		),
-		BodyEnergyParameter(
+		FrictionModelType::kInscribedPolygon,
+		PolygonFrictionModelParameter(
+			num_tangent
+		)
+	);
+
+	simulator->Initialize(para);
+
+	int num_soft_bodies;
+	cfg >> num_soft_bodies;
+	for (int i = 0; i < num_soft_bodies; i++) {
+		Mesh mesh;
+		std::string input_file;
+		double density;
+		double mu_soft;
+		double youngs_module, poisson_ratio;
+
+		cfg >> input_file;
+		cfg >> density;
+		cfg >> mu_soft;
+		cfg >> youngs_module >> poisson_ratio;
+		BodyEnergyParameter body_energy (
 				ElasticEnergyModelType::kSimple,		// elastic energy model
 				SimpleModelParameter(),
 				DissipationEnergyModelType::kRayleigh,	// dissipation energy model
@@ -68,45 +90,40 @@ int main() {
 						youngs_module,    // Young's module
 						poisson_ratio    // Poisson's ratio
 				)
-		)
-	);
+		);
 
-	simulator->Initialize(para);
-
-	MassModel* mass_model = MassModelFactory::GetInstance()->GetMassModel(MassModelType::kVoronoi);
-	mass_model->Initialize(VoronoiModelParameter(density));
-
-	int num_soft_bodies;
-	cfg >> num_soft_bodies;
-	for (int i = 0; i < num_soft_bodies; i++) {
-		Mesh soft_body;
-		std::string input_file;
-		cfg >> input_file;
-		soft_body.Initialize(MeshParameter(input_file));
-		simulator->AddSoftBody(soft_body, *mass_model);
+		SoftBodyParameter soft_para(
+				mu_soft,
+				MassModelType::kVoronoi,
+				VoronoiModelParameter(density),
+				body_energy
+		);
+		mesh.Initialize(MeshParameter(input_file));
+		SoftBody soft_body(mesh);
+		soft_body.Initialize(soft_para);
+		simulator->AddObject(soft_body);
 	}
 
 	int num_rectangles;
 	cfg >> num_rectangles;
 	for (int i = 0; i < num_rectangles; i++) {
+		double mu, density;
 		double x, y, z;
 		double length, width, height;
 		double theta, phi, psi;
-		double mu;
+		cfg >> mu >> density;
 		cfg >> x >> y >> z;
 		cfg >> length >> width >> height;
 		cfg >> phi >> theta >> psi;
-		cfg >> mu;
 		Vector3d center, shape, euler;
 		center << x, y, z;
 		shape << length, width, height;
 		euler << phi, theta, psi;
 
-		simulator->AddRigidBody(Rectangular(mu, center, euler, shape));
+		simulator->AddObject(RobotArm(mu, density, center, euler, shape, Vector3d::UnitZ()));
 	}
 
 	simulator->Initialize(para);
-	simulator->AddExternalForce(Gravity(9.8));
 
 	simulator->Simulate();
 	return 0;

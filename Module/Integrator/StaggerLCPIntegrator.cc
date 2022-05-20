@@ -15,36 +15,39 @@ void StaggerLCPIntegrator::Initialize(const IntegratorParameter &para) {
 	_max_error = para.GetLCPSolverParameter()->GetMaxError();
 }
 
-void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
-								const BodyEnergy &body_energy, double h) {
+void StaggerLCPIntegrator::Step(System &system,
+								const ContactGenerator &contact_generator,
+								const FrictionModel &friction_model, double h) {
 	SparseMatrixXd JnT, JtT;
 	VectorXd Mu;
-	contact.GetContact(system, JnT, JtT, Mu);
 
-	const int num_tangent = contact.GetNumTangent();
+	vector<ContactPoint> contacts;
+	contact_generator.GetContact(system, contacts);
+	friction_model.GetJ(system, contacts, 0, JnT, JtT, Mu);
+	const int num_tangent = friction_model.GetNumTangent();
+
 	const int num_contact = JnT.rows();
 	spdlog::info("Number of contact points: {}", num_contact);
 
-	int size = system.GetCoordSize();	// size for u, x, M and all such matrices
-	SparseMatrixXd W(size, size);
+	int dof = system.GetSysDOF();	// dof for u, x, M and all such matrices
+	SparseMatrixXd W(dof, dof);
 
-	VectorXd M, u, f;
-	system.GetSysMass(M);
+	VectorXd u, f;
+	SparseMatrixXd mass = system.GetSysMass();
 	system.GetSysV(u);
-	system.GetSysF(f, body_energy);
-	system.GetSysPFPX(W, body_energy);
+	system.GetSysF(f);
+	system.GetSysEnergyHessian(W);
 
 	W *= h * h;
-	W.diagonal() += M;
-	VectorXd c = M.asDiagonal() * u + h * f;
-
+	W += mass;
+	VectorXd c = mass * u + h * f;
 
 	Eigen::CholmodSupernodalLLT<SparseMatrixXd> LLT_solver;
 	LLT_solver.compute(W);
 	double alpha = 0.01;
 	while (LLT_solver.info() != Eigen::Success) {
 		spdlog::info("Making W SPD");
-		W.diagonal() += alpha * M;
+		W += alpha * mass;
 		alpha *= 2;
 		LLT_solver.compute(W);
 	}
@@ -54,6 +57,7 @@ void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
 	MatrixXd WiJt = LLT_solver.solve(JtT.transpose().toDense());
 	VectorXd Wic = LLT_solver.solve(c);
 	STOP_TIMING_TICK(t, "solving linear equations")
+
 
 	MatrixXd E(num_contact * num_tangent, num_contact);
 	E.setZero();
@@ -180,5 +184,5 @@ void StaggerLCPIntegrator::Step(System &system, const ContactGenerator &contact,
 
 	VectorXd u_plus = Wic + WiJn * xn + WiJt * xt;
 
-	system.Update(u_plus, h);
+	system.UpdateDynamic(u_plus, h);
 }

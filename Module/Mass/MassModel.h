@@ -16,6 +16,8 @@ enum class MassModelType {
 class MassModelParameter {
 public:
 	MassModelParameter(double density);
+	virtual ~MassModelParameter() = default;
+
 	BASE_DECLARE_CLONE(MassModelParameter)
 
 	DECLARE_ACCESSIBLE_MEMBER(double, Density, _density)

@@ -51,7 +51,17 @@ BEGIN_DEFINE_XXX_FACTORY(LCPSolver)
 		ADD_PRODUCT(LCPSolverType::kOSQP, OSQPWrapper)
 END_DEFINE_XXX_FACTORY
 
-#include "Contact/PolyhedralCone.h"
+#include "Contact/DCDContactGenerator.h"
 BEGIN_DEFINE_XXX_FACTORY(ContactGenerator)
-		ADD_PRODUCT(ContactGeneratorType::kPolyhedralCone, PolyhedralCone)
+		ADD_PRODUCT(ContactGeneratorType::kDCD, DCDContactGenerator)
+END_DEFINE_XXX_FACTORY
+
+#include "Contact/PolygonFrictionModel.h"
+BEGIN_DEFINE_XXX_FACTORY(FrictionModel)
+		ADD_PRODUCT(FrictionModelType::kInscribedPolygon, PolygonFrictionModel)
+END_DEFINE_XXX_FACTORY
+
+#include "Contact/DCD/FastDCD.h"
+BEGIN_DEFINE_XXX_FACTORY(DCD)
+		ADD_PRODUCT(DCDType::kFast, FastDCD)
 END_DEFINE_XXX_FACTORY

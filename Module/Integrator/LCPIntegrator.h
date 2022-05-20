@@ -30,7 +30,8 @@ public:
 class LCPIntegrator : public Integrator {
 public:
 	void Initialize(const IntegratorParameter &para) override;
-	void Step(System &system, const ContactGenerator &contact, const BodyEnergy &body_energy, double h) override = 0;
+	void Step(System &system, const ContactGenerator &contact_generator,
+			  const FrictionModel &friction_model, double h) override = 0;
 	virtual ~LCPIntegrator() {
 		delete _solver;
 	}

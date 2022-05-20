@@ -10,7 +10,8 @@
 class StaggerLCPIntegrator : public LCPIntegrator {
 public:
 	void Initialize(const IntegratorParameter &para) override;
-	void Step(System &system, const ContactGenerator &contact, const BodyEnergy &body_energy, double h) override;
+	void Step(System &system, const ContactGenerator &contact_generator,
+			  const FrictionModel &friction_model, double h) override;
 
 protected:
 	int _max_step;

@@ -9,6 +9,7 @@
 #include "NumericSolver/LCPSolver/LCPSolver.h"
 #include "NumericSolver/Optimizer/Optimizer.h"
 #include "Contact/ContactGenerator.h"
+#include "Contact/FrictionModel.h"
 #include "BodyEnergy/BodyEnergy.h"
 
 enum class IntegratorType {
@@ -34,8 +35,8 @@ public:
 class Integrator {
 public:
 	virtual void Initialize(const IntegratorParameter& para) = 0;
-	virtual void Step(System &system, const ContactGenerator &contact,
-					  const BodyEnergy &body_energy, double h) = 0;
+	virtual void Step(System &system, const ContactGenerator &contact_generator,
+					  const FrictionModel &friction_model, double h) = 0;
 
 	virtual ~Integrator() = default;
 };

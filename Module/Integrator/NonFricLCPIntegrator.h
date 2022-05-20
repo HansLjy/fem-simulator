@@ -9,7 +9,8 @@
 
 class NonFricLCPIntegrator : public LCPIntegrator {
 public:
-	void Step(System &system, const ContactGenerator &contact, const BodyEnergy &body_energy, double h) override;
+	void Step(System &system, const ContactGenerator &contact_generator,
+			  const FrictionModel &friction_model, double h) override;
 };
 
 #endif //TEST_NONFRICLCPINTEGRATOR_H

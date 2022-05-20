@@ -7,13 +7,13 @@
 
 #include "Mesh/Mesh.h"
 #include "Util/EigenAll.h"
-#include "SoftBody/SoftBody.h"
+#include "Object/Object.h"
 
 class ExternalForce {
 public:
-	virtual double Energy(const SoftBody &body) const = 0;
-	virtual VectorXd Gradient(const SoftBody &body) const = 0;
-	virtual SparseMatrixXd Hessian(const SoftBody &body) const = 0;
+	virtual double Energy(const Object &body) const = 0;
+	virtual VectorXd Gradient(const Object &body) const = 0;
+	virtual SparseMatrixXd Hessian(const Object &body) const = 0;
 
 	virtual ~ExternalForce() = default;
 

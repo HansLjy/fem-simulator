@@ -3,6 +3,7 @@
 //
 
 #include "BodyEnergy.h"
+#include "Object/SoftBody/SoftBody.h"
 #include "Util/Factory.h"
 #include <spdlog/spdlog.h>
 #include <iostream>
@@ -36,6 +37,8 @@ DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, ConstituteModelParameter, 
 /**
  * Project a matrix into a positive definite one
  */
+
+BodyEnergy::BodyEnergy(const SoftBody *soft_body) : _body(soft_body){}
 
 template<int dim>
 void PositiveProject(Eigen::Matrix<double, dim, dim>& matrix) {
@@ -75,22 +78,22 @@ inline Matrix3d GetDs(const VectorXd& X, const std::vector<int>& tet) {
 	return D;
 }
 
-double BodyEnergy::EEnergy(const SoftBody &body) const {
-	const auto& tets = body._mesh.GetTets();
-	const auto& X = body._mesh.GetPoints();
+double BodyEnergy::EEnergy() const {
+	const auto& tets = _body->_mesh.GetTets();
+	const auto& X = _body->_mesh.GetPoints();
 	double energy = 0;
 	int num_of_tets = tets.size();
 	for (int i = 0; i < num_of_tets; i++) {
 		auto D = GetDs(X, tets[i]);
-		energy += _elas_model->Energy(*_cons_model, body._volume[i], body._inv[i], D);
+		energy += _elas_model->Energy(*_cons_model, _body->_volume[i], _body->_inv[i], D);
 	}
 	return energy;
 }
 
 VectorXd
-BodyEnergy::EGradient(const SoftBody &body) const {
-	const auto& tets = body._mesh.GetTets();
-	const auto& X = body._mesh.GetPoints();
+BodyEnergy::EGradient() const {
+	const auto& tets = _body->_mesh.GetTets();
+	const auto& X = _body->_mesh.GetPoints();
 	VectorXd gradient(X.size());
 	gradient.setZero();
 
@@ -98,7 +101,7 @@ BodyEnergy::EGradient(const SoftBody &body) const {
 	for (int i = 0; i < num_of_tets; i++) {
 		auto tet = tets[i];
 		auto D = GetDs(X, tet);
-		Vector12d local_gradient = _elas_model->Gradient(*_cons_model, body._volume[i], body._inv[i], D);
+		Vector12d local_gradient = _elas_model->Gradient(*_cons_model, _body->_volume[i], _body->_inv[i], D);
 		for (int j = 0; j < 4; j++) {
 			gradient.block<3, 1>(3 * tet[j], 0) += local_gradient.block<3, 1>(3 * j, 0);
 		}
@@ -108,15 +111,21 @@ BodyEnergy::EGradient(const SoftBody &body) const {
 }
 
 SparseMatrixXd
-BodyEnergy::EHessian(const SoftBody &body) const {
-	const auto& tets = body._mesh.GetTets();
-	const auto& X = body._mesh.GetPoints();
+BodyEnergy::EHessian() const {
+	SparseMatrixXd hessian(_body->GetDOF(), _body->GetDOF());
+	COO triplets = EHessianCOO();
+	hessian.setFromTriplets(triplets.begin(), triplets.end());
+	return hessian;
+}
+
+COO BodyEnergy::EHessianCOO() const {
+	const auto& tets = _body->_mesh.GetTets();
+	const auto& X = _body->_mesh.GetPoints();
 //	auto t = clock();
 
 	int num_of_tets = tets.size();
 
 //	auto start_allocation = clock();
-	SparseMatrixXd hessian(X.size(), X.size());
 	std::vector<Matrix12d> local_hessian(num_of_tets);
 	std::vector<Triplet> triplets;
 //	spdlog::info("Time spent in allocation: {} s", (double)(clock() - start_allocation) / CLOCKS_PER_SEC);
@@ -126,7 +135,7 @@ BodyEnergy::EHessian(const SoftBody &body) const {
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
 		auto D = GetDs(X, tet);
-		local_hessian[i] = _elas_model->Hessian(*_cons_model, body._volume[i], body._inv[i], D, body._pFpX[i]);
+		local_hessian[i] = _elas_model->Hessian(*_cons_model, _body->_volume[i], _body->_inv[i], D, _body->_pFpX[i]);
 	}
 	for (int i = 0; i < num_of_tets; i++) {
 		PositiveProject(local_hessian[i]);
@@ -144,10 +153,7 @@ BodyEnergy::EHessian(const SoftBody &body) const {
 			for (int k = 0; k < 4; k++) {
 				const int base_col = 3 * tet[k];
 				const int base_col_local = 3 * k;
-
-				#pragma unroll
 				for (int  row = 0; row < 3; row++) {
-					#pragma unroll
 					for (int col = 0; col < 3; col++) {
 						triplets.push_back(Triplet(base_row + row, base_col + col, local(base_row_local + row, base_col_local + col)));
 					}
@@ -155,16 +161,13 @@ BodyEnergy::EHessian(const SoftBody &body) const {
 			}
 		}
 	}
-	hessian.setFromTriplets(triplets.begin(), triplets.end());
-//	spdlog::info("Time spent in assembly: {} s", (double)(clock() - start_assembly) / CLOCKS_PER_SEC);
-//	spdlog::info("Time spent in computing E-hessian: {} s", (double)(clock() - t) / CLOCKS_PER_SEC);
-	return hessian;
+	return triplets;
 }
 
 double
-BodyEnergy::DEnergy(const SoftBody &body) const {
-	const auto& tets = body._mesh.GetTets();
-	const auto& X = body._mesh.GetPoints();
+BodyEnergy::DEnergy() const {
+	const auto& tets = _body->_mesh.GetTets();
+	const auto& X = _body->_mesh.GetPoints();
 	double energy = 0;
 	int num_of_tets = tets.size();
 	for (int i = 0; i < num_of_tets; i++) {
@@ -172,18 +175,18 @@ BodyEnergy::DEnergy(const SoftBody &body) const {
 		Vector12d v;
 		Vector4d m;
 		for (int j = 0; j < 4; j++) {
-			v.block<3, 1>(3 * j, 0) = body._v.block<3, 1>(3 * tet[j], 0);
-			m(j) = body._mass(tet[j]);
+			v.block<3, 1>(3 * j, 0) = _body->_v.block<3, 1>(3 * tet[j], 0);
+			m(j) = _body->_mass(tet[j]);
 		}
 		auto D = GetDs(X, tet);
-		energy += _diss_model->Energy(*_cons_model, *_elas_model, body._volume[i], body._inv[i], m, v, D, body._pFpX[i]);
+		energy += _diss_model->Energy(*_cons_model, *_elas_model, _body->_volume[i], _body->_inv[i], m, v, D, _body->_pFpX[i]);
 	}
 	return energy;
 }
 
-VectorXd BodyEnergy::DGradient(const SoftBody &body) const {
-	const auto& tets = body._mesh.GetTets();
-	const auto& X = body._mesh.GetPoints();
+VectorXd BodyEnergy::DGradient() const {
+	const auto& tets = _body->_mesh.GetTets();
+	const auto& X = _body->_mesh.GetPoints();
 	VectorXd gradient(X.size());
 	gradient.setZero();
 
@@ -193,15 +196,15 @@ VectorXd BodyEnergy::DGradient(const SoftBody &body) const {
 		Vector12d v;
 		Vector4d m;
 		for (int j = 0; j < 4; j++) {
-			v.block<3, 1>(3 * j, 0) = body._v.block<3, 1>(3 * tet[j], 0);
-			m(j) = body._mass(tet[j]);
+			v.block<3, 1>(3 * j, 0) = _body->_v.block<3, 1>(3 * tet[j], 0);
+			m(j) = _body->_mass(tet[j]);
 		}
 		auto D = GetDs(X, tet);
 		Vector12d local_gradient = _diss_model->Gradient(*_cons_model,
-														 *_elas_model, body._volume[i],
-														 body._inv[i],
+														 *_elas_model, _body->_volume[i],
+														 _body->_inv[i],
 														 m, v, D,
-														 body._pFpX[i]);
+														 _body->_pFpX[i]);
 		for (int j = 0; j < 4; j++) {
 			gradient.block<3, 1>(3 * tet[j], 0) += local_gradient.block<3, 1>(3 * j, 0);
 		}
@@ -210,11 +213,17 @@ VectorXd BodyEnergy::DGradient(const SoftBody &body) const {
 	return gradient;
 }
 
-SparseMatrixXd BodyEnergy::DHessian(const SoftBody &body) const {
-	const auto& tets = body._mesh.GetTets();
-	const auto& X = body._mesh.GetPoints();
+SparseMatrixXd BodyEnergy::DHessian() const {
+	SparseMatrixXd hessian(_body->GetDOF(), _body->GetDOF());
+	COO triplets = DHessianCOO();
+	hessian.setFromTriplets(triplets.begin(), triplets.end());
+	return hessian;
+}
+
+COO BodyEnergy::DHessianCOO() const {
+	const auto& tets = _body->_mesh.GetTets();
+	const auto& X = _body->_mesh.GetPoints();
 	int num_of_tets = tets.size();
-	SparseMatrixXd hessian(X.size(), X.size());
 	std::vector<Matrix12d> local_hessian(num_of_tets);
 	std::vector<Triplet> triplets;
 
@@ -224,12 +233,12 @@ SparseMatrixXd BodyEnergy::DHessian(const SoftBody &body) const {
 		Vector12d v;
 		Vector4d m;
 		for (int j = 0; j < 4; j++) {
-			v.block<3, 1>(3 * j, 0) = body._v.block<3, 1>(3 * tet[j], 0);
-			m(j) = body._mass(tet[j]);
+			v.block<3, 1>(3 * j, 0) = _body->_v.block<3, 1>(3 * tet[j], 0);
+			m(j) = _body->_mass(tet[j]);
 		}
 		auto D = GetDs(X, tet);
 		local_hessian[i] = _diss_model->Hessian(*_cons_model, *_elas_model,
-												body._volume[i], body._inv[i], m, v, D, body._pFpX[i]);
+												_body->_volume[i], _body->_inv[i], m, v, D, _body->_pFpX[i]);
 	}
 	for (int i = 0; i < num_of_tets; i++) {
 		PositiveProject(local_hessian[i]);
@@ -252,10 +261,10 @@ SparseMatrixXd BodyEnergy::DHessian(const SoftBody &body) const {
 			}
 		}
 	}
-	hessian.setFromTriplets(triplets.begin(), triplets.end());
-
-	return hessian;
+	return triplets;
 }
+
+
 
 BodyEnergy::~BodyEnergy() {
 	delete _elas_model;

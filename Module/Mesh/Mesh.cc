@@ -18,6 +18,7 @@ DEFINE_ACCESSIBLE_MEMBER(MeshParameter, string, InputFile, _input_file)
 
 void Mesh::Initialize(const MeshParameter &para) {
 	Load(para.GetInputFile());
+	CalculateSurface();
 	spdlog::info("Mesh intialized");
 }
 
@@ -82,10 +83,11 @@ void Mesh::Load(const string &file) {
 			spdlog::error("Unsupported grid, use tet instead");
 			throw std::exception();
 		}
-		std::vector<int> tet(4);
+		std::vector<int> tet(points_per_tet);
 		for (int j = 0; j < points_per_tet; j++) {
 			file_stream >> tet[j];
 		}
+		std::sort(tet.begin(), tet.end());
 		_tets.push_back(tet);
 	}
 
@@ -116,6 +118,85 @@ void Mesh::Load(const string &file) {
 	}
 	for (int i = 0; i < num_of_points; i++) {
 		_points(3 * i + 2) += min_shift;
+	}
+}
+
+struct SurfaceTriangle {
+	SurfaceTriangle(int point_id1, int point_id2, int point_id3, bool inverted) :
+		_inverted(inverted) {
+		_point_id[0] = point_id1;
+		_point_id[1] = point_id2;
+		_point_id[2] = point_id3;
+	}
+
+	bool operator<(const SurfaceTriangle& rhs) const {
+		for (int i = 0; i < 3; i++) {
+			if (_point_id[i] < rhs._point_id[i]) {
+				return true;
+			} else if (_point_id[i] > rhs._point_id[i]) {
+				return false;
+			}
+		}
+		return false;
+	}
+
+	bool operator==(const SurfaceTriangle& rhs) const {
+		return !(*this < rhs) && !(rhs < *this);
+	}
+
+	bool _inverted;		// whether the order of the last two points have been inverted.
+	int _point_id[3];	// end points
+};
+
+void Mesh::CalculateSurface() {
+	_surface.clear();
+	const int num_tets = _tets.size();
+	vector<SurfaceTriangle> surface_candidate;
+	for (int i = 0; i < num_tets; i++) {
+		auto tet = _tets[i];
+		std::sort(tet.begin(), tet.end());
+		Vector3d X0 = _points.block<3, 1>(3 * tet[0], 0);
+		Vector3d X1 = _points.block<3, 1>(3 * tet[1], 0);
+		Vector3d X2 = _points.block<3, 1>(3 * tet[2], 0);
+		Vector3d X3 = _points.block<3, 1>(3 * tet[3], 0);
+		if ((X3 - X0).dot((X2 - X0).cross(X1 - X0)) > 0) {
+			surface_candidate.push_back(
+					SurfaceTriangle(tet[0], tet[1], tet[2], false));
+			surface_candidate.push_back(
+					SurfaceTriangle(tet[0], tet[2], tet[3], false));
+			surface_candidate.push_back(
+					SurfaceTriangle(tet[0], tet[1], tet[3], true));
+			surface_candidate.push_back(
+					SurfaceTriangle(tet[1], tet[2], tet[3], true));
+		} else {
+			surface_candidate.push_back(
+					SurfaceTriangle(tet[0], tet[1], tet[2], true));
+			surface_candidate.push_back(
+					SurfaceTriangle(tet[0], tet[2], tet[3], true));
+			surface_candidate.push_back(
+					SurfaceTriangle(tet[0], tet[1], tet[3], false));
+			surface_candidate.push_back(
+					SurfaceTriangle(tet[1], tet[2], tet[3], false));
+		}
+	}
+	vector<SurfaceTriangle> surface;
+	std::sort(surface_candidate.begin(), surface_candidate.end());
+	const int num_surface = 4 * num_tets;
+	for (int i = 0; i < num_surface; i++) {
+		if (i < num_surface - 1 && surface_candidate[i] == surface_candidate[i + 1]) {
+			while (i < num_surface - 1 && surface_candidate[i] == surface_candidate[i + 1]) {
+				i++;
+			}
+		} else {
+			surface.push_back(surface_candidate[i]);
+		}
+	}
+	for (auto& surface_element : surface) {
+		vector<int> surface_ids(3);
+		surface_ids[0] = surface_element._point_id[0];
+		surface_ids[1] = surface_element._inverted ? surface_element._point_id[2] : surface_element._point_id[1];
+		surface_ids[2] = surface_element._inverted ? surface_element._point_id[1] : surface_element._point_id[2];
+		_surface.push_back(surface_ids);
 	}
 }
 

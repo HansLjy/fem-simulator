@@ -11,8 +11,9 @@
 #include <vector>
 #include "Util/Pattern.h"
 #include "Util/EigenAll.h"
-#include "SoftBody/SoftBody.h"
 #include "ConstituteModel/ConstituteModel.h"
+
+class SoftBody;
 
 class BodyEnergyParameter {
 public:
@@ -37,33 +38,24 @@ public:
 
 class BodyEnergy {
 public:
+	BodyEnergy(const SoftBody* soft_body);
 	void Initialize(const BodyEnergyParameter& para);
 
-	double
-	EEnergy(const SoftBody &body) const;
-
-	double
-	DEnergy(const SoftBody &body) const;
-
-	VectorXd
-	EGradient(const SoftBody &body) const;
-
-	VectorXd
-	DGradient(const SoftBody &body) const;
-
-	SparseMatrixXd
-	EHessian(const SoftBody &body) const;
-
-	SparseMatrixXd
-	DHessian(const SoftBody &body) const;
-
-	BodyEnergy() = default;
+	double EEnergy() const;
+	double DEnergy() const;
+	VectorXd EGradient() const;
+	VectorXd DGradient() const;
+	SparseMatrixXd EHessian() const;
+	COO EHessianCOO() const;
+	SparseMatrixXd DHessian() const;
+	COO DHessianCOO() const;
 	BodyEnergy(const BodyEnergy& body_energy);
 	~BodyEnergy();
 
 	DERIVED_DECLARE_CLONE(BodyEnergy)
 
 private:
+	const SoftBody* _body;
 	ElasticEnergyModel* _elas_model = nullptr;
 	DissipationEnergyModel* _diss_model = nullptr;
 	ConstituteModel* _cons_model = nullptr;

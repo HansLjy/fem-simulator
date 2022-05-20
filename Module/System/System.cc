@@ -5,5 +5,3 @@
 #include "System.h"
 
 DEFINE_CLONE(SystemParameter, SystemParameter)
-
-DEFINE_ACCESSIBLE_MEMBER(System, int, CoordSize, _coord_size)

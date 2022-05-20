@@ -9,8 +9,8 @@
 #include "Mesh/Mesh.h"
 #include "BodyEnergy/ExternalForce.h"
 #include "Mass/MassModel.h"
-#include "SoftBody/SoftBody.h"
-#include "RigidBody/RigidBody.h"
+#include "Object/SoftBody/SoftBody.h"
+#include "Object/RigidBody/RigidBody.h"
 #include "BodyEnergy/BodyEnergy.h"
 
 class SystemParameter {
@@ -20,31 +20,15 @@ public:
 
 class System {
 public:
-	void Initialize(const SystemParameter& para) {};
+	void Initialize(const SystemParameter& para) {}
 
-	int AddSoftBody(const Mesh& mesh, const MassModel& mass_model) {
-		_soft_bodies.push_back(SoftBody(mesh, mass_model));
-		OnSoftBodyChange();
-		return _soft_bodies.size() - 1;
+	const std::vector<Object*>& GetObjects() const {
+		return _objects;
 	}
 
-	int AddSoftBody(const Mesh& rest, const Mesh& initial, const MassModel& mass_model) {
-		_soft_bodies.push_back(SoftBody(rest, initial, mass_model));
-		OnSoftBodyChange();
-		return _soft_bodies.size() - 1;
-	}
-
-	void RemoveSoftBody(int index) {
-		_soft_bodies.erase(_soft_bodies.begin() + index);
-	}
-
-	int AddRigidBody(const RigidBody& rigid_body) {
-		_rigid_bodies.push_back(rigid_body.Clone());
-		return _rigid_bodies.size() - 1;
-	}
-
-	void RemoveRigidBody(int index) {
-		_rigid_bodies.erase(_rigid_bodies.begin() + index);
+	int AddObject(const Object& object) {
+		_objects.push_back(object.Clone());
+		return _objects.size() - 1;
 	}
 
 	int AddExternalForce(const ExternalForce& external_force) {
@@ -56,145 +40,120 @@ public:
 		_external_forces.erase(_external_forces.begin() + index);
 	}
 
-	const std::vector<SoftBody>& GetSoftBodies() const {
-		return _soft_bodies;
-	}
-
-	std::vector<SoftBody>& GetSoftBodies() {
-		return _soft_bodies;
-	}
-
-	const std::vector<RigidBody*>& GetRigidBodies() const {
-		return _rigid_bodies;
-	}
-
 	const std::vector<const ExternalForce*>& GetExternalForces() const {
 		return _external_forces;
 	}
 
-	void Store(const std::string& path, int frame_id) {
+	void Store(const std::string& path, int frame_id) const {
 		int index = 0;
-		for (auto& soft_body : _soft_bodies) {
-			soft_body._mesh.Store(path + "/soft_obj" + std::to_string(index++) + "f" + std::to_string(frame_id) + ".vtk");
-		}
-		index = 0;
-		for (auto& ridig_body : _rigid_bodies) {
-			ridig_body->Store(path + "/rigid_obj" + std::to_string(index++) + "f" + std::to_string(frame_id) + ".vtk");
+		for (auto& object : _objects) {
+			object->Store(path + "/object" + std::to_string(index++) + "f" + std::to_string(frame_id) + ".vtk");
 		}
 	}
 
-	/**
-	 * On change, modify coord size
-	 */
-	void OnSoftBodyChange() {
-		_coord_size = 0;
-		for (auto& soft_body : _soft_bodies) {
-			_coord_size += soft_body._sparse_mass.size();
-		}
-		_sys_sparse_mass.resize(_coord_size);
-		const int num_soft = _soft_bodies.size();
-		int cur_size = 0;
-		for (int i = 0; i < num_soft; i++) {
-			const int single_size = _soft_bodies[i]._sparse_mass.size();
-			_sys_sparse_mass.block(cur_size, 0, single_size, 1) = _soft_bodies[i]._sparse_mass;
-			cur_size += single_size;
+	int GetSysDOF() const {
+		return _dof;
+	}
+
+	const SparseMatrixXd& GetSysMass() const {
+		return _mass;
+	}
+
+	void GetSysV(VectorXd& v) const {
+		v.resize(_dof);
+		const int num_objects = _objects.size();
+		for (int i = 0; i < num_objects; i++) {
+			v.block(_dof_offsets[i], 0, _objects[i]->GetDOF(), 1) = _objects[i]->GetV();
 		}
 	}
 
-	void GetSysMass(VectorXd& m) {
-		m = _sys_sparse_mass;
-	}
-
-	void GetSysV(VectorXd& v) {
-		v.resize(_coord_size);
-		const int num_soft_bodies = _soft_bodies.size();
-		int cur_size = 0;
-		for (int i = 0; i < num_soft_bodies; i++) {
-			int single_size = _soft_bodies[i]._v.size();
-			v.block(cur_size, 0, single_size, 1) = _soft_bodies[i]._v;
-			cur_size += single_size;
-		}
-	}
-
-	void GetSysX(VectorXd& x) {
-		x.resize(_coord_size);
-		const int num_soft_bodies = _soft_bodies.size();
-		int cur_size = 0;
-		for (int i = 0; i < num_soft_bodies; i++) {
-			int single_size = _soft_bodies[i]._v.size();
-			x.block(cur_size, 0, single_size, 1) = _soft_bodies[i]._mesh.GetPoints();
-			cur_size += single_size;
+	void GetSysX(VectorXd& x) const {
+		x.resize(_dof);
+		const int num_objects = _objects.size();
+		for (int i = 0; i < num_objects; i++) {
+			x.block(_dof_offsets[i], 0, _objects[i]->GetDOF(), 1) = _objects[i]->GetX();
 		}
 	}
 
 	// TODO: ADD DISSIPATION FORCE INTO CALCULATION!
 	// dissipation forces are implemented but not used for various reasons
 
-	void GetSysF(VectorXd& f, const BodyEnergy& body_energy) {
-		f.resize(_coord_size);
-		const int num_soft = _soft_bodies.size();
+	void GetSysF(VectorXd &f) const {
+		f.resize(_dof);
+		const int num_objects = _objects.size();
 		const int num_ext = _external_forces.size();
-		int current_size = 0;
-		for (int i = 0; i < num_soft; i++) {
-			int single_size = GetBodySize(i);
-			f.block(current_size, 0, single_size, 1).setZero();
+		for (int i = 0; i < num_objects; i++) {
+			const int dof_offset = _dof_offsets[i];
+			const int single_dof = _objects[i]->GetDOF();
+			f.block(dof_offset, 0, single_dof, 1).setZero();
 			for (int j = 0; j < num_ext; j++) {
-				f.block(current_size, 0, single_size, 1) -= _external_forces[j]->Gradient(_soft_bodies[i]);
+				f.block(dof_offset, 0, single_dof, 1) -= _external_forces[j]->Gradient(*_objects[i]);
 			}
-			f.block(current_size, 0, single_size, 1) -= body_energy.EGradient(_soft_bodies[i]);
-			current_size += single_size;
+			f.block(dof_offset, 0, single_dof, 1) -= _objects[i]->EnergyGradient();
 		}
 	}
 
-	void GetSysPFPX(SparseMatrixXd& pFpX, const BodyEnergy& body_energy) {
-		int current_size = 0;
-		const int num_soft = _soft_bodies.size();
+	void GetSysEnergyHessian(SparseMatrixXd &hessian) const {
+		const int num_objects = _objects.size();
+		hessian.resize(_dof, _dof);
 		std::vector<Triplet> COO;
-		for (int i = 0; i < num_soft; i++) {
-			int single_size = GetBodySize(i);
-			SparseMatrixXd hes = body_energy.EHessian(_soft_bodies[i]);
-			for (int j = 0; j < hes.outerSize(); j++) {
-				for (SparseMatrixXd::InnerIterator it(hes, j); it; ++it) {
-					COO.push_back(Triplet(it.row() + current_size, it.col() + current_size, it.value()));
-				}
+		for (int i = 0; i < num_objects; i++) {
+			auto single_hession = _objects[i]->EnergyHessianCOO();
+			for (auto& ele : single_hession) {
+				COO.push_back(Triplet(ele.row() + _dof_offsets[i],
+									  ele.col() + _dof_offsets[i],
+									  ele.value()));
 			}
-			current_size += single_size;
 		}
-		pFpX.setFromTriplets(COO.begin(), COO.end());
+		hessian.setFromTriplets(COO.begin(), COO.end());
 	}
 
-	int GetBodySize(int idx) {
-		return _soft_bodies[idx]._mesh.GetPoints().size();
+	int GetOffset(int idx) const {
+		return _dof_offsets[idx];
 	}
 
-	void Update(const VectorXd& u, double h) {
-		int current_size = 0;
-		const int num_soft = _soft_bodies.size();
-		for (int i = 0; i < num_soft; i++) {
-			int size_single = GetBodySize(i);
-			_soft_bodies[i]._mesh.GetPoints() += h * u.block(current_size, 0, size_single, 1);
-			_soft_bodies[i]._v = u.block(current_size, 0, size_single, 1);
-			current_size += size_single;
+	void UpdateSettings() {
+		_dof_offsets.clear();
+		_dof = 0;
+		for (auto& object : _objects) {
+			_dof_offsets.push_back(_dof);
+			_dof += object->GetDOF();
+		}
+		_mass.resize(_dof, _dof);
+		COO coo;
+		const int num_objects = _objects.size();
+		for (int i = 0; i < num_objects; i++) {
+			auto& object = _objects[i];
+			auto single_coo = object->GetM();
+			for (auto& ele : single_coo) {
+				coo.push_back(Triplet(ele.row() + _dof_offsets[i],
+									  ele.col() + _dof_offsets[i],
+									  ele.value()));
+			}
+		}
+		_mass.setFromTriplets(coo.begin(), coo.end());
+	}
+
+	void UpdateDynamic(const VectorXd& u, double h) {
+		const int num_objects = _objects.size();
+		for (int i = 0; i < num_objects; i++) {
+			_objects[i]->GetX() += u.block(_dof_offsets[i], 0, _objects[i]->GetDOF(), 1) * h;
+			_objects[i]->GetV() = u.block(_dof_offsets[i], 0, _objects[i]->GetDOF(), 1);
 		}
 	}
 
 	virtual ~System() {
-		for (auto& rigid_body : _rigid_bodies) {
-			delete rigid_body;
-		}
-		for (auto& force : _external_forces) {
-			delete force;
+		for (auto& object : _objects) {
+			delete object;
 		}
 	}
 
 private:
 	std::vector<const ExternalForce*> _external_forces;
-	std::vector<SoftBody> _soft_bodies;
-	std::vector<RigidBody*> _rigid_bodies;
-	VectorXd _sys_sparse_mass;
-
-	// the size of status vector (for example, x) for the whole system
-	DECLARE_ACCESSIBLE_MEMBER(int, CoordSize, _coord_size)
+	std::vector<Object*> _objects;
+	std::vector<int> _dof_offsets;
+	SparseMatrixXd _mass;
+	int _dof;
 };
 
 #endif //FEM_SYSTEM_H

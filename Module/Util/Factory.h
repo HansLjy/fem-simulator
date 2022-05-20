@@ -31,4 +31,10 @@ DECLARE_XXX_FACTORY(Integrator)
 #include "Contact/ContactGenerator.h"
 DECLARE_XXX_FACTORY(ContactGenerator)
 
+#include "Contact/FrictionModel.h"
+DECLARE_XXX_FACTORY(FrictionModel)
+
+#include "Contact/DCD/DCD.h"
+DECLARE_XXX_FACTORY(DCD)
+
 #endif //FEM_FACTORY_H
