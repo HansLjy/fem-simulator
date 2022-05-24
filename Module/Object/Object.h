@@ -8,6 +8,8 @@
 #include "Util/EigenAll.h"
 #include "Contact/Surface.h"
 #include "Util/Pattern.h"
+#include "BodyEnergy/ExternalForce.h"
+#include <vector>
 
 class Object {
 public:
@@ -23,11 +25,18 @@ public:
 	// The inner state of the object
 	virtual const COO& GetM() const = 0;
 
-	// The inner energy of the object
+	// The internal energy of the object
 	virtual double Energy() const = 0;
 	virtual VectorXd EnergyGradient() const = 0;
 	virtual COO EnergyHessianCOO() const = 0;
 	SparseMatrixXd EnergyHessian() const;
+
+	// The external force of the object
+	void AddExternalForce(const ExternalForce& external_force);
+	double ExternalEnergy() const;
+	VectorXd ExternalEnergyGradient() const;
+	COO ExternalEnergyHessianCOO() const;
+	SparseMatrixXd ExternalEnergyHessian() const;
 
 	// For contact simulation
 	virtual const Surface * GetSurface() const = 0;
@@ -43,6 +52,9 @@ public:
 	Object(const Object& obj) = default;
 
 	BASE_DECLARE_CLONE(Object)
+
+protected:
+	std::vector<const ExternalForce*> _external_force;
 };
 
 #endif //FEM_OBJECT_H

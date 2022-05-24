@@ -68,9 +68,6 @@ public:
 	void AddObject(const Object& obj) {
 		_system.AddObject(obj);
 	}
-	void AddExternalForce(const ExternalForce& ext) {
-		_system.AddExternalForce(ext);
-	}
 	void Simulate();
 
 	Simulator(const Simulator&) = delete;

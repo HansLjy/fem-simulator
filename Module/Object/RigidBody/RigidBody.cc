@@ -4,8 +4,13 @@
 
 #include "RigidBody.h"
 
-RigidBody::RigidBody(double mu, double rho, const Shape *shape)
-	: _mu(mu), _rho(rho), _shape(shape), _surface(new RigidBodySurface(this)) {}
+RigidBody::RigidBody(double mu, double rho, const Vector3d &center,
+					 const Vector3d &euler_angles, const Shape *shape)
+					 : _mu(mu), _rho(rho), _center(center), _shape(shape) {
+	_rotation = AngleAxisd(euler_angles(0), Vector3d::UnitZ())
+				* AngleAxisd(euler_angles(1), Vector3d::UnitX())
+				* AngleAxisd(euler_angles(2), Vector3d::UnitZ());
+}
 
 const Surface *RigidBody::GetSurface() const {
 	return _surface;

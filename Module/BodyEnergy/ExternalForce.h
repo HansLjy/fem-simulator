@@ -5,15 +5,13 @@
 #ifndef FEM_EXTERNALFORCE_H
 #define FEM_EXTERNALFORCE_H
 
-#include "Mesh/Mesh.h"
 #include "Util/EigenAll.h"
-#include "Object/Object.h"
 
 class ExternalForce {
 public:
-	virtual double Energy(const Object &body) const = 0;
-	virtual VectorXd Gradient(const Object &body) const = 0;
-	virtual SparseMatrixXd Hessian(const Object &body) const = 0;
+	virtual double Energy() const = 0;
+	virtual VectorXd Gradient() const = 0;
+	virtual SparseMatrixXd Hessian() const = 0;
 
 	virtual ~ExternalForce() = default;
 

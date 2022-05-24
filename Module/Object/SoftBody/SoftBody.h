@@ -42,6 +42,8 @@ public:
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, BodyEnergyParameter, _body_energy_para)
 };
 
+class SoftBodyGravity;
+
 struct SoftBody : public Object {
 	SoftBody(const Mesh& mesh) : SoftBody(mesh, mesh) {}
 
@@ -107,6 +109,7 @@ struct SoftBody : public Object {
 	double _mu;
 
 	friend SoftBodySurface;
+	friend ExternalForce;
 };
 
 class SoftBodySurface : public Surface {

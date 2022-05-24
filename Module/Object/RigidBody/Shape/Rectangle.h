@@ -8,7 +8,7 @@
 #include "Shape.h"
 #include "Util/EigenAll.h"
 #include "Eigen/Geometry"
-#include "Contact/Surface.h"
+#include "Object/RigidBody/RigidBody.h"
 #include <fstream>
 #include <vector>
 
@@ -17,41 +17,12 @@ using std::vector;
 
 class Rectangle : public Shape {
 public:
-	Rectangle(const Vector3d& center, const Vector3d& euler_angles, const Vector3d& size) :
-			Shape(center, euler_angles), _size(size) {
+	Rectangle(const RigidBody& rigid_body, const Vector3d& size) : Shape(rigid_body), _size(size) {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 3; j++) {
 				_offset[i](j) = ((i >> j) & 1) ? -_size(j) : _size(j);
 			}
 		}
-	}
-
-	double GetDistanceAfterTransform(const Vector3d &point, Vector3d &direction) const override {
-		int sign[3];
-		Vector3d point_pos;	// the point with all coordinates positive.
-		for (int i = 0; i < 3; i++) {
-			sign[i] = point[i] > 0 ? 1 : -1;
-			point_pos[i] = abs(point[i]);
-		}
-
-		double min_dis = +_size.sum();
-		// Check the distance between this point and all surface elements
-		// for now I only use the faces
-		for (int i = 0; i < 3; i++) {
-			if (point_pos[i] < _size(i) / 2) {
-				if (_size(i) / 2 - point_pos[i] < min_dis) {
-					min_dis = _size(i) / 2 - point_pos[i];
-					direction = Vector3d::Unit(i);
-				}
-			} else {
-				min_dis = +_size.sum();
-				break;
-			}
-		}
-		for (int i = 0; i < 3; i++) {
-			direction[i] *= sign[i];
-		}
-		return min_dis;
 	}
 
 	int GetNumFaces() const override {
@@ -61,7 +32,7 @@ public:
 	SurfaceElements::Face GetFace(int idx) const override {
 		SurfaceElements::Face face;
 		for (int i = 0; i < 3; i++) {
-			face._vertex[i] = _rotation * _offset[_face[idx][i]] + _center;
+			face._vertex[i] = _rigid_body->GetRotation() * _offset[_face[idx][i]] + _rigid_body->GetCenter();
 		}
 		return face;
 	}
@@ -74,7 +45,7 @@ public:
 				  "DATASET UNSTRUCTURED_GRID\n";
 		output << "POINTS 8 double\n";
 		for (int i = 0; i < 8; i++) {
-			 output << _rotation * _offset[i] + _center << std::endl;
+			 output << _rigid_body->GetRotation() * _offset[i] + _rigid_body->GetCenter() << std::endl;
 		}
 		output << "CELLS 1 9\n"
 				  "8 0 1 2 3 4 5 6 7\n"

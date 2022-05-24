@@ -18,19 +18,27 @@ class RigidBodySurface;
 // system, so we only left an interface for contact generation
 class RigidBody : public Object {
 public:
-	RigidBody(double mu, double rho, const Shape* shape);
+	RigidBody(double mu, double rho, const Vector3d& center, const Vector3d& euler_angles, const Shape* shape);
+
 	int GetDOF() const override = 0;
-	VectorXd & GetX() override = 0;
-	const VectorXd & GetX() const override = 0;
-	VectorXd & GetV() override = 0;
-	const VectorXd & GetV() const override = 0;
+	VectorXd & GetX() override {
+		return _x;
+	}
+	const VectorXd & GetX() const override {
+		return _x;
+	}
+	VectorXd & GetV() override {
+		return _v;
+	}
+	const VectorXd & GetV() const override {
+		return _v;
+	}
 
 	const COO& GetM() const override {
 		return _mass;
 	}
 
 	/* Rigid bodies do not contain inner energy */
-
 	double Energy() const override {
 		return 0;
 	}
@@ -66,14 +74,24 @@ public:
 		delete _shape;
 	}
 
+	virtual Matrix3d GetRotation() const = 0;
+	virtual Vector3d GetCenter() const = 0;
+
 	Object * Clone() const override = 0;
 
-	friend class RigidBodySurface;
+	friend RigidBodySurface;
+
 protected:
 	double _mu;
 	double _rho;
 	const Shape* _shape;
 	const RigidBodySurface* _surface;
+
+	Vector3d _center;
+	Matrix3d _rotation;
+
+	VectorXd _x;
+	VectorXd _v;
 	COO _mass;
 };
 

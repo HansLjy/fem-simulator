@@ -11,7 +11,9 @@
 #include "Contact/DCDContactGenerator.h"
 #include "Contact/PolygonFrictionModel.h"
 #include "Object/RigidBody/RobotArm.h"
+#include "Object/RigidBody/FixedSlab.h"
 #include "Object/Object.h"
+#include "BodyEnergy/SoftBodyGravity.h"
 #include "Util/Factory.h"
 #include <iostream>
 #include <fstream>
@@ -101,6 +103,7 @@ int main() {
 		mesh.Initialize(MeshParameter(input_file));
 		SoftBody soft_body(mesh);
 		soft_body.Initialize(soft_para);
+		soft_body.AddExternalForce(SoftBodyGravity(soft_body, 9.8));
 		simulator->AddObject(soft_body);
 	}
 
@@ -120,7 +123,7 @@ int main() {
 		shape << length, width, height;
 		euler << phi, theta, psi;
 
-		simulator->AddObject(RobotArm(mu, density, center, euler, shape, Vector3d::UnitZ()));
+		simulator->AddObject(FixedSlab(mu, density, center, euler, shape));
 	}
 
 	simulator->Initialize(para);

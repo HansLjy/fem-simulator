@@ -31,19 +31,6 @@ public:
 		return _objects.size() - 1;
 	}
 
-	int AddExternalForce(const ExternalForce& external_force) {
-		_external_forces.push_back(external_force.Clone());
-		return _external_forces.size() - 1;
-	}
-
-	void RemoveExternalForce(int index) {
-		_external_forces.erase(_external_forces.begin() + index);
-	}
-
-	const std::vector<const ExternalForce*>& GetExternalForces() const {
-		return _external_forces;
-	}
-
 	void Store(const std::string& path, int frame_id) const {
 		int index = 0;
 		for (auto& object : _objects) {
@@ -81,15 +68,10 @@ public:
 	void GetSysF(VectorXd &f) const {
 		f.resize(_dof);
 		const int num_objects = _objects.size();
-		const int num_ext = _external_forces.size();
 		for (int i = 0; i < num_objects; i++) {
 			const int dof_offset = _dof_offsets[i];
 			const int single_dof = _objects[i]->GetDOF();
-			f.block(dof_offset, 0, single_dof, 1).setZero();
-			for (int j = 0; j < num_ext; j++) {
-				f.block(dof_offset, 0, single_dof, 1) -= _external_forces[j]->Gradient(*_objects[i]);
-			}
-			f.block(dof_offset, 0, single_dof, 1) -= _objects[i]->EnergyGradient();
+			f.block(dof_offset, 0, single_dof, 1) = -_objects[i]->EnergyGradient();
 		}
 	}
 
@@ -149,7 +131,6 @@ public:
 	}
 
 private:
-	std::vector<const ExternalForce*> _external_forces;
 	std::vector<Object*> _objects;
 	std::vector<int> _dof_offsets;
 	SparseMatrixXd _mass;
