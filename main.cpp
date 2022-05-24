@@ -103,7 +103,7 @@ int main() {
 		mesh.Initialize(MeshParameter(input_file));
 		SoftBody soft_body(mesh);
 		soft_body.Initialize(soft_para);
-		soft_body.AddExternalForce(SoftBodyGravity(soft_body, 9.8));
+		soft_body.AddExternalForce(SoftBodyGravity(9.8));
 		simulator->AddObject(soft_body);
 	}
 

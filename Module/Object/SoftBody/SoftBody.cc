@@ -54,15 +54,15 @@ SoftBody::SoftBody(const Mesh &rest, const Mesh &mesh)
 	}
 }
 
-double SoftBody::Energy() const {
+double SoftBody::InternalEnergy() const {
 	return _body_energy->EEnergy();
 }
 
-VectorXd SoftBody::EnergyGradient() const {
+VectorXd SoftBody::InternalEnergyGradient() const {
 	return _body_energy->EGradient();
 }
 
-COO SoftBody::EnergyHessianCOO() const {
+COO SoftBody::InternalEnergyHessianCOO() const {
 	return _body_energy->EHessianCOO();
 }
 
@@ -88,9 +88,11 @@ COO SoftBody::GetJ(const SurfaceElements::SurfaceType &type, int idx,
 SoftBody::SoftBody(const SoftBody &rhs)
 	: _mesh(rhs._mesh), _rest(rhs._rest),
 	_v(rhs._v), _mass(rhs._mass), _mass_coo(rhs._mass_coo),
-	_volume(rhs._volume), _inv(rhs._inv), _pFpX(rhs._pFpX) {
+	_volume(rhs._volume), _inv(rhs._inv), _pFpX(rhs._pFpX), _mu(rhs._mu) {
 	_body_energy = rhs._body_energy->Clone();
 	_surface = new SoftBodySurface(*this);
+	_body_energy = rhs._body_energy->Clone();
+	_body_energy->_body = this;
 }
 
 const Surface * SoftBody::GetSurface() const {

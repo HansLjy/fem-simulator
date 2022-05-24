@@ -75,9 +75,9 @@ struct SoftBody : public Object {
 		return _mass_coo;
 	}
 
-	double Energy() const override;
-	VectorXd EnergyGradient() const override;
-	COO EnergyHessianCOO() const override;
+	double InternalEnergy() const override;
+	VectorXd InternalEnergyGradient() const override;
+	COO InternalEnergyHessianCOO() const override;
 
 	const Surface * GetSurface() const override;
 	COO GetJ(const SurfaceElements::SurfaceType &type, int idx,

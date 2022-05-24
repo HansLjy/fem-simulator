@@ -25,18 +25,10 @@ public:
 	// The inner state of the object
 	virtual const COO& GetM() const = 0;
 
-	// The internal energy of the object
-	virtual double Energy() const = 0;
-	virtual VectorXd EnergyGradient() const = 0;
-	virtual COO EnergyHessianCOO() const = 0;
+	// All energy combined
+	double Energy() const;
+	VectorXd EnergyGradient() const;
 	SparseMatrixXd EnergyHessian() const;
-
-	// The external force of the object
-	void AddExternalForce(const ExternalForce& external_force);
-	double ExternalEnergy() const;
-	VectorXd ExternalEnergyGradient() const;
-	COO ExternalEnergyHessianCOO() const;
-	SparseMatrixXd ExternalEnergyHessian() const;
 
 	// For contact simulation
 	virtual const Surface * GetSurface() const = 0;
@@ -45,15 +37,29 @@ public:
 					 const VectorXd &normal) const = 0;
 	virtual double GetMu() const = 0;
 
+	void AddExternalForce(const ExternalForce& external_force);
+
 	// For output
 	virtual void Store(const std::string& file) = 0;
+	virtual ~Object() noexcept;
 
-	virtual ~Object() = default;
-	Object(const Object& obj) = default;
+	Object(const Object& obj);
 
 	BASE_DECLARE_CLONE(Object)
 
 protected:
+	// The internal energy of the object
+	virtual double InternalEnergy() const = 0;
+	virtual VectorXd InternalEnergyGradient() const = 0;
+	virtual COO InternalEnergyHessianCOO() const = 0;
+
+	// The external force of the object
+	SparseMatrixXd InternalEnergyHessian() const;
+	double ExternalEnergy() const;
+	VectorXd ExternalEnergyGradient() const;
+	COO ExternalEnergyHessianCOO() const;
+	SparseMatrixXd ExternalEnergyHessian() const;
+
 	std::vector<const ExternalForce*> _external_force;
 };
 

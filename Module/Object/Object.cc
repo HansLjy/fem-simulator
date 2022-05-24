@@ -4,11 +4,23 @@
 
 #include "Object.h"
 
-SparseMatrixXd Object::EnergyHessian() const {
+SparseMatrixXd Object::InternalEnergyHessian() const {
 	SparseMatrixXd hessian(GetDOF(), GetDOF());
-	COO coo = EnergyHessianCOO();
+	COO coo = InternalEnergyHessianCOO();
 	hessian.setFromTriplets(coo.begin(), coo.end());
 	return hessian;
+}
+
+double Object::Energy() const {
+	return InternalEnergy() + ExternalEnergy();
+}
+
+VectorXd Object::EnergyGradient() const {
+	return InternalEnergyGradient() + ExternalEnergyGradient();
+}
+
+SparseMatrixXd Object::EnergyHessian() const {
+	return InternalEnergyHessian() + ExternalEnergyHessian();
 }
 
 void Object::AddExternalForce(const ExternalForce &external_force) {
@@ -18,7 +30,7 @@ void Object::AddExternalForce(const ExternalForce &external_force) {
 double Object::ExternalEnergy() const {
 	double external_energy = 0;
 	for (auto& external_force : _external_force) {
-		external_energy += external_force->Energy();
+		external_energy += external_force->Energy(*this);
 	}
 	return external_energy;
 }
@@ -27,7 +39,7 @@ VectorXd Object::ExternalEnergyGradient() const {
 	VectorXd gradient(GetDOF());
 	gradient.setZero();
 	for (auto& force : _external_force) {
-		gradient += force->Gradient();
+		gradient += force->Gradient(*this);
 	}
 	return gradient;
 }
@@ -35,7 +47,7 @@ VectorXd Object::ExternalEnergyGradient() const {
 SparseMatrixXd Object::ExternalEnergyHessian() const {
 	SparseMatrixXd hessian(GetDOF(), GetDOF());
 	for (auto& force : _external_force) {
-		hessian += force->Hessian();
+		hessian += force->Hessian(*this);
 	}
 	return hessian;
 }
@@ -49,4 +61,16 @@ COO Object::ExternalEnergyHessianCOO() const {
 		}
 	}
 	return hessian_coo;
+}
+
+Object::~Object() noexcept {
+	for (auto& ext_force : _external_force) {
+		delete ext_force;
+	}
+}
+
+Object::Object(const Object &obj) {
+	for (auto& ext_force : obj._external_force) {
+		_external_force.push_back(ext_force->Clone());
+	}
 }

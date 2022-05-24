@@ -92,6 +92,7 @@ double BodyEnergy::EEnergy() const {
 
 VectorXd
 BodyEnergy::EGradient() const {
+	spdlog::info("Entering EGradient");
 	const auto& tets = _body->_mesh.GetTets();
 	const auto& X = _body->_mesh.GetPoints();
 	VectorXd gradient(X.size());
@@ -273,12 +274,10 @@ BodyEnergy::~BodyEnergy() {
 }
 
 BodyEnergy::BodyEnergy(const BodyEnergy &body_energy) {
-	delete _elas_model;
 	_elas_model = body_energy._elas_model->Clone();
-	delete _diss_model;
 	_diss_model = body_energy._diss_model->Clone();
-	delete _cons_model;
 	_cons_model = body_energy._cons_model->Clone();
+	_body = body_energy._body;
 }
 
 DEFINE_CLONE(BodyEnergy, BodyEnergy)

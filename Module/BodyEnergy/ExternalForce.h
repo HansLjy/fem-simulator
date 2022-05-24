@@ -7,15 +7,18 @@
 
 #include "Util/EigenAll.h"
 
+class Object;
 class ExternalForce {
 public:
-	virtual double Energy() const = 0;
-	virtual VectorXd Gradient() const = 0;
-	virtual SparseMatrixXd Hessian() const = 0;
+	virtual double Energy(const Object &obj) const = 0;
+	virtual VectorXd Gradient(const Object &obj) const = 0;
+	virtual SparseMatrixXd Hessian(const Object &obj) const = 0;
 
 	virtual ~ExternalForce() = default;
 
 	BASE_DECLARE_CLONE(ExternalForce);
+
+protected:
 };
 
 #endif //FEM_EXTERNALFORCE_H

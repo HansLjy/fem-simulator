@@ -52,6 +52,8 @@ public:
 	BodyEnergy(const BodyEnergy& body_energy);
 	~BodyEnergy();
 
+	friend class SoftBody;
+
 	DERIVED_DECLARE_CLONE(BodyEnergy)
 
 private:

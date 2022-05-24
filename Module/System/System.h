@@ -80,11 +80,12 @@ public:
 		hessian.resize(_dof, _dof);
 		std::vector<Triplet> COO;
 		for (int i = 0; i < num_objects; i++) {
-			auto single_hession = _objects[i]->EnergyHessianCOO();
-			for (auto& ele : single_hession) {
-				COO.push_back(Triplet(ele.row() + _dof_offsets[i],
-									  ele.col() + _dof_offsets[i],
-									  ele.value()));
+			auto single_hession = _objects[i]->EnergyHessian();
+			const int offset = _dof_offsets[i];
+			for (int j = 0; j < single_hession.outerSize(); j++) {
+				for (SparseMatrixXd::InnerIterator it(single_hession, j); it; ++it) {
+					COO.push_back(Triplet(it.row() + offset, it.col() + offset, it.value()));
+				}
 			}
 		}
 		hessian.setFromTriplets(COO.begin(), COO.end());

@@ -38,20 +38,18 @@ public:
 	}
 
 	/* Rigid bodies do not contain inner energy */
-	double Energy() const override {
+	double InternalEnergy() const override {
 		return 0;
 	}
 
-	VectorXd EnergyGradient() const override {
+	VectorXd InternalEnergyGradient() const override {
 		VectorXd energy_gradient(GetDOF());
 		energy_gradient.setZero();
 		return energy_gradient;
 	}
 
-	COO EnergyHessianCOO() const override {
-		COO coo;
-		coo.push_back(Triplet(0, 0, 0));
-		return coo;
+	COO InternalEnergyHessianCOO() const override {
+		return COO();
 	}
 
 	double GetMu() const {
