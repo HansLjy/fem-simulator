@@ -18,19 +18,19 @@ class RigidBody;
  */
 class Shape {
 public:
-	Shape(const RigidBody& rigid_body) : _rigid_body(&rigid_body) {}
+	Shape() = default;
 
-	virtual void Store(const std::string& file) const = 0;
+	virtual void Store(const std::string &file, const Matrix3d &rotation,
+					   const Vector3d &center) const = 0;
 	virtual int GetNumFaces() const = 0;
-	virtual SurfaceElements::Face GetFace(int idx) const = 0;
+	virtual SurfaceElements::Face
+	GetFace(int idx, const Matrix3d &rotation, const Vector3d &center) const = 0;
 	virtual double GetVolume() const = 0;
 
+	Shape(const Shape& rhs) = default;
 	virtual ~Shape() = default;
 
 	BASE_DECLARE_CLONE(Shape)
-
-protected:
-	const RigidBody* _rigid_body;
 };
 
 #endif //FEM_SHAPE_H

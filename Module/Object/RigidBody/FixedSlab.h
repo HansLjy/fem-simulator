@@ -11,7 +11,8 @@
 class FixedSlab : public RigidBody {
 public:
 	FixedSlab(double mu, double rho, const Vector3d &center,
-			  const Vector3d &euler_angles, const Vector3d &size) : RigidBody(mu, rho, center, euler_angles, new Rectangle(*this, size)) {
+			  const Vector3d &euler_angles, const Vector3d &size) : RigidBody(mu, rho, center, euler_angles, Rectangle(size)) {
+		_mass = COO();
 		_x.resize(0);
 		_v.resize(0);
 	}

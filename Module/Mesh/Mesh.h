@@ -29,7 +29,7 @@ class Mesh {
 public:
 	void Initialize(const MeshParameter& para);
 	void Store(const string& file) const;
-	vector<vector<int>> GetSurface() const {
+	const vector<vector<int>>& GetSurface() const {
 		return _surface;
 	}
 

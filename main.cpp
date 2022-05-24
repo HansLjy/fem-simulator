@@ -125,9 +125,6 @@ int main() {
 
 		simulator->AddObject(FixedSlab(mu, density, center, euler, shape));
 	}
-
-	simulator->Initialize(para);
-
 	simulator->Simulate();
 	return 0;
 }

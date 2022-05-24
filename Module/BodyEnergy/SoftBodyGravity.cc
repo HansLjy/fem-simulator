@@ -22,7 +22,6 @@ VectorXd SoftBodyGravity::Gradient() const {
 	VectorXd gradient(_soft_body->GetDOF());
 	gradient.setZero();
 	const int num_nodes = _soft_body->GetDOF() / 3;
-	const auto& coord = _soft_body->GetX();
 	for (int i = 0; i < num_nodes; i++) {
 		gradient[3 * i] = _soft_body->_mass[i] * _g;
 	}

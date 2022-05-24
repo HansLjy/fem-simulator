@@ -11,14 +11,13 @@
 #include "Object/Object.h"
 #include "Shape/Shape.h"
 #include <string>
+#include <spdlog/spdlog.h>
 
 class RigidBodySurface;
 
-// Currently, rigid bodies are not included into the dynamic
-// system, so we only left an interface for contact generation
 class RigidBody : public Object {
 public:
-	RigidBody(double mu, double rho, const Vector3d& center, const Vector3d& euler_angles, const Shape* shape);
+	RigidBody(double mu, double rho, const Vector3d& center, const Vector3d& euler_angles, const Shape &shape);
 
 	int GetDOF() const override = 0;
 	VectorXd & GetX() override {
@@ -60,7 +59,7 @@ public:
 	}
 
 	void Store(const std::string &file) override {
-		_shape->Store(file);
+		_shape->Store(file, _rotation, _center);
 	}
 
 	const Surface* GetSurface() const override;
@@ -70,9 +69,7 @@ public:
 			 const VectorXd &normal) const override = 0;
 
 	RigidBody(const RigidBody& rhs);
-	virtual ~RigidBody() {
-		delete _shape;
-	}
+	virtual ~RigidBody() noexcept;
 
 	virtual Matrix3d GetRotation() const = 0;
 	virtual Vector3d GetCenter() const = 0;
@@ -104,7 +101,7 @@ public:
 	}
 
 	SurfaceElements::Face GetFace(int idx) const override {
-		return _rigid_body->_shape->GetFace(idx);
+		return _rigid_body->_shape->GetFace(idx, _rigid_body->GetRotation(), _rigid_body->GetCenter());
 	}
 
 protected:

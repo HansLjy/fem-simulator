@@ -17,7 +17,7 @@ using std::vector;
 
 class Rectangle : public Shape {
 public:
-	Rectangle(const RigidBody& rigid_body, const Vector3d& size) : Shape(rigid_body), _size(size) {
+	Rectangle(const Vector3d& size) : Shape(), _size(size) {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 3; j++) {
 				_offset[i](j) = ((i >> j) & 1) ? -_size(j) : _size(j);
@@ -29,15 +29,17 @@ public:
 		return 12;
 	}
 
-	SurfaceElements::Face GetFace(int idx) const override {
+	SurfaceElements::Face
+	GetFace(int idx, const Matrix3d &rotation, const Vector3d &center) const override {
 		SurfaceElements::Face face;
 		for (int i = 0; i < 3; i++) {
-			face._vertex[i] = _rigid_body->GetRotation() * _offset[_face[idx][i]] + _rigid_body->GetCenter();
+			face._vertex[i] = rotation * _offset[_face[idx][i]] + center;
 		}
 		return face;
 	}
 
-	void Store(const std::string &file) const override {
+	void Store(const std::string &file, const Matrix3d &rotation,
+			   const Vector3d &center) const override {
 		std::fstream output(file);
 		output << "# vtk DataFile Version 2.0\n"
 				  "Rectangle\n"
@@ -45,7 +47,7 @@ public:
 				  "DATASET UNSTRUCTURED_GRID\n";
 		output << "POINTS 8 double\n";
 		for (int i = 0; i < 8; i++) {
-			 output << _rigid_body->GetRotation() * _offset[i] + _rigid_body->GetCenter() << std::endl;
+			output << rotation * _offset[i] + center << std::endl;
 		}
 		output << "CELLS 1 9\n"
 				  "8 0 1 2 3 4 5 6 7\n"

@@ -11,7 +11,7 @@
 class RobotArm : public RigidBody {
 public:
 	RobotArm(double mu, double rho, const Vector3d& center, const Vector3d& euler_angles, const Vector3d& size, const Vector3d& direction)
-	 : RigidBody(mu, rho, center, euler_angles, new Rectangle(*this, size)), _direction(direction) {
+	 : RigidBody(mu, rho, center, euler_angles, Rectangle(size)), _direction(direction) {
 		_mass.push_back(Triplet(0, 0, rho * _shape->GetVolume()));
 		_x.resize(1);
 		_v.resize(1);

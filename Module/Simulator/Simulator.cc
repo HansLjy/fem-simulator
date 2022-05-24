@@ -38,6 +38,7 @@ void Simulator::Initialize(const SimulatorParameter &para) {
 }
 
 void Simulator::Simulate() {
+	_system.UpdateSettings();
 	double current = 0;
 	int index = 0;
 	while(current < _duration) {
