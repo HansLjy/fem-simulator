@@ -38,17 +38,17 @@ public:
 
 class BodyEnergy {
 public:
-	BodyEnergy(const SoftBody* soft_body);
+	BodyEnergy() = default;
 	void Initialize(const BodyEnergyParameter& para);
 
-	double EEnergy() const;
-	double DEnergy() const;
-	VectorXd EGradient() const;
-	VectorXd DGradient() const;
-	SparseMatrixXd EHessian() const;
-	COO EHessianCOO() const;
-	SparseMatrixXd DHessian() const;
-	COO DHessianCOO() const;
+	double EEnergy(const SoftBody &soft_body) const;
+	double DEnergy(const SoftBody &soft_body) const;
+	VectorXd EGradient(const SoftBody &soft_body) const;
+	VectorXd DGradient(const SoftBody &soft_body) const;
+	SparseMatrixXd EHessian(const SoftBody &soft_body) const;
+	COO EHessianCOO(const SoftBody &soft_body) const;
+	SparseMatrixXd DHessian(const SoftBody &soft_body) const;
+	COO DHessianCOO(const SoftBody &soft_body) const;
 	BodyEnergy(const BodyEnergy& body_energy);
 	~BodyEnergy();
 
@@ -57,7 +57,6 @@ public:
 	DERIVED_DECLARE_CLONE(BodyEnergy)
 
 private:
-	const SoftBody* _body;
 	ElasticEnergyModel* _elas_model = nullptr;
 	DissipationEnergyModel* _diss_model = nullptr;
 	ConstituteModel* _cons_model = nullptr;

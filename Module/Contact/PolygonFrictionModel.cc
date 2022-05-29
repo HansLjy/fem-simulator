@@ -37,8 +37,8 @@ void PolygonFrictionModel::GetJ(const System &system,
 		const auto& obj1 = objects[contact._obj1], obj2 = objects[contact._obj2];
 		const Vector3d point = contact._point, normal = contact._normal;
 		const int offset1 = system.GetOffset(contact._obj1), offset2 = system.GetOffset(contact._obj2);
-		auto coo_n1 = obj1->GetJ(contact._type1, contact._idx1, point, normal);
-		auto coo_n2 = obj2->GetJ(contact._type2, contact._idx2, point, -normal);
+		auto coo_n1 = obj1->GetJ(contact._type1, contact._idx1, point, -normal);
+		auto coo_n2 = obj2->GetJ(contact._type2, contact._idx2, point, normal);
 		for (auto& ele : coo_n1) {
 			coo_n.push_back(Triplet(ele.row() + cur_num_contact, ele.col() + offset1, ele.value()));
 		}

@@ -17,8 +17,9 @@ DEFINE_CLONE(Object, SoftBody)
 
 SoftBody::SoftBody(const Mesh &rest, const Mesh &mesh)
 	: _rest(rest), _mesh(mesh),
-	  _body_energy(new BodyEnergy(this)),
+	  _body_energy(new BodyEnergy()),
 	  _surface(new SoftBodySurface(*this)){
+
 	// Set v to zero
 	_v.resizeLike(mesh.GetPoints());
 	_v.setZero();
@@ -55,15 +56,15 @@ SoftBody::SoftBody(const Mesh &rest, const Mesh &mesh)
 }
 
 double SoftBody::InternalEnergy() const {
-	return _body_energy->EEnergy();
+	return _body_energy->EEnergy(*this);
 }
 
 VectorXd SoftBody::InternalEnergyGradient() const {
-	return _body_energy->EGradient();
+	return _body_energy->EGradient(*this);
 }
 
 COO SoftBody::InternalEnergyHessianCOO() const {
-	return _body_energy->EHessianCOO();
+	return _body_energy->EHessianCOO(*this);
 }
 
 COO SoftBody::GetJ(const SurfaceElements::SurfaceType &type, int idx,
@@ -86,13 +87,11 @@ COO SoftBody::GetJ(const SurfaceElements::SurfaceType &type, int idx,
 }
 
 SoftBody::SoftBody(const SoftBody &rhs)
-	: _mesh(rhs._mesh), _rest(rhs._rest),
+	: Object(rhs), _mesh(rhs._mesh), _rest(rhs._rest),
 	_v(rhs._v), _mass(rhs._mass), _mass_coo(rhs._mass_coo),
 	_volume(rhs._volume), _inv(rhs._inv), _pFpX(rhs._pFpX), _mu(rhs._mu) {
 	_body_energy = rhs._body_energy->Clone();
 	_surface = new SoftBodySurface(*this);
-	_body_energy = rhs._body_energy->Clone();
-	_body_energy->_body = this;
 }
 
 const Surface * SoftBody::GetSurface() const {
@@ -116,6 +115,7 @@ SurfaceElements::Face SoftBodySurface::GetFace(int idx) const {
 void SoftBody::Initialize(const SoftBodyParameter &para) {
 	_body_energy->Initialize(*para.GetBodyEnergyParameter());
 	auto mass_model = MassModelFactory::GetInstance()->GetMassModel(para.GetMassModelType());
+	mass_model->Initialize(*para.GetMassModelParameter());
 	_mass = mass_model->GetMassDistribution(_rest);
 	int size = _mass.size();
 	_mass_coo.clear();
@@ -124,4 +124,5 @@ void SoftBody::Initialize(const SoftBodyParameter &para) {
 		_mass_coo.push_back(Triplet(j + 1, j + 1, _mass(i)));
 		_mass_coo.push_back(Triplet(j + 2, j + 2, _mass(i)));
 	}
+	_mu = para.GetMu();
 }

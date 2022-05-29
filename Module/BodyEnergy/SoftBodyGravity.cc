@@ -15,7 +15,7 @@ double SoftBodyGravity::Energy(const Object &obj) const {
 	const int num_nodes = soft_obj.GetDOF() / 3;
 	const auto& coord = soft_obj.GetX();
 	for (int i = 0; i < num_nodes; i++) {
-		energy += soft_obj._mass[i] * _g * coord[3 * i];
+		energy += soft_obj._mass[i] * _g * coord[3 * i + 2];
 	}
 	return energy;
 }
@@ -26,7 +26,7 @@ VectorXd SoftBodyGravity::Gradient(const Object &obj) const {
 	gradient.setZero();
 	const int num_nodes = soft_obj.GetDOF() / 3;
 	for (int i = 0; i < num_nodes; i++) {
-		gradient[3 * i] = soft_obj._mass[i] * _g;
+		gradient[3 * i + 2] = soft_obj._mass[i] * _g;
 	}
 	return gradient;
 }

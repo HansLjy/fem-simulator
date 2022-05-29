@@ -23,6 +23,10 @@ void StaggerLCPIntegrator::Step(System &system,
 
 	vector<ContactPoint> contacts;
 	contact_generator.GetContact(system, contacts);
+//	for(auto& contact : contacts) {
+//		std::cerr << "Collision between " << contact._obj1 << " and " << contact._obj2 << std::endl;
+//		std::cerr << "Point: " << contact._point.transpose() << "\nNormal: " << contact._normal.transpose() << std::endl;
+//	}
 	friction_model.GetJ(system, contacts, 0, JnT, JtT, Mu);
 	const int num_tangent = friction_model.GetNumTangent();
 
@@ -37,6 +41,10 @@ void StaggerLCPIntegrator::Step(System &system,
 	system.GetSysV(u);
 	system.GetSysF(f);
 	system.GetSysEnergyHessian(W);
+
+//	std::cerr << f.transpose() << std::endl;
+//	std::cerr << W.toDense() << std::endl;
+//	std::cerr << mass.toDense() << std::endl;
 
 	W *= h * h;
 	W += mass;

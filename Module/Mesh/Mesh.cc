@@ -198,6 +198,15 @@ void Mesh::CalculateSurface() {
 		surface_ids[2] = surface_element._inverted ? surface_element._point_id[1] : surface_element._point_id[2];
 		_surface.push_back(surface_ids);
 	}
+
+//	const int num_surface_ele = _surface.size();
+//	for (int i = 0; i < num_surface_ele; i++) {
+//		std::cerr << "Surface Element: " << i << std::endl << "\tPoints: ";
+//		for (int j = 0; j < 3; j++) {
+//			std::cerr << "(" << _points.block<3, 1>(3 * _surface[i][j], 0).transpose() << ")";
+//		}
+//		std::cerr << "\n\tNormal: " << (_points.block<3, 1>(3 * _surface[i][1], 0) - _points.block<3, 1>(3 * _surface[i][0], 0)).cross(_points.block<3, 1>(3 * _surface[i][2], 0) - _points.block<3, 1>(3 * _surface[i][0], 0)).normalized().transpose() << std::endl;
+//	}
 }
 
 void Mesh::Store(const string &file) const {

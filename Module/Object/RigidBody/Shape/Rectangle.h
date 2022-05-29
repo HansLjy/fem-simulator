@@ -40,7 +40,7 @@ public:
 
 	void Store(const std::string &file, const Matrix3d &rotation,
 			   const Vector3d &center) const override {
-		std::fstream output(file);
+		std::fstream output(file, std::ios::out | std::ios::trunc);
 		output << "# vtk DataFile Version 2.0\n"
 				  "Rectangle\n"
 				  "ASCII\n"
@@ -53,6 +53,7 @@ public:
 				  "8 0 1 2 3 4 5 6 7\n"
 				  "CELL_TYPES 1\n"
 				  "11";
+		output.close();
 	}
 
 	double GetVolume() const override {
