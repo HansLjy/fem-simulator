@@ -107,24 +107,51 @@ int main() {
 		simulator->AddObject(soft_body);
 	}
 
-	int num_rectangles;
-	cfg >> num_rectangles;
-	for (int i = 0; i < num_rectangles; i++) {
+	int num_robot_arm;
+	cfg >> num_robot_arm;
+	for (int i = 0; i < num_robot_arm; i++) {
 		double mu, density;
 		double x, y, z;
 		double length, width, height;
 		double theta, phi, psi;
+		double dir_x, dir_y, dir_z;
 		cfg >> mu >> density;
 		cfg >> x >> y >> z;
 		cfg >> length >> width >> height;
 		cfg >> phi >> theta >> psi;
+		cfg >> dir_x >> dir_y >> dir_z;
+
 		Vector3d center, shape, euler;
 		center << x, y, z;
 		shape << length, width, height;
 		euler << phi, theta, psi;
+		Vector3d direction;
+		direction << dir_x, dir_y, dir_z;
 
+		simulator->AddObject(RobotArm(mu, density, center, euler, shape, direction));
+	}
+
+	int num_fixed_slab;
+	cfg >> num_fixed_slab;
+	for (int i = 0; i < num_fixed_slab; i++) {
+		double mu, density;
+		double x, y, z;
+		double length, width, height;
+		double theta, phi, psi;
+		double dir_x, dir_y, dir_z;
+		cfg >> mu >> density;
+		cfg >> x >> y >> z;
+		cfg >> length >> width >> height;
+		cfg >> phi >> theta >> psi;
+		cfg >> dir_x >> dir_y >> dir_z;
+
+		Vector3d center, shape, euler;
+		center << x, y, z;
+		shape << length, width, height;
+		euler << phi, theta, psi;
 		simulator->AddObject(FixedSlab(mu, density, center, euler, shape));
 	}
+
 	simulator->Simulate();
 	return 0;
 }

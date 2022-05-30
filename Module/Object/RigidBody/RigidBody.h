@@ -57,7 +57,7 @@ public:
 	}
 
 	void Store(const std::string &file) override {
-		_shape->Store(file, _rotation, _center);
+		_shape->Store(file, GetRotation(), GetCenter());
 	}
 
 	const Surface* GetSurface() const override;
