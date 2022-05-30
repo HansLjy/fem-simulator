@@ -11,6 +11,8 @@
 
 enum class ConstituteModelType {
 	kStVK,
+	kCoro,
+	kLinear
 };
 
 class ConstituteModelParameter {
