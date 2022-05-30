@@ -56,8 +56,8 @@ void PolygonFrictionModel::GetJ(const System &system,
 
 		for (int i = 0; i < _num_tangent; i++) {
 			Vector3d tangent = _cos[i] * tangent1 + _sin[i] * tangent2;
-			auto coo_t1 = obj1->GetJ(contact._type1, contact._idx1, point, tangent);
-			auto coo_t2 = obj1->GetJ(contact._type2, contact._idx2, point, tangent);
+			auto coo_t1 = obj1->GetJ(contact._type1, contact._idx1, point, -tangent);
+			auto coo_t2 = obj2->GetJ(contact._type2, contact._idx2, point, tangent);
 			for (auto& ele : coo_t1) {
 				coo_t.push_back(Triplet(ele.row() + cur_num_contact * _num_tangent + i, ele.col() + offset1, ele.value()));
 			}

@@ -28,6 +28,8 @@ void StaggerLCPIntegrator::Step(System &system,
 //		std::cerr << "Point: " << contact._point.transpose() << "\nNormal: " << contact._normal.transpose() << std::endl;
 //	}
 	friction_model.GetJ(system, contacts, 0, JnT, JtT, Mu);
+//	std::cerr << "Jn:\n" << JnT.transpose() << std::endl;
+//	std::cerr << "Jt:\n" << JtT.transpose() << std::endl;
 	const int num_tangent = friction_model.GetNumTangent();
 
 	const int num_contact = JnT.rows();
@@ -189,6 +191,11 @@ void StaggerLCPIntegrator::Step(System &system,
 			spdlog::warn("Staggering Method, does not converge");
 		}
 	}
+
+//	if (num_contact > 0) {
+//		std::cerr << "Normal Force: " << xn.transpose() << std::endl;
+//		std::cerr << "Friction Force: " << xt.transpose() << std::endl;
+//	}
 
 	VectorXd u_plus = Wic + WiJn * xn + WiJt * xt;
 
