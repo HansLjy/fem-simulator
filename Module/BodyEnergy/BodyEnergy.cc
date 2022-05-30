@@ -90,7 +90,6 @@ double BodyEnergy::EEnergy(const SoftBody &soft_body) const {
 
 VectorXd
 BodyEnergy::EGradient(const SoftBody &soft_body) const {
-	spdlog::info("Entering EGradient");
 	const auto& tets = soft_body._mesh.GetTets();
 	const auto& X = soft_body._mesh.GetPoints();
 	VectorXd gradient(X.size());

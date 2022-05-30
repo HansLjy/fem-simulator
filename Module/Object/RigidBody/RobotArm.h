@@ -8,6 +8,8 @@
 #include "RigidBody.h"
 #include "Shape/Rectangle.h"
 
+class RobotArmForce;
+
 class RobotArm : public RigidBody {
 public:
 	RobotArm(double mu, double rho, const Vector3d& center, const Vector3d& euler_angles, const Vector3d& size, const Vector3d& direction)
@@ -35,6 +37,8 @@ public:
 	}
 
 	DERIVED_DECLARE_CLONE(Object)
+
+	friend class RobotArmForce;
 
 protected:
 	Vector3d _direction;

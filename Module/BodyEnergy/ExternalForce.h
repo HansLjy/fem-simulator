@@ -6,6 +6,7 @@
 #define FEM_EXTERNALFORCE_H
 
 #include "Util/EigenAll.h"
+#include "Util/Pattern.h"
 
 class Object;
 class ExternalForce {

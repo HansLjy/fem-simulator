@@ -12,6 +12,7 @@
 #include "Contact/PolygonFrictionModel.h"
 #include "Object/RigidBody/RobotArm.h"
 #include "Object/RigidBody/FixedSlab.h"
+#include "BodyEnergy/RobotArmForce.h"
 #include "Object/Object.h"
 #include "BodyEnergy/SoftBodyGravity.h"
 #include "Util/Factory.h"
@@ -115,11 +116,13 @@ int main() {
 		double length, width, height;
 		double theta, phi, psi;
 		double dir_x, dir_y, dir_z;
+		double force;
 		cfg >> mu >> density;
 		cfg >> x >> y >> z;
 		cfg >> length >> width >> height;
 		cfg >> phi >> theta >> psi;
 		cfg >> dir_x >> dir_y >> dir_z;
+		cfg >> force;
 
 		Vector3d center, shape, euler;
 		center << x, y, z;
@@ -127,8 +130,9 @@ int main() {
 		euler << phi, theta, psi;
 		Vector3d direction;
 		direction << dir_x, dir_y, dir_z;
-
-		simulator->AddObject(RobotArm(mu, density, center, euler, shape, direction));
+		RobotArm robot_arm(mu, density, center, euler, shape, direction);
+		robot_arm.AddExternalForce(RobotArmForce(direction, force));
+		simulator->AddObject(robot_arm);
 	}
 
 	int num_fixed_slab;
