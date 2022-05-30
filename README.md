@@ -7,19 +7,15 @@ A finite element method simulator.
 Somehow, for the project where it is used, the following features are enough.
 
 1. Soft body simulation
-2. Contact & friction between:
-    1. soft body and rigid body
+2. Rigid body simulation
+3. Contact & friction between two distinct bodies
 
 However, the simulator in itself is of course incomplete, there are some other features to be added to make it whole.
 
 # To be implemented
 
-1. Rigid body simulation: currently the motion of rigid bodies is hard-wired, determined by the program, they don't contribute to the DOF of the whole system, they are just moving constraints.
-2. Contact & friction between:
-    1. soft body and soft body(including itself)
-    2. rigid body and rigid body
-3. Better IO: the configuration is not user-friendly now, I consider changing it into json format.
-4. Parallel: I did try to make some parts of the code parallel (for example, compute the hessian matrix for each tet parallelly and then assemble them in a sequential way), but I didn't achieve the expected speedup.
+1. Better IO: the configuration is not user-friendly now, I consider changing it into json format.
+2. Parallel: I did try to make some parts of the code parallel (for example, compute the hessian matrix for each tet parallelly and then assemble them in a sequential way), but I didn't achieve the expected speedup.
 
 
 # Usage
@@ -27,9 +23,10 @@ However, the simulator in itself is of course incomplete, there are some other f
 There are few dependencies:
 
 1. Eigen
+3. Osqp
+4. OsqpEigen
 2. SparseSuite
-3. OsqpEigen
-4. spdlog
+5. spdlog
 
 First you should edit the config in the root directory. The default one is for the demo.
 
@@ -39,7 +36,7 @@ After that, simply:
 
 ```
 cmake .
-make
+make -j
 ```
 
 A demo can be found in Resource/Demo
