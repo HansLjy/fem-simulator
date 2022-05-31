@@ -65,8 +65,11 @@ class Simulator {
 public:
 	Simulator() = default;
 	void Initialize(const SimulatorParameter& para);
-	void AddObject(const Object& obj) {
-		_system.AddObject(obj);
+	int AddObject(const Object& obj) {
+		return _system.AddObject(obj);
+	}
+	void RemoveObject(int obj_idx) {
+		_system.RemoveObject(obj_idx);
 	}
 	void Simulate();
 

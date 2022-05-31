@@ -31,6 +31,14 @@ public:
 		return _objects.size() - 1;
 	}
 
+	void RemoveObject(int obj_idx) {
+		if (obj_idx >= _objects.size()) {
+			return;
+		} else {
+			_objects.erase(_objects.begin() + obj_idx);
+		}
+	}
+
 	void Store(const std::string& path, int frame_id) const {
 		int index = 0;
 		for (auto& object : _objects) {
