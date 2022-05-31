@@ -126,3 +126,24 @@ void SoftBody::Initialize(const SoftBodyParameter &para) {
 	}
 	_mu = para.GetMu();
 }
+
+SoftBody &SoftBody::operator=(const SoftBody &rhs) {
+	if (this == &rhs) {
+		return *this;
+	}
+	Object::operator=(rhs);
+	delete _body_energy;
+	delete _surface;
+	_mesh = rhs._mesh;
+	_rest = rhs._rest;
+	_v = rhs._v;
+	_mass = rhs._mass;
+	_mass_coo = rhs._mass_coo;
+	_volume = rhs._volume;
+	_inv = rhs._inv;
+	_pFpX = rhs._pFpX;
+	_body_energy = rhs._body_energy->Clone();
+	_surface = new SoftBodySurface(*this);
+	_mu = rhs._mu;
+	return *this;
+}

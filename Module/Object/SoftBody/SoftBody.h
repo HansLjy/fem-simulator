@@ -93,6 +93,7 @@ struct SoftBody : public Object {
 	}
 
 	SoftBody(const SoftBody& rhs);
+	SoftBody& operator=(const SoftBody& rhs);
 
 	DERIVED_DECLARE_CLONE(Object)
 

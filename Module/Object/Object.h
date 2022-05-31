@@ -44,6 +44,7 @@ public:
 	virtual ~Object() noexcept;
 
 	Object(const Object& obj);
+	Object& operator=(const Object& rhs);
 
 	BASE_DECLARE_CLONE(Object)
 

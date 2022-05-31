@@ -67,6 +67,7 @@ public:
 			 const VectorXd &normal) const override = 0;
 
 	RigidBody(const RigidBody& rhs);
+	RigidBody& operator=(const RigidBody& rhs);
 	virtual ~RigidBody() noexcept;
 
 	virtual Matrix3d GetRotation() const = 0;

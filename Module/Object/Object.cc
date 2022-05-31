@@ -74,3 +74,18 @@ Object::Object(const Object &obj) {
 		_external_force.push_back(ext_force->Clone());
 	}
 }
+
+Object &Object::operator=(const Object &rhs) {
+	if (this == &rhs) {
+		return *this;
+	}
+	for (auto& ext_force : _external_force) {
+		delete ext_force;
+	}
+	_external_force.clear();
+	for (auto& ext_force : rhs._external_force) {
+		_external_force.push_back(ext_force);
+	}
+	return *this;
+}
+
