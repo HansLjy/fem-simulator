@@ -71,6 +71,9 @@ public:
 	void RemoveObject(int obj_idx) {
 		_system.RemoveObject(obj_idx);
 	}
+	const Object& GetObject(int obj_idx) {
+		return _system.GetObject(obj_idx);
+	}
 	void Simulate();
 
 	Simulator(const Simulator&) = delete;

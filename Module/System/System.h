@@ -39,6 +39,10 @@ public:
 		}
 	}
 
+	const Object& GetObject(int obj_idx) {
+		return *_objects[obj_idx];
+	}
+
 	void Store(const std::string& path, int frame_id) const {
 		int index = 0;
 		for (auto& object : _objects) {
