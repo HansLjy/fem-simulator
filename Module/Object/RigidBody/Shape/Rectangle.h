@@ -20,7 +20,7 @@ public:
 	Rectangle(const Vector3d& size) : Shape(), _size(size) {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 3; j++) {
-				_offset[i](j) = ((i >> j) & 1) ? -_size(j) : _size(j);
+				_offset[i](j) = ((i >> j) & 1) ? -_size(j) / 2 : _size(j) / 2;
 			}
 		}
 	}
