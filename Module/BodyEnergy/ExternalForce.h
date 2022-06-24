@@ -9,10 +9,25 @@
 #include "Util/Pattern.h"
 
 class Object;
+
+/**
+ * ExternalForce: the class corresponds to the calculation of external forces
+ * added on the objects.
+ */
 class ExternalForce {
 public:
+	/**
+	 * External energy added on the objects.
+	 * @note: Not all forces are conservative, but we can view them as
+	 * 		  conservative at least locally. As a result, this function
+	 * 		  actually returns the negate of the work done by the force
+	 */
 	virtual double Energy(const Object &obj) const = 0;
+
+	//->Negate of the external force
 	virtual VectorXd Gradient(const Object &obj) const = 0;
+
+	//->Negate of the derivative of external force against DOF
 	virtual SparseMatrixXd Hessian(const Object &obj) const = 0;
 
 	virtual ~ExternalForce() = default;

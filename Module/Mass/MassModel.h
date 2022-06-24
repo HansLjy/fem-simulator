@@ -26,12 +26,19 @@ public:
 class MassModel {
 public:
 	virtual void Initialize(const MassModelParameter& para);
+
+	// TODO: use reference as parameter to get the returned value
+	/**
+	 * @param mesh The mesh to be considered
+	 * @return The distribution of mass for each vertex
+	 */
 	virtual VectorXd GetMassDistribution(const Mesh& mesh) const = 0;
 
 	virtual ~MassModel();
 	BASE_DECLARE_CLONE(MassModel)
 
 protected:
+	// TODO: density should be an attribute of objects, not model
 	double _density;
 };
 

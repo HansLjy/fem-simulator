@@ -28,12 +28,21 @@ public:
 class Mesh {
 public:
 	void Initialize(const MeshParameter& para);
+	/**
+	 * Store the mesh in vtk format
+	 * @param file filename to be stored (path included)
+	 */
 	void Store(const string& file) const;
+
 	const vector<vector<int>>& GetSurface() const {
 		return _surface;
 	}
 
 private:
+	/**
+	 * Load the mesh from vtk file
+	 * @param file filename to load from (path included)
+	 */
 	void Load(const string& file);
 	void CalculateSurface();
 
@@ -42,8 +51,8 @@ private:
 	DECLARE_ACCESSIBLE_MEMBER(TETS, Tets, _tets)
 
 private:
-	// TODO: make the normal of the surface correct
-	vector<vector<int>> _surface;	// vector of triplets, which stands for the surface triangle
+	vector<vector<int>> _surface;	// _surface[i][j] stores the jth vertex of
+									// the ith surface primitive
 };
 
 #undef TETS

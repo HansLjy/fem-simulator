@@ -35,6 +35,13 @@ public:
 class Integrator {
 public:
 	virtual void Initialize(const IntegratorParameter& para) = 0;
+	/**
+	 * Forward one step
+	 * @param system The physical system
+	 * @param contact_generator Contact generator
+	 * @param friction_model Friction model
+	 * @param h Time step
+	 */
 	virtual void Step(System &system, const ContactGenerator &contact_generator,
 					  const FrictionModel &friction_model, double h) = 0;
 

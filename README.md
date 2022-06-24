@@ -14,8 +14,9 @@ However, the simulator in itself is of course incomplete, there are some other f
 
 # To be implemented
 
-1. Better IO: the configuration is not user-friendly now, I consider changing it into json format.
-2. Parallel: I did try to make some parts of the code parallel (for example, compute the hessian matrix for each tet parallelly and then assemble them in a sequential way), but I didn't achieve the expected speedup.
+1. Better collision detection scheme: the current collision detect method is a 'forward' one, namely, only when the contacts are detected do we add normal and friction force into consideration. This is a 'intersect-and-remedy' scheme. A 'intersection-prevention' scheme is instead desired.
+2. Better IO: the configuration is not user-friendly now, I consider changing it into json format.
+3. Parallel: I did try to make some parts of the code parallel (for example, compute the hessian matrix for each tet parallelly and then assemble them in a sequential way), but I didn't achieve the expected speedup.
 
 
 # Usage

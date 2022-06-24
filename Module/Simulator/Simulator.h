@@ -65,9 +65,17 @@ class Simulator {
 public:
 	Simulator() = default;
 	void Initialize(const SimulatorParameter& para);
+
+	/**
+	 * Add an object into the system
+	 * @param obj the object to be added
+	 * @return the id for the object in the system
+	 * @note the returned ID can be used to remove objects
+	 */
 	int AddObject(const Object& obj) {
 		return _system.AddObject(obj);
 	}
+
 	void RemoveObject(int obj_idx) {
 		_system.RemoveObject(obj_idx);
 	}
@@ -83,11 +91,11 @@ public:
 	}
 
 private:
-	double _duration;
-	double _step;
-	string _output_dir;
+	double _duration;		// simulation duration
+	double _step;			// time step
+	string _output_dir;		// output directory (for the vtk files)
 
-	System _system;
+	System _system;			// the physical system
 
 	Integrator* _integrator = nullptr;
 	ContactGenerator* _contact = nullptr;

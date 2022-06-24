@@ -36,18 +36,39 @@ public:
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(ConstituteModelParameter, ConstituteModelParameter, _cons_para)
 };
 
+/**
+ * BodyEnergy: a class responsible for the calculation of the elasticity force
+ * and damping force within the soft bodies.
+ * @note: All functions take a soft_body object as input and output the
+ * corresponding physical entity as the name suggests.
+ */
 class BodyEnergy {
 public:
 	BodyEnergy() = default;
 	void Initialize(const BodyEnergyParameter& para);
 
+	//->elasticity energy
 	double EEnergy(const SoftBody &soft_body) const;
+
+	//->damping energy
 	double DEnergy(const SoftBody &soft_body) const;
+
+	//->gradient of elasticity energy, negate of elasticity force
 	VectorXd EGradient(const SoftBody &soft_body) const;
+
+	//->gradient of damping energy, negate of damping force
 	VectorXd DGradient(const SoftBody &soft_body) const;
+
+	//->hessian of elasticity energy, negate of the derivative of elasticity force
 	SparseMatrixXd EHessian(const SoftBody &soft_body) const;
+
+	//->COO form of EHessian
 	COO EHessianCOO(const SoftBody &soft_body) const;
+
+	//->hessian of damping energy, negate of the derivative of damping force
 	SparseMatrixXd DHessian(const SoftBody &soft_body) const;
+
+	//->COO form of DHessian
 	COO DHessianCOO(const SoftBody &soft_body) const;
 	BodyEnergy(const BodyEnergy& body_energy);
 	~BodyEnergy();

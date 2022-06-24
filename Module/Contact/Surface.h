@@ -30,11 +30,15 @@ namespace SurfaceElements {
 	};
 }
 
+// TODO: surface should take object as an input instead of storing the pointer
+
 class Surface {
 public:
 	Surface() = default;
 
 	virtual int GetNumFaces() const = 0;
+
+	//->The idx-th face on the surface
 	virtual SurfaceElements::Face GetFace(int idx) const = 0;		// Get the faces on the surface
 
 //	virtual int GetNumEdges() const = 0;

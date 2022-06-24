@@ -25,6 +25,19 @@ public:
 class DCD {
 public:
 	virtual void Initialize(const DCDParameter& para) = 0;
+
+	/**
+	 * Test the intersection of two triangles
+	 * @param face1 INPUT, the face to be tested for intersection
+	 * @param face2 INPUT, the face to be tested for intersection
+	 * @param point OUTPUT, the intersection point
+	 * @param normal OUTPUT, the normal of the intersection plane
+	 * @note normally the two objects will not be tangent in the
+	 *       intersection point(for example, the face-vertex case)
+	 *       in that case, the normal is chosen as the normal of
+	 *       either surface.
+	 * @return whether there is an intersection
+	 */
 	virtual bool GetIntersected(const SurfaceElements::Face &face1,
 								const SurfaceElements::Face &face2,
 								Vector3d &point,

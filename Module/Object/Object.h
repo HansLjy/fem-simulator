@@ -15,19 +15,36 @@ class Object {
 public:
 	Object() = default;
 
-	// The status of the object
+	//-> degree of freedom of the objects
 	virtual int GetDOF() const = 0;
+
+	//-> status vector of the object
 	virtual const VectorXd& GetX() const = 0;
+
+	//-> status vector of the object
 	virtual VectorXd& GetX() = 0;
+
+	//-> changing rate of the status vector (in a normal sense, velocity)
 	virtual const VectorXd& GetV() const = 0;
+
+	//-> changing rate of the status vector (in a normal sense, velocity)
 	virtual VectorXd& GetV() = 0;
 
-	// The inner state of the object
+	//-> COO form of the mass for the objects
+	// Technically speaking, an object of DOF n should possess a mass matrix of
+	// size n by n DEFINED by F = Ma
 	virtual const COO& GetM() const = 0;
 
-	// All energy combined
+	//-> All energy considered for this object (Both internal and external)
+	// Note: collision force is not included
 	double Energy() const;
+
+	//-> Gradient of the energy against status vector, negate of the total force
+	// (collision force not included)
 	VectorXd EnergyGradient() const;
+
+	//-> Hessian of the energy, negate of the derivative of the total force
+	// (collision force not included) against the status vector
 	SparseMatrixXd EnergyHessian() const;
 
 	// For contact simulation
@@ -39,7 +56,10 @@ public:
 
 	void AddExternalForce(const ExternalForce& external_force);
 
-	// For output
+	/**
+	 * Store the file in vtk form
+	 * @param file filename to be stored (path included)
+	 */
 	virtual void Store(const std::string& file) = 0;
 	virtual ~Object() noexcept;
 

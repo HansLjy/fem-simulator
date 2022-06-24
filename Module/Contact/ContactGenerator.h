@@ -24,6 +24,8 @@ public:
 	DECLARE_VIRTUAL_ACCESSIBLE_POINTER_MEMBER(DCDParameter, DCDPara)
 };
 
+// TODO: coefficients of friction can be derived from colliding objects
+//       and have no close connection with the contact, it should be removed
 struct ContactPoint {
 	ContactPoint(int obj1, int obj2,
 				 const SurfaceElements::SurfaceType &type1,
@@ -36,18 +38,22 @@ struct ContactPoint {
 			  _point(point), _normal(normal),
 			  _mu(mu) {}
 
-	int _obj1, _obj2;
-	SurfaceElements::SurfaceType _type1, _type2;
-	int _idx1, _idx2;
-	Vector3d _point;
-	Vector3d _normal;    // normal points from 1 to 2
-	double _mu;
+	int _obj1, _obj2;	// The ids of the colliding objects
+	SurfaceElements::SurfaceType _type1, _type2;	// The types of the colliding primitives
+	int _idx1, _idx2;	// The ids of colliding primitives on the two surfaces
+	Vector3d _point;	// The colliding points
+	Vector3d _normal;	// Normal points from 1 to 2
+	double _mu;			// Friction coefficients of the contacts
 };
 
 class ContactGenerator {
 public:
 	virtual void Initialize(const ContactGeneratorParameter &para) {}
 
+	/**
+	 * @param system INPUT, the physics systems
+	 * @param contact_points OUTPUT, it will be cleared and loaded with contact points
+	 */
 	virtual void
 	GetContact(const System &system,
 			   vector<ContactPoint> &contact_points) const = 0;

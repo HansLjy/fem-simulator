@@ -26,13 +26,24 @@ public:
 		return _objects;
 	}
 
+	/**
+	 * Add object into the system
+	 * @param object the object to be added
+	 * @return the id for the object in the system
+	 * @warning To make this effective, call UpdateSettings immediately after this.
+	 */
 	int AddObject(const Object& object) {
 		_objects.push_back(object.Clone());
 		return _objects.size() - 1;
 	}
 
+	/**
+	 * Remove the object by id
+	 * @param obj_idx the id of the object to be removed
+	 * @warning To make this effective, call UpdateSettings immediately after this.
+	 */
 	void RemoveObject(int obj_idx) {
-		if (obj_idx >= _objects.size()) {
+		if (obj_idx >= _objects.size() || obj_idx < 0) {
 			return;
 		} else {
 			_objects.erase(_objects.begin() + obj_idx);
@@ -43,6 +54,11 @@ public:
 		return *_objects[obj_idx];
 	}
 
+	/**
+	 * Store the whole system as separate files in the same directory
+	 * @param path path to the directory
+	 * @param frame_id frame id
+	 */
 	void Store(const std::string& path, int frame_id) const {
 		int index = 0;
 		for (auto& object : _objects) {
@@ -107,6 +123,9 @@ public:
 		return _dof_offsets[idx];
 	}
 
+	/**
+	 * Make the addition or removal of objects effective
+	 */
 	void UpdateSettings() {
 		_dof_offsets.clear();
 		_dof = 0;
@@ -129,6 +148,11 @@ public:
 		_mass.setFromTriplets(coo.begin(), coo.end());
 	}
 
+	/**
+	 * Update the system using the current velocity and time step
+	 * @param u the current speed
+	 * @param h time step
+	 */
 	void UpdateDynamic(const VectorXd& u, double h) {
 		const int num_objects = _objects.size();
 		for (int i = 0; i < num_objects; i++) {

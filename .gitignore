@@ -15,3 +15,5 @@ UnitTest/*.cmake
 UnitTest/build
 UnitTest/Test
 log
+App
+build
