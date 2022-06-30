@@ -7,7 +7,8 @@ set(CMAKE_BUILD_TYPE "Release")
 #set(CMAKE_CXX_FLAGS_DEBUG "-Wall -g")
 
 include_directories(./Module)
-file(GLOB_RECURSE src ./Module/*.cc)
+include_directories(./Frontend)
+file(GLOB_RECURSE src ./Module/*.cc ./Frontend/*.cc)
 #
 #set (ADDITIONAL_CMAKE_PATH
 #    "${PROJECT_SOURCE_DIR}/cmake/"

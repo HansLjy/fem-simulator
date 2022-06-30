@@ -16,6 +16,7 @@
 #include "Object/Object.h"
 #include "BodyEnergy/SoftBodyGravity.h"
 #include "Util/Factory.h"
+#include "Output/FileOutput.h"
 #include <iostream>
 #include <fstream>
 
@@ -41,7 +42,6 @@ int main() {
 	SimulatorParameter para(
 		duration,					// duration
 		step,						// step
-		output_dir,					// output
 		SystemParameter(),
 		IntegratorType::kStaggeringLCP,
 		LCPIntegratorParameter(
@@ -62,6 +62,10 @@ int main() {
 		FrictionModelType::kInscribedPolygon,
 		PolygonFrictionModelParameter(
 			num_tangent
+		),
+		SimulatorOutputType::kFile,
+		FileOutputParameter (
+			output_dir
 		)
 	);
 

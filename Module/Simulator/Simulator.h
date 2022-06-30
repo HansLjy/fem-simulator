@@ -11,6 +11,7 @@
 #include "Integrator/Integrator.h"
 #include "Mass/MassModel.h"
 #include "NumericSolver/LCPSolver/LCPSolver.h"
+#include "Output/IO.h"
 
 using std::string;
 
@@ -19,29 +20,30 @@ public:
 	SimulatorParameter(
 			double duration,
 			double step,
-			const string& output_dir,
 			const SystemParameter& system_para,
 			const IntegratorType& integrator_type,
 			const IntegratorParameter& integrator_para,
 			const ContactGeneratorType& contact_type,
 			const ContactGeneratorParameter& contact_para,
 			const FrictionModelType& friction_type,
-			const FrictionModelParameter& friction_para
+			const FrictionModelParameter& friction_para,
+			const SimulatorOutputType& output_type,
+			const SimulatorOutputParameter& output_para
 	) : _duration(duration),
 		_step(step),
-		_output_dir(output_dir),
 		_system_para(system_para.Clone()),
 		_integrator_type(integrator_type),
 		_integrator_para(integrator_para.Clone()),
 		_contact_gen_type(contact_type),
 		_contact_gen_para(contact_para.Clone()),
 		_friction_type(friction_type),
-		_friction_para(friction_para.Clone())
+		_friction_para(friction_para.Clone()),
+		_output_type(output_type),
+		_output_para(output_para.Clone())
 	{}
 
 	DECLARE_ACCESSIBLE_MEMBER(double, Duration, _duration)
 	DECLARE_ACCESSIBLE_MEMBER(double, Step, _step)
-	DECLARE_ACCESSIBLE_MEMBER(string, OutputDir, _output_dir)
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(SystemParameter, SystemPara, _system_para)
 	DECLARE_ACCESSIBLE_MEMBER(IntegratorType, IntegratorType, _integrator_type)
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(IntegratorParameter, IntegratorPara, _integrator_para)
@@ -49,6 +51,8 @@ public:
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(ContactGeneratorParameter, ContactGenPara, _contact_gen_para)
 	DECLARE_ACCESSIBLE_MEMBER(FrictionModelType, FrictionModelType, _friction_type)
 	DECLARE_ACCESSIBLE_POINTER_MEMBER(FrictionModelParameter, FrictionModelPara, _friction_para)
+	DECLARE_ACCESSIBLE_MEMBER(SimulatorOutputType, SimulatorOutputType, _output_type)
+	DECLARE_ACCESSIBLE_POINTER_MEMBER(SimulatorOutputParameter, SimulatorOutputPara, _output_para)
 
 public:
 	~SimulatorParameter() {
@@ -56,6 +60,7 @@ public:
 		delete _integrator_para;
 		delete _contact_gen_para;
 		delete _friction_para;
+		delete _output_para;
 	}
 };
 
@@ -93,13 +98,13 @@ public:
 private:
 	double _duration;		// simulation duration
 	double _step;			// time step
-	string _output_dir;		// output directory (for the vtk files)
 
 	System _system;			// the physical system
 
 	Integrator* _integrator = nullptr;
 	ContactGenerator* _contact = nullptr;
 	FrictionModel* _friction = nullptr;
+	SimulatorOutput* _output = nullptr;
 };
 
 #endif //FEM_SIMULATOR_H

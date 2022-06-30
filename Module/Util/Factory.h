@@ -37,4 +37,7 @@ DECLARE_XXX_FACTORY(FrictionModel)
 #include "Contact/DCD/DCD.h"
 DECLARE_XXX_FACTORY(DCD)
 
+#include "Output/IO.h"
+DECLARE_XXX_FACTORY(SimulatorOutput)
+
 #endif //FEM_FACTORY_H
