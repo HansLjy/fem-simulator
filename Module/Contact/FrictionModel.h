@@ -38,8 +38,6 @@ public:
 	GetJ(const System &system, const vector<ContactPoint> &contacts,
 		 SparseMatrixXd &JnT, SparseMatrixXd &JtT, VectorXd &Mu) const = 0;
 
-	// TODO: the h parameter can be deleted from the above function
-
 	virtual int GetNumTangent() const {
 		throw std::logic_error("Unimplemented method");
 	}

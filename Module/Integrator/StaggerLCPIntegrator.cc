@@ -30,7 +30,9 @@ void StaggerLCPIntegrator::Step(System &system,
 	friction_model.GetJ(system, contacts, JnT, JtT, Mu);
 //	std::cerr << "Jn:\n" << JnT.transpose() << std::endl;
 //	std::cerr << "Jt:\n" << JtT.transpose() << std::endl;
-	const int num_tangent = friction_model.GetNumTangent();
+//	std::cerr << Mu.transpose() << std::endl;
+
+const int num_tangent = friction_model.GetNumTangent();
 
 	const int num_contact = JnT.rows();
 	spdlog::info("Number of contact points: {}", num_contact);
