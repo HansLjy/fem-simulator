@@ -35,7 +35,7 @@ public:
 	 * @param Mu  OUTPUT, coefficients of friction for each contact ponits
 	 */
 	virtual void
-	GetJ(const System &system, const vector<ContactPoint> &contacts, double h,
+	GetJ(const System &system, const vector<ContactPoint> &contacts,
 		 SparseMatrixXd &JnT, SparseMatrixXd &JtT, VectorXd &Mu) const = 0;
 
 	// TODO: the h parameter can be deleted from the above function

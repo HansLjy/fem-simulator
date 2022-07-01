@@ -7,28 +7,17 @@
 
 #include "Util/EigenAll.h"
 #include "Util/Pattern.h"
-#include "Contact/Surface.h"
 
-class RigidBody;
+enum class OutputFormatType;
 
-/**
- * The class shape is used for the case when there is no
- * deformation, once the shape is set, it cannot be changed
- * This is the common case for rigid bodies.
- */
-class Shape {
-public:
+struct Shape {
 	Shape() = default;
 
-	virtual void Store(const std::string &file, const Matrix3d &rotation,
-					   const Vector3d &center) const = 0;
-	virtual int GetNumFaces() const = 0;
-	virtual SurfaceElements::Face
-	GetFace(int idx, const Matrix3d &rotation, const Vector3d &center) const = 0;
-	virtual double GetVolume() const = 0;
+	std::vector<Vector3d> _offsets;	// offset of the vertices from center
+	Matrix<int, Dynamic, 3> _surface_topo;	// topologies of the vertices on the surface
+	Matrix<int, Dynamic, 4> _volume_topo;	// topologies of all vertices
 
-	Shape(const Shape& rhs) = default;
-	virtual ~Shape() = default;
+	double _volume;
 
 	BASE_DECLARE_CLONE(Shape)
 };

@@ -18,7 +18,7 @@ DEFINE_CLONE(Object, SoftBody)
 SoftBody::SoftBody(const Mesh &rest, const Mesh &mesh)
 	: _rest(rest), _mesh(mesh),
 	  _body_energy(new BodyEnergy()),
-	  _surface(new SoftBodySurface(*this)){
+	  _DOF_converter(new TetMeshDOFShapeConverter()) {
 
 	// Set v to zero
 	_v.resizeLike(mesh.GetPoints());
@@ -67,49 +67,12 @@ COO SoftBody::InternalEnergyHessianCOO() const {
 	return _body_energy->EHessianCOO(*this);
 }
 
-COO SoftBody::GetJ(const SurfaceElements::SurfaceType &type, int idx,
-				   const VectorXd &point,
-				   const VectorXd &normal) const {
-	const auto& points = _mesh.GetPoints();
-	vector<int> face = _mesh.GetSurface()[idx];
-	Matrix3d X;
-	for (int i = 0; i < 3; i++) {
-		X.col(i) = points.block<3, 1>(3 * face[i], 0);
-	}
-	Vector3d barycentric = X.inverse() * point;	// barycentric coordinates
-	COO coo;
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 3; j++) {
-			coo.push_back(Triplet(0, 3 * face[i] + j, barycentric[i] * normal[j]));
-		}
-	}
-	return coo;
-}
-
 SoftBody::SoftBody(const SoftBody &rhs)
 	: Object(rhs), _mesh(rhs._mesh), _rest(rhs._rest),
 	_v(rhs._v), _mass(rhs._mass), _mass_coo(rhs._mass_coo),
 	_volume(rhs._volume), _inv(rhs._inv), _pFpX(rhs._pFpX), _mu(rhs._mu) {
 	_body_energy = rhs._body_energy->Clone();
-	_surface = new SoftBodySurface(*this);
-}
-
-const Surface * SoftBody::GetSurface() const {
-	return _surface;
-}
-
-int SoftBodySurface::GetNumFaces() const {
-	return _soft_body->_mesh.GetSurface().size();
-}
-
-SurfaceElements::Face SoftBodySurface::GetFace(int idx) const {
-	const auto& face_id = _soft_body->_mesh.GetSurface()[idx];
-	const auto& points = _soft_body->_mesh.GetPoints();
-	SurfaceElements::Face face;
-	for (int j = 0; j < 3; j++) {
-		face._vertex[j] = points.block<3, 1>(3 * face_id[j], 0);
-	}
-	return face;
+	_DOF_converter = new TetMeshDOFShapeConverter();
 }
 
 void SoftBody::Initialize(const SoftBodyParameter &para) {
@@ -127,23 +90,48 @@ void SoftBody::Initialize(const SoftBodyParameter &para) {
 	_mu = para.GetMu();
 }
 
-SoftBody &SoftBody::operator=(const SoftBody &rhs) {
-	if (this == &rhs) {
-		return *this;
-	}
-	Object::operator=(rhs);
-	delete _body_energy;
-	delete _surface;
-	_mesh = rhs._mesh;
-	_rest = rhs._rest;
-	_v = rhs._v;
-	_mass = rhs._mass;
-	_mass_coo = rhs._mass_coo;
-	_volume = rhs._volume;
-	_inv = rhs._inv;
-	_pFpX = rhs._pFpX;
-	_body_energy = rhs._body_energy->Clone();
-	_surface = new SoftBodySurface(*this);
-	_mu = rhs._mu;
-	return *this;
+const DOFShapeConverter *SoftBody::GetDOFShapeConverter() const {
+	return _DOF_converter;
 }
+
+MatrixXd TetMeshDOFShapeConverter::GetSurfacePosition(const Object &obj) const {
+	const auto& vec_form = dynamic_cast<const SoftBody&>(obj)._mesh.GetPoints();
+	return Eigen::Map<const Eigen::Matrix<double, Dynamic, Dynamic, Eigen::RowMajor>>(vec_form.data(), vec_form.size() / 3, 3);
+}
+
+Matrix<int, Dynamic, 3>
+TetMeshDOFShapeConverter::GetSurfaceTopo(const Object &obj) const {
+	auto& soft_obj = dynamic_cast<const SoftBody&>(obj);
+	return soft_obj._mesh.GetSurface();
+}
+
+SparseMatrixXd TetMeshDOFShapeConverter::GetJ(const Object &obj, int idx,
+											  const Vector3d &point) const {
+	auto& soft_obj = dynamic_cast<const SoftBody&>(obj);
+	const auto& points = soft_obj._mesh.GetPoints();
+	RowVector3i face = soft_obj._mesh.GetSurface().row(idx);
+	Matrix3d X;
+	for (int i = 0; i < 3; i++) {
+		X.col(i) = points.block<3, 1>(3 * face[i], 0);
+	}
+	// TODO: need to be more robust
+	Vector3d barycentric = X.inverse() * point;	// barycentric coordinates
+	COO coo;
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++) {
+			coo.push_back(Triplet(i, 3 * face[j] + i, barycentric[j]));
+		}
+	}
+	SparseMatrixXd J(3, soft_obj.GetDOF());
+	J.setFromTriplets(coo.begin(), coo.end());
+	return J;
+}
+
+void
+TetMeshDOFShapeConverter::Store(const Object &obj, const std::string &filename,
+								const OutputFormatType &format) const {
+	auto& soft_obj = dynamic_cast<const SoftBody&>(obj);
+	soft_obj._mesh.Store(filename);
+}
+
+DEFINE_CLONE(DOFShapeConverter, TetMeshDOFShapeConverter)

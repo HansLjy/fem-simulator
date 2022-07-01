@@ -7,12 +7,10 @@
 
 #include "Mesh/Mesh.h"
 #include "Mass/MassModel.h"
-#include "Contact/Surface.h"
+#include "Object/DOFShapeConverter.h"
 #include "Object/Object.h"
 #include "BodyEnergy/BodyEnergy.h"
 #include "Util/EigenAll.h"
-
-class SoftBodySurface;
 
 class SoftBodyParameter {
 public:
@@ -43,10 +41,10 @@ public:
 };
 
 class SoftBodyGravity;
+class TetMeshDOFShapeConverter;
 
 struct SoftBody : public Object {
-	SoftBody(const Mesh& mesh) : SoftBody(mesh, mesh) {}
-
+	explicit SoftBody(const Mesh& mesh) : SoftBody(mesh, mesh) {}
 	SoftBody(const Mesh& rest, const Mesh& mesh);
 
 	void Initialize(const SoftBodyParameter& soft_body_para);
@@ -79,10 +77,7 @@ struct SoftBody : public Object {
 	VectorXd InternalEnergyGradient() const override;
 	COO InternalEnergyHessianCOO() const override;
 
-	const Surface * GetSurface() const override;
-	COO GetJ(const SurfaceElements::SurfaceType &type, int idx,
-			 const VectorXd &point,
-			 const VectorXd &normal) const override;
+	const DOFShapeConverter * GetDOFShapeConverter() const override;
 
 	double GetMu() const override {
 		return _mu;
@@ -93,7 +88,6 @@ struct SoftBody : public Object {
 	}
 
 	SoftBody(const SoftBody& rhs);
-	SoftBody& operator=(const SoftBody& rhs);
 
 	DERIVED_DECLARE_CLONE(Object)
 
@@ -106,24 +100,26 @@ struct SoftBody : public Object {
 	vector<Matrix3d> _inv;		// inverse of Ds
 	vector<Matrix12x9d> _pFpX;	// partial F partial X
 	BodyEnergy* _body_energy;
-	SoftBodySurface* _surface;
+	DOFShapeConverter* _DOF_converter;
 	double _mu;
 
-	friend SoftBodySurface;
 	friend ExternalForce;
+	friend class TetMeshDOFShapeConverter;
 };
 
-class SoftBodySurface : public Surface {
+#include "Object/DOFShapeConverter.h"
+
+class TetMeshDOFShapeConverter : public DOFShapeConverter {
 public:
-	SoftBodySurface(const SoftBody& soft_body) {
-		_soft_body = &soft_body;
-	}
+	MatrixXd GetSurfacePosition(const Object &obj) const override;
+	Matrix<int, Dynamic, 3> GetSurfaceTopo(const Object &obj) const override;
+	SparseMatrixXd
+	GetJ(const Object &obj, int idx, const Vector3d &point) const override;
 
-	int GetNumFaces() const override;
-	SurfaceElements::Face GetFace(int idx) const override;
+	void Store(const Object &obj, const std::string &filename,
+			   const OutputFormatType &format) const override;
 
-protected:
-	const SoftBody* _soft_body;
+	DERIVED_DECLARE_CLONE(DOFShapeConverter)
 };
 
 #endif //FEM_SOFTBODY_H

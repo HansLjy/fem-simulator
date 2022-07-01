@@ -9,6 +9,7 @@
 #include <Eigen/Sparse>
 #include <Eigen/Geometry>
 
+using Eigen::Matrix;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 using Eigen::Matrix3d;
@@ -17,6 +18,10 @@ using Eigen::Matrix4d;
 using Eigen::Vector4d;
 using Eigen::MatrixX;
 using Eigen::VectorX;
+
+using Eigen::RowVector3i;
+
+using Eigen::Dynamic;
 
 typedef Eigen::Vector<double, 9> Vector9d;
 typedef Eigen::Matrix<double, 9, 9> Matrix9d;

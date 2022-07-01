@@ -10,21 +10,13 @@
 
 class FixedSlab : public RigidBody {
 public:
+
 	FixedSlab(double mu, double rho, const Vector3d &center,
-			  const Vector3d &euler_angles, const Vector3d &size) : RigidBody(mu, rho, center, euler_angles, Rectangle(size)) {
-		_mass = COO();
-		_x.resize(0);
-		_v.resize(0);
-	}
+			  const Vector3d &euler_angles, const Vector3d &size);
 
 	int GetDOF() const override {
 		return 0;
 	}
-
-	COO GetJ(const SurfaceElements::SurfaceType &type, int idx, const VectorXd &point, const VectorXd &normal) const override {
-		return COO();
-	}
-
 	Vector3d GetCenter() const override {
 		return _center;
 	}
@@ -36,6 +28,14 @@ public:
 	DERIVED_DECLARE_CLONE(Object)
 
 protected:
+};
+
+#include "RigidBodyDOFShapeConverter.h"
+
+class FixedSlabDOFShapeConverter : public RigidBodyDOFShapeConverter {
+public:
+	SparseMatrixXd GetJ(const Object &obj, int idx, const Vector3d &point) const override;
+	DERIVED_DECLARE_CLONE(DOFShapeConverter)
 };
 
 #endif //FEM_FIXEDSLAB_H

@@ -18,7 +18,7 @@ class PolygonFrictionModel : public FrictionModel {
 public:
 	void Initialize(const FrictionModelParameter &para) override;
 	void
-	GetJ(const System &system, const vector<ContactPoint> &contacts, double h,
+	GetJ(const System &system, const vector<ContactPoint> &contacts,
 		 SparseMatrixXd &JnT, SparseMatrixXd &JtT, VectorXd &Mu) const override;
 
 	int GetNumTangent() const override;

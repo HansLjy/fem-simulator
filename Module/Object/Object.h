@@ -6,7 +6,7 @@
 #define FEM_OBJECT_H
 
 #include "Util/EigenAll.h"
-#include "Contact/Surface.h"
+#include "DOFShapeConverter.h"
 #include "Util/Pattern.h"
 #include "BodyEnergy/ExternalForce.h"
 #include <vector>
@@ -48,10 +48,8 @@ public:
 	SparseMatrixXd EnergyHessian() const;
 
 	// For contact simulation
-	virtual const Surface * GetSurface() const = 0;
-	virtual COO GetJ(const SurfaceElements::SurfaceType &type, int idx,
-					 const VectorXd &point,
-					 const VectorXd &normal) const = 0;
+	virtual const DOFShapeConverter * GetDOFShapeConverter() const = 0;
+
 	virtual double GetMu() const = 0;
 
 	void AddExternalForce(const ExternalForce& external_force);

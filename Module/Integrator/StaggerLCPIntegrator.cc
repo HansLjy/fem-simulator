@@ -27,7 +27,7 @@ void StaggerLCPIntegrator::Step(System &system,
 //		std::cerr << "Collision between " << contact._obj1 << " and " << contact._obj2 << std::endl;
 //		std::cerr << "Point: " << contact._point.transpose() << "\nNormal: " << contact._normal.transpose() << std::endl;
 //	}
-	friction_model.GetJ(system, contacts, 0, JnT, JtT, Mu);
+	friction_model.GetJ(system, contacts, JnT, JtT, Mu);
 //	std::cerr << "Jn:\n" << JnT.transpose() << std::endl;
 //	std::cerr << "Jt:\n" << JtT.transpose() << std::endl;
 	const int num_tangent = friction_model.GetNumTangent();

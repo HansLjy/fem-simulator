@@ -10,7 +10,7 @@
 #include <vector>
 #include "Util/Pattern.h"
 #include "Util/EigenAll.h"
-#include "Contact/Surface.h"
+#include "Object/DOFShapeConverter.h"
 
 using std::string, std::vector, std::array;
 
@@ -23,8 +23,6 @@ public:
 
 
 
-#define TETS vector<vector<int>>
-
 class Mesh {
 public:
 	void Initialize(const MeshParameter& para);
@@ -34,7 +32,7 @@ public:
 	 */
 	void Store(const string& file) const;
 
-	const vector<vector<int>>& GetSurface() const {
+	const Matrix<int, Dynamic, 3>& GetSurface() const {
 		return _surface;
 	}
 
@@ -46,15 +44,15 @@ private:
 	void Load(const string& file);
 	void CalculateSurface();
 
+#define TETS std::vector<std::vector<int>>
 	DECLARE_ACCESSIBLE_MEMBER(VectorXd, Points, _points)
 	DECLARE_ACCESSIBLE_MEMBER(string, Title, _title)
 	DECLARE_ACCESSIBLE_MEMBER(TETS, Tets, _tets)
+#undef TETS
 
 private:
-	vector<vector<int>> _surface;	// _surface[i][j] stores the jth vertex of
-									// the ith surface primitive
+	Matrix<int, Dynamic, 3> _surface; // _surface[i][j] stores the jth vertex of
+									  // the ith surface primitive
 };
-
-#undef TETS
 
 #endif //FEM_MESH_H

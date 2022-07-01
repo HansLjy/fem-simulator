@@ -6,7 +6,7 @@
 #define FEM_DCD_H
 
 #include "Util/EigenAll.h"
-#include "Contact/Surface.h"
+#include "Object/DOFShapeConverter.h"
 #include "Util/Pattern.h"
 
 enum class DCDType {
@@ -38,10 +38,10 @@ public:
 	 *       either surface.
 	 * @return whether there is an intersection
 	 */
-	virtual bool GetIntersected(const SurfaceElements::Face &face1,
-								const SurfaceElements::Face &face2,
-								Vector3d &point,
-								Vector3d &normal) = 0;
+	virtual bool GetIntersected(
+			Vector3d A1, Vector3d B1, Vector3d C1,
+			Vector3d A2, Vector3d B2, Vector3d C2,
+			Vector3d &point, Vector3d &normal) = 0;
 
 	virtual ~DCD() = default;
 

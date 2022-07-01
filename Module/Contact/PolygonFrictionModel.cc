@@ -22,7 +22,7 @@ void PolygonFrictionModel::Initialize(const FrictionModelParameter &para) {
 }
 
 void PolygonFrictionModel::GetJ(const System &system,
-								const vector<ContactPoint> &contacts, double h,
+								const vector<ContactPoint> &contacts,
 								SparseMatrixXd &JnT, SparseMatrixXd &JtT,
 								VectorXd &Mu) const {
 	const auto& objects = system.GetObjects();
@@ -36,14 +36,21 @@ void PolygonFrictionModel::GetJ(const System &system,
 	for (auto& contact : contacts) {
 		const auto& obj1 = objects[contact._obj1], obj2 = objects[contact._obj2];
 		const Vector3d point = contact._point, normal = contact._normal;
+		const SparseMatrixXd point_sparse = point.sparseView(), normal_sparse = normal.sparseView();
 		const int offset1 = system.GetOffset(contact._obj1), offset2 = system.GetOffset(contact._obj2);
-		auto coo_n1 = obj1->GetJ(contact._type1, contact._idx1, point, -normal);
-		auto coo_n2 = obj2->GetJ(contact._type2, contact._idx2, point, normal);
-		for (auto& ele : coo_n1) {
-			coo_n.push_back(Triplet(ele.row() + cur_num_contact, ele.col() + offset1, ele.value()));
+		SparseMatrixXd J1 = obj1->GetDOFShapeConverter()->GetJ(*obj1, contact._idx1, point);
+		SparseMatrixXd J2 = obj2->GetDOFShapeConverter()->GetJ(*obj2, contact._idx2, point);
+		SparseMatrixXd Jn1 = -normal_sparse * J1;
+		SparseMatrixXd Jn2 = normal_sparse * J2;
+		for (int k = 0; k < Jn1.outerSize(); k++) {
+			for (SparseMatrixXd::InnerIterator it(Jn1, k); it; ++it) {
+				coo_n.push_back(Triplet(it.row() + cur_num_contact, it.col() + offset1, it.value()));
+			}
 		}
-		for (auto& ele : coo_n2) {
-			coo_n.push_back(Triplet(ele.row() + cur_num_contact, ele.col() + offset2, ele.value()));
+		for (int k = 0; k < Jn2.outerSize(); k++) {
+			for (SparseMatrixXd::InnerIterator it(Jn2, k); it; ++it) {
+				coo_n.push_back(Triplet(it.row() + cur_num_contact, it.col() + offset2, it.value()));
+			}
 		}
 
 		Vector3d tangent1, tangent2;
@@ -55,17 +62,22 @@ void PolygonFrictionModel::GetJ(const System &system,
 		tangent2 = tangent1.cross(normal);
 
 		for (int i = 0; i < _num_tangent; i++) {
-			Vector3d tangent = _cos[i] * tangent1 + _sin[i] * tangent2;
-			auto coo_t1 = obj1->GetJ(contact._type1, contact._idx1, point, -tangent);
-			auto coo_t2 = obj2->GetJ(contact._type2, contact._idx2, point, tangent);
-			for (auto& ele : coo_t1) {
-				coo_t.push_back(Triplet(ele.row() + cur_num_contact * _num_tangent + i, ele.col() + offset1, ele.value()));
+			const Vector3d tangent = _cos[i] * tangent1 + _sin[i] * tangent2;
+			const SparseMatrixXd tangent_sparse = tangent.sparseView();
+			SparseMatrixXd Jt1 = -tangent_sparse * J1;
+			SparseMatrixXd Jt2 =  tangent_sparse * J2;
+			for (int k = 0; k < Jt1.outerSize(); k++) {
+				for (SparseMatrixXd::InnerIterator it(Jt1, k); it; ++it) {
+					coo_t.push_back(Triplet(it.row() + cur_num_contact, it.col() + offset1, it.value()));
+				}
 			}
-			for (auto& ele : coo_t2) {
-				coo_t.push_back(Triplet(ele.row() + cur_num_contact * _num_tangent + i, ele.col() + offset2, ele.value()));
+			for (int k = 0; k < Jt2.outerSize(); k++) {
+				for (SparseMatrixXd::InnerIterator it(Jt2, k); it; ++it) {
+					coo_t.push_back(Triplet(it.row() + cur_num_contact, it.col() + offset2, it.value()));
+				}
 			}
 		}
-		Mu(cur_num_contact) = contact._mu;
+		Mu(cur_num_contact) = std::max(obj1->GetMu(), obj2->GetMu());
 		cur_num_contact++;
 	}
 	JnT.setFromTriplets(coo_n.begin(), coo_n.end());

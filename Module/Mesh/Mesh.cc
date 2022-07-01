@@ -149,7 +149,6 @@ struct SurfaceTriangle {
 };
 
 void Mesh::CalculateSurface() {
-	_surface.clear();
 	const int num_tets = _tets.size();
 	vector<SurfaceTriangle> surface_candidate;
 	for (int i = 0; i < num_tets; i++) {
@@ -183,32 +182,29 @@ void Mesh::CalculateSurface() {
 	std::sort(surface_candidate.begin(), surface_candidate.end());
 	const int num_surface = 4 * num_tets;
 	for (int i = 0; i < num_surface; i++) {
-		if (i < num_surface - 1 && surface_candidate[i] == surface_candidate[i + 1]) {
-			while (i < num_surface - 1 && surface_candidate[i] == surface_candidate[i + 1]) {
+		if (i < num_surface - 1 &&
+			surface_candidate[i] == surface_candidate[i + 1]) {
+			while (i < num_surface - 1 &&
+				   surface_candidate[i] == surface_candidate[i + 1]) {
 				i++;
 			}
 		} else {
 			surface.push_back(surface_candidate[i]);
 		}
 	}
-	for (auto& surface_element : surface) {
-		vector<int> surface_ids(3);
-		surface_ids[0] = surface_element._point_id[0];
-		surface_ids[1] = surface_element._inverted ? surface_element._point_id[2] : surface_element._point_id[1];
-		surface_ids[2] = surface_element._inverted ? surface_element._point_id[1] : surface_element._point_id[2];
-		_surface.push_back(surface_ids);
+	_surface.resize(surface.size(), 3);
+	int surface_element_cnt = 0;
+	for (auto &surface_element: surface) {
+		Eigen::RowVector3i surface_ids;
+		surface_ids << surface_element._point_id[0],
+				surface_element._inverted ? surface_element._point_id[2]
+										  : surface_element._point_id[1],
+				surface_element._inverted ? surface_element._point_id[1]
+										  : surface_element._point_id[2];
+		_surface.row(surface_element_cnt++) = surface_ids;
 	}
 
-//	const int num_surface_ele = _surface.size();
-//	for (int i = 0; i < num_surface_ele; i++) {
-//		std::cerr << "Surface Element: " << i << std::endl << "\tPoints: ";
-//		for (int j = 0; j < 3; j++) {
-//			std::cerr << "(" << _points.block<3, 1>(3 * _surface[i][j], 0).transpose() << ")";
-//		}
-//		std::cerr << "\n\tNormal: " << (_points.block<3, 1>(3 * _surface[i][1], 0) - _points.block<3, 1>(3 * _surface[i][0], 0)).cross(_points.block<3, 1>(3 * _surface[i][2], 0) - _points.block<3, 1>(3 * _surface[i][0], 0)).normalized().transpose() << std::endl;
-//	}
 }
-
 void Mesh::Store(const string &file) const {
 	fstream file_stream(file, std::ios::out | std::ios::trunc);
 	file_stream.precision(10);

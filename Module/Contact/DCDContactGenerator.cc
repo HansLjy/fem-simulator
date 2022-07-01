@@ -22,26 +22,35 @@ void DCDContactGenerator::GetContact(const System &system,
 	const int num_objs = objects.size();
 	for (int i1 = 0; i1 < num_objs; i1++) {
 		const auto &object1 = objects[i1];
-		const auto &surface1 = object1->GetSurface();
+		const auto &surface_converter1 = object1->GetDOFShapeConverter();
+		const auto &surface_vertices1 = surface_converter1->GetSurfacePosition(*object1);
+		const auto &surface_topo1 = surface_converter1->GetSurfaceTopo(*object1);
 		for (int i2 = 0; i2 < i1; i2++) {
 			const auto &object2 = objects[i2];
-			const auto &surface2 = object2->GetSurface();
-			int num_face1 = surface1->GetNumFaces(),
-				num_face2 = surface2->GetNumFaces();
+			const auto &surface_converter2 = object2->GetDOFShapeConverter();
+			const auto &surface_vertices2 = surface_converter2->GetSurfacePosition(*object2);
+			const auto &surface_topo2 = surface_converter2->GetSurfaceTopo(*object2);
+
+			int num_face1 = surface_topo1.rows(),
+				num_face2 = surface_topo2.rows();
 			for (int face_id1 = 0; face_id1 < num_face1; face_id1++) {
 				for (int face_id2 = 0; face_id2 < num_face2; face_id2++) {
 					Vector3d point, normal;
+					const auto& face_elements_id1 = surface_topo1.row(face_id1);
+					const auto& face_elements_id2 = surface_topo2.row(face_id2);
 					bool intersected = _dcd->GetIntersected(
-							surface1->GetFace(face_id1),
-							surface2->GetFace(face_id2), point, normal);
+						surface_vertices1.row(face_elements_id1(0)),
+						surface_vertices1.row(face_elements_id1(1)),
+						surface_vertices1.row(face_elements_id1(2)),
+						surface_vertices2.row(face_elements_id2(0)),
+						surface_vertices2.row(face_elements_id2(1)),
+						surface_vertices2.row(face_elements_id2(2)),
+						point, normal);
 					if (intersected) {
 						contact_points.push_back(ContactPoint(
-								i1, i2,
-								SurfaceElements::SurfaceType::kFace,
-								SurfaceElements::SurfaceType::kFace,
-								face_id1, face_id2,
-								point, normal,
-								std::max(object1->GetMu(), object2->GetMu())
+							i1, i2,
+							face_id1, face_id2,
+							point, normal
 						));
 					}
 				}

@@ -7,13 +7,13 @@
 
 #include "Util/EigenAll.h"
 #include "Util/Pattern.h"
-#include "Contact/Surface.h"
+#include "Object/DOFShapeConverter.h"
 #include "Object/Object.h"
 #include "Shape/Shape.h"
 #include <string>
 #include <spdlog/spdlog.h>
 
-class RigidBodySurface;
+class RigidBodyDOFShapeConverter;
 
 class RigidBody : public Object {
 public:
@@ -56,18 +56,11 @@ public:
 		return _mu;
 	}
 
-	void Store(const std::string &file) override {
-		_shape->Store(file, GetRotation(), GetCenter());
-	}
+	void Store(const std::string &file) override;
 
-	const Surface* GetSurface() const override;
-
-	COO GetJ(const SurfaceElements::SurfaceType &type, int idx,
-			 const VectorXd &point,
-			 const VectorXd &normal) const override = 0;
+	const DOFShapeConverter* GetDOFShapeConverter() const override;
 
 	RigidBody(const RigidBody& rhs);
-	RigidBody& operator=(const RigidBody& rhs);
 	virtual ~RigidBody() noexcept;
 
 	virtual Matrix3d GetRotation() const = 0;
@@ -75,13 +68,13 @@ public:
 
 	Object * Clone() const override = 0;
 
-	friend RigidBodySurface;
+	friend RigidBodyDOFShapeConverter;
 
 protected:
 	double _mu;
 	double _rho;
 	const Shape* _shape;
-	const RigidBodySurface* _surface;
+	DOFShapeConverter *_DOF_converter;
 
 	Vector3d _center;
 	Matrix3d _rotation;
@@ -89,22 +82,6 @@ protected:
 	VectorXd _x;
 	VectorXd _v;
 	COO _mass;
-};
-
-class RigidBodySurface : public Surface {
-public:
-	RigidBodySurface(const RigidBody* rigid_body) : _rigid_body(rigid_body) {}
-
-	int GetNumFaces() const override {
-		return _rigid_body->_shape->GetNumFaces();
-	}
-
-	SurfaceElements::Face GetFace(int idx) const override {
-		return _rigid_body->_shape->GetFace(idx, _rigid_body->GetRotation(), _rigid_body->GetCenter());
-	}
-
-protected:
-	const RigidBody* _rigid_body;
 };
 
 #endif //FEM_RIGIDBODY_H
