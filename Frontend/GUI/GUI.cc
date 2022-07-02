@@ -55,6 +55,9 @@ void GUI::Start() {
 			if (ImGui::Button("Load Scene")) {
 				LoadSceneCB();
 			}
+			if (ImGui::Button("Reset")) {
+				ResetCB();
+			}
 		}
 	};
 
@@ -68,6 +71,13 @@ void GUI::SimulationLoop() {
 		_output->StepCB(*_system, index);
 		_integrator->Step(*_system, *_contact, *_friction, _simulation_step);
 		_mtx.unlock();
+
+		std::unique_lock<std::mutex> lk(_stop_lock);
+		_stop_cv.wait(lk, [this]{return !_stopped;});
+
+		if (_reset.load()) {
+			break;
+		}
 	}
 }
 
@@ -85,12 +95,16 @@ void GUI::RenderLoop() {
 		}
 		_mtx.unlock();
 		std::this_thread::sleep_for(std::chrono::milliseconds(_render_step));
+
+		if (_reset.load()) {
+			break;
+		}
 	}
 }
 
-
-
 void GUI::ButtonStartCB() {
+	_reset = false;
+
 	std::string output_dir;
 
 	int max_step;
@@ -264,6 +278,7 @@ void GUI::ButtonStartCB() {
 	}
 
 	spdlog::info("Start loop");
+	_stopped = false;
 
 	std::thread simulation_thread(&GUI::SimulationLoop, this);
 	simulation_thread.detach();
@@ -273,15 +288,21 @@ void GUI::ButtonStartCB() {
 }
 
 void GUI::ButtonStopCB() {
+	std::unique_lock<std::mutex> lk(_stop_lock);
+	_stopped = true;
 	spdlog::info("Stop");
 }
 
 void GUI::ButtonContinueCB() {
+	std::unique_lock<std::mutex> lk(_stop_lock);
+	_stopped = false;
+	_stop_cv.notify_all();
 	spdlog::info("Continue");
 }
 
 void GUI::ButtonQuitCB() {
 	spdlog::info("Quit");
+	exit(0);
 }
 
 void GUI::LoadSceneCB() {
@@ -292,4 +313,6 @@ void GUI::ChangeConfigCB() {
 	spdlog::info("Change Config");
 }
 
-
+void GUI::ResetCB() {
+	_reset.store(true);
+}

@@ -9,6 +9,7 @@
 #include "igl/opengl/glfw/Viewer.h"
 #include <condition_variable>
 #include <mutex>
+#include <atomic>
 
 /**
  * Activities
@@ -31,6 +32,7 @@ public:
 	virtual void ButtonQuitCB();
 	virtual void LoadSceneCB();
 	virtual void ChangeConfigCB();
+	virtual void ResetCB();
 
 protected:
 	std::string _scene_file = "./config";
@@ -50,7 +52,10 @@ protected:
 	virtual void SimulationLoop();
 	virtual void RenderLoop();
 	std::mutex _mtx;
-
+	std::mutex _stop_lock;
+	std::condition_variable_any _stop_cv;
+	bool _stopped = false;
+	std::atomic<bool> _reset = false;
 };
 
 #endif //FEM_GUI_H
