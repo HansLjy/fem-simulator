@@ -26,13 +26,13 @@ CPMAddPackage(
 )
 include_directories(${spdlog_SOURCE_DIR}/include)
 
-#CPMAddPackage(
-#        NAME eigen
-#        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-#        GIT_TAG 06a458a13d7cbea54a2cbf6a491f6bbf1f64c8ce
-#        PATCH_COMMAND git am ${CMAKE_SOURCE_DIR}/patch/eigen.patch
-#)
-#include_directories(${eigen_SOURCE_DIR}/include)
+CPMAddPackage(
+        NAME eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG 06a458a13d7cbea54a2cbf6a491f6bbf1f64c8ce
+        PATCH_COMMAND git am ${CMAKE_SOURCE_DIR}/patch/eigen.patch
+)
+include_directories(${eigen_SOURCE_DIR}/include)
 
 CPMAddPackage(
         NAME OsqpEigen
