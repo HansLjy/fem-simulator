@@ -8,6 +8,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Eigen/Geometry>
+#include <Eigen/Core>
 
 using Eigen::Matrix;
 using Eigen::MatrixXd;
