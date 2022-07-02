@@ -1,0 +1,28 @@
+From c17d2007cda8a768e2a200855c2c8bd839c12a62 Mon Sep 17 00:00:00 2001
+From: ezoiljy <2655098959@qq.com>
+Date: Sat, 2 Jul 2022 16:16:15 +0800
+Subject: [PATCH] delete-uninstall-target
+
+---
+ CMakeLists.txt | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b99c30af9..d80c288a4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -665,11 +665,6 @@ install (FILES ${CMAKE_CURRENT_BINARY_DIR}/Eigen3Config.cmake
+                ${CMAKE_CURRENT_BINARY_DIR}/Eigen3ConfigVersion.cmake
+          DESTINATION ${CMAKEPACKAGE_INSTALL_DIR})
+ 
+-# Add uninstall target
+-if(NOT TARGET uninstall)
+-  add_custom_target ( uninstall
+-      COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/EigenUninstall.cmake)
+-endif()
+ endif()
+ 
+ if (EIGEN_SPLIT_TESTSUITE)
+-- 
+2.36.1
+

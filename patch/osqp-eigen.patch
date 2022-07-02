@@ -1,0 +1,22 @@
+From d7dec8117f5834f4710efea859aef89965618561 Mon Sep 17 00:00:00 2001
+From: ezoiljy <2655098959@qq.com>
+Date: Sat, 2 Jul 2022 16:25:40 +0800
+Subject: [PATCH] remove uninstall target
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 8406ab9..ea02358 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -151,4 +151,4 @@ install(FILES package.xml DESTINATION share/cmake/osqp-eigen)
+ include(AddOsqpEigenUnitTest)
+ add_subdirectory(tests)
+ 
+-include(AddUninstallTarget)
++
+-- 
+2.36.1
+
