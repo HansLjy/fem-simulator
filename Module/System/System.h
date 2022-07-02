@@ -106,13 +106,13 @@ public:
 	void GetSysEnergyHessian(SparseMatrixXd &hessian) const {
 		const int num_objects = _objects.size();
 		hessian.resize(_dof, _dof);
-		std::vector<Triplet> COO;
+		std::vector<Tripletd> COO;
 		for (int i = 0; i < num_objects; i++) {
 			auto single_hession = _objects[i]->EnergyHessian();
 			const int offset = _dof_offsets[i];
 			for (int j = 0; j < single_hession.outerSize(); j++) {
 				for (SparseMatrixXd::InnerIterator it(single_hession, j); it; ++it) {
-					COO.push_back(Triplet(it.row() + offset, it.col() + offset, it.value()));
+					COO.push_back(Tripletd(it.row() + offset, it.col() + offset, it.value()));
 				}
 			}
 		}
@@ -140,7 +140,7 @@ public:
 			auto& object = _objects[i];
 			auto single_coo = object->GetM();
 			for (auto& ele : single_coo) {
-				coo.push_back(Triplet(ele.row() + _dof_offsets[i],
+				coo.push_back(Tripletd(ele.row() + _dof_offsets[i],
 									  ele.col() + _dof_offsets[i],
 									  ele.value()));
 			}

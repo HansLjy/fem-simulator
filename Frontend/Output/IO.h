@@ -27,6 +27,8 @@ class SimulatorOutput {
 public:
 	virtual void Initialize(const SimulatorOutputParameter& para) = 0;
 	virtual void StepCB(const System &system, int frame_id) = 0;
+
+	virtual ~SimulatorOutput() = default;
 };
 
 #endif //FEM_IO_H

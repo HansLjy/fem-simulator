@@ -24,19 +24,19 @@ find_package(OsqpEigen REQUIRED)
 find_package(SuiteSparse 5.10 NO_MODULE)
 find_package(OpenGL REQUIRED)
 
-#include(cmake/get_cpm.cmake)
-#
-#option(LIBIGL_GLFW "Build target igl::glfw" ON)
-#option(LIBIGL_IMGUI "Build target igl::imgui" ON)
-#option(LIBIGL_OPENGL "Build target igl::opengl" ON)
-#
-#CPMAddPackage(
-#        NAME igl
-#        GIT_REPOSITORY http://git.what996.com/libigl/libigl.git
-#        GIT_TAG 66b3ef2253e765d0ce0db74cec91bd706e5ba176
-#)
-#
-#include_directories(${igl_SOURCE_DIR}/include)
+include(cmake/CPM.cmake)
+
+option(LIBIGL_GLFW "Build target igl::glfw" ON)
+option(LIBIGL_IMGUI "Build target igl::imgui" ON)
+option(LIBIGL_OPENGL "Build target igl::opengl" ON)
+
+CPMAddPackage(
+        NAME igl
+        GIT_REPOSITORY http://github.com/libigl/libigl.git
+        GIT_TAG 66b3ef2253e765d0ce0db74cec91bd706e5ba176
+)
+
+include_directories(${igl_SOURCE_DIR}/include)
 
 add_executable(fem main.cpp ${src})
 target_link_libraries(fem Eigen3::Eigen)
@@ -44,9 +44,9 @@ target_link_libraries(fem cppunit)
 target_link_libraries(fem spdlog::spdlog)
 target_link_libraries(fem OsqpEigen::OsqpEigen)
 target_link_libraries(fem SuiteSparse::CHOLMOD)
-#target_link_libraries(fem igl::core)
-#target_link_libraries(fem igl::imgui)
-#target_link_libraries(fem igl::glfw)
-#target_link_libraries(fem glad::glad)
+target_link_libraries(fem igl::core)
+target_link_libraries(fem igl::imgui)
+target_link_libraries(fem igl::glfw)
+target_link_libraries(fem glad::glad)
 
 #message("Success!")

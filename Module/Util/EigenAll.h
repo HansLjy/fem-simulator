@@ -30,8 +30,8 @@ typedef Eigen::Matrix<double, 12, 12> Matrix12d;
 typedef Eigen::Matrix<double, 12, 9> Matrix12x9d;
 typedef Eigen::Vector<double, 1> Vector1d;
 typedef Eigen::SparseMatrix<double> SparseMatrixXd;
-typedef Eigen::Triplet<double> Triplet;
-typedef std::vector<Triplet> COO;
+typedef Eigen::Triplet<double> Tripletd;
+typedef std::vector<Tripletd> COO;
 
 using Eigen::AngleAxisd;
 

@@ -103,9 +103,9 @@ const int num_tangent = friction_model.GetNumTangent();
 		contact_solver.data()->setNumberOfConstraints(num_contact);
 		contact_solver.data()->setHessianMatrix(contact_hessian_sparse);
 		SparseMatrixXd contact_constraint(num_contact, num_contact);
-		vector<Triplet> contact_constraint_COO;
+		vector<Tripletd> contact_constraint_COO;
 		for (int i = 0; i < num_contact; i++) {
-			contact_constraint_COO.push_back(Triplet(i, i, 1));
+			contact_constraint_COO.push_back(Tripletd(i, i, 1));
 		}
 		contact_constraint.setFromTriplets(contact_constraint_COO.begin(),
 										   contact_constraint_COO.end());
@@ -130,16 +130,16 @@ const int num_tangent = friction_model.GetNumTangent();
 		friction_solver.data()->setHessianMatrix(friction_hessian_sparse);
 		SparseMatrixXd friction_constraint(friction_constraint_size,
 										   friction_variable_size);
-		vector<Triplet> friction_constraint_COO;
+		vector<Tripletd> friction_constraint_COO;
 		for (int i = 0; i < friction_variable_size; i++) {
-			friction_constraint_COO.push_back(Triplet(i, i, 1));
+			friction_constraint_COO.push_back(Tripletd(i, i, 1));
 		}
 		for (int i = 0; i < num_contact; i++) {
 			const int base_i = i + num_contact * num_tangent;
 			const int base_j = num_tangent * i;
 			for (int j = 0; j < num_tangent; j++) {
 				friction_constraint_COO.push_back(
-						Triplet(base_i, base_j + j, -1));
+						Tripletd(base_i, base_j + j, -1));
 			}
 		}
 		friction_constraint.setFromTriplets(friction_constraint_COO.begin(),

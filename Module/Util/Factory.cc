@@ -67,6 +67,8 @@ BEGIN_DEFINE_XXX_FACTORY(DCD)
 END_DEFINE_XXX_FACTORY
 
 #include "Output/FileOutput.h"
+#include "Output/GUIOutput.h"
 BEGIN_DEFINE_XXX_FACTORY(SimulatorOutput)
 		ADD_PRODUCT(SimulatorOutputType::kFile, FileOutput)
+		ADD_PRODUCT(SimulatorOutputType::kGUI, GUIOutput)
 END_DEFINE_XXX_FACTORY

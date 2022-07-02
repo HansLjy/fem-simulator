@@ -83,9 +83,9 @@ void SoftBody::Initialize(const SoftBodyParameter &para) {
 	int size = _mass.size();
 	_mass_coo.clear();
 	for (int i = 0, j = 0; i < size; i++, j += 3) {
-		_mass_coo.push_back(Triplet(j, j, _mass(i)));
-		_mass_coo.push_back(Triplet(j + 1, j + 1, _mass(i)));
-		_mass_coo.push_back(Triplet(j + 2, j + 2, _mass(i)));
+		_mass_coo.push_back(Tripletd(j, j, _mass(i)));
+		_mass_coo.push_back(Tripletd(j + 1, j + 1, _mass(i)));
+		_mass_coo.push_back(Tripletd(j + 2, j + 2, _mass(i)));
 	}
 	_mu = para.GetMu();
 }
@@ -119,7 +119,7 @@ SparseMatrixXd TetMeshDOFShapeConverter::GetJ(const Object &obj, int idx,
 	COO coo;
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
-			coo.push_back(Triplet(i, 3 * face[j] + i, barycentric[j]));
+			coo.push_back(Tripletd(i, 3 * face[j] + i, barycentric[j]));
 		}
 	}
 	SparseMatrixXd J(3, soft_obj.GetDOF());

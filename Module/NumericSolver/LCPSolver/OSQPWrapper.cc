@@ -19,9 +19,9 @@ OSQPWrapper::Solve(const MatrixXd &A, const VectorXd &b, const VectorXd &x0,
 	VectorXd b_tmp = b;
 
 	SparseMatrixXd constraints(size, size);
-	std::vector<Triplet> COO;
+	std::vector<Tripletd> COO;
 	for (int i = 0; i < size; i++) {
-		COO.push_back(Triplet(i, i, 1));
+		COO.push_back(Tripletd(i, i, 1));
 	}
 	constraints.setFromTriplets(COO.begin(), COO.end());
 

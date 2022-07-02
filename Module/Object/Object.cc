@@ -57,7 +57,7 @@ COO Object::ExternalEnergyHessianCOO() const {
 	COO hessian_coo;
 	for (int i = 0; i < hessian.outerSize(); i++) {
 		for (SparseMatrixXd::InnerIterator it(hessian, i); it; ++it) {
-			hessian_coo.push_back(Triplet(it.row(), it.col(), it.value()));
+			hessian_coo.push_back(Tripletd(it.row(), it.col(), it.value()));
 		}
 	}
 	return hessian_coo;

@@ -44,12 +44,12 @@ void PolygonFrictionModel::GetJ(const System &system,
 		SparseMatrixXd Jn2 = normal_sparse.transpose() * J2;
 		for (int k = 0; k < Jn1.outerSize(); k++) {
 			for (SparseMatrixXd::InnerIterator it(Jn1, k); it; ++it) {
-				coo_n.push_back(Triplet(it.row() + cur_num_contact, it.col() + offset1, it.value()));
+				coo_n.push_back(Tripletd(it.row() + cur_num_contact, it.col() + offset1, it.value()));
 			}
 		}
 		for (int k = 0; k < Jn2.outerSize(); k++) {
 			for (SparseMatrixXd::InnerIterator it(Jn2, k); it; ++it) {
-				coo_n.push_back(Triplet(it.row() + cur_num_contact, it.col() + offset2, it.value()));
+				coo_n.push_back(Tripletd(it.row() + cur_num_contact, it.col() + offset2, it.value()));
 			}
 		}
 
@@ -68,12 +68,12 @@ void PolygonFrictionModel::GetJ(const System &system,
 			SparseMatrixXd Jt2 =  tangent_sparse.transpose() * J2;
 			for (int k = 0; k < Jt1.outerSize(); k++) {
 				for (SparseMatrixXd::InnerIterator it(Jt1, k); it; ++it) {
-					coo_t.push_back(Triplet(it.row() + cur_num_contact * _num_tangent + i, it.col() + offset1, it.value()));
+					coo_t.push_back(Tripletd(it.row() + cur_num_contact * _num_tangent + i, it.col() + offset1, it.value()));
 				}
 			}
 			for (int k = 0; k < Jt2.outerSize(); k++) {
 				for (SparseMatrixXd::InnerIterator it(Jt2, k); it; ++it) {
-					coo_t.push_back(Triplet(it.row() + cur_num_contact * _num_tangent + i, it.col() + offset2, it.value()));
+					coo_t.push_back(Tripletd(it.row() + cur_num_contact * _num_tangent + i, it.col() + offset2, it.value()));
 				}
 			}
 		}
