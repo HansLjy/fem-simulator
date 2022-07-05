@@ -22,14 +22,12 @@ void DCDContactGenerator::GetContact(const System &system,
 	const int num_objs = objects.size();
 	for (int i1 = 0; i1 < num_objs; i1++) {
 		const auto &object1 = objects[i1];
-		const auto &surface_converter1 = object1->GetDOFShapeConverter();
-		const auto &surface_vertices1 = surface_converter1->GetSurfacePosition(*object1);
-		const auto &surface_topo1 = surface_converter1->GetSurfaceTopo(*object1);
+		const auto &surface_vertices1 = object1->GetSurfacePosition();
+		const auto &surface_topo1 = object1->GetSurfaceTopo();
 		for (int i2 = 0; i2 < i1; i2++) {
 			const auto &object2 = objects[i2];
-			const auto &surface_converter2 = object2->GetDOFShapeConverter();
-			const auto &surface_vertices2 = surface_converter2->GetSurfacePosition(*object2);
-			const auto &surface_topo2 = surface_converter2->GetSurfaceTopo(*object2);
+			const auto &surface_vertices2 = object2->GetSurfacePosition();
+			const auto &surface_topo2 = object2->GetSurfaceTopo();
 
 			int num_face1 = surface_topo1.rows(),
 				num_face2 = surface_topo2.rows();

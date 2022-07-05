@@ -7,13 +7,10 @@
 
 #include "Util/EigenAll.h"
 #include "Util/Pattern.h"
-#include "Object/DOFShapeConverter.h"
 #include "Object/Object.h"
 #include "Shape/Shape.h"
 #include <string>
 #include <spdlog/spdlog.h>
-
-class RigidBodyDOFShapeConverter;
 
 class RigidBody : public Object {
 public:
@@ -56,9 +53,10 @@ public:
 		return _mu;
 	}
 
-	void Store(const std::string &file) override;
-
-	const DOFShapeConverter* GetDOFShapeConverter() const override;
+	MatrixXd GetSurfacePosition() const override;
+	Matrix<int, Dynamic, 3> GetSurfaceTopo() const override;
+	SparseMatrixXd GetJ(int idx, const Vector3d &point) const override = 0;
+	void Store(const std::string &filename, const OutputFormatType &format) const override;
 
 	RigidBody(const RigidBody& rhs);
 	virtual ~RigidBody() noexcept;
@@ -68,13 +66,10 @@ public:
 
 	Object * Clone() const override = 0;
 
-	friend RigidBodyDOFShapeConverter;
-
 protected:
 	double _mu;
 	double _rho;
 	const Shape* _shape;
-	DOFShapeConverter *_DOF_converter;
 
 	Vector3d _center;
 	Matrix3d _rotation;

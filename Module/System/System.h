@@ -62,7 +62,7 @@ public:
 	void Store(const std::string& path, int frame_id) const {
 		int index = 0;
 		for (auto& object : _objects) {
-			object->Store(path + "/object" + std::to_string(index++) + "f" + std::to_string(frame_id) + ".vtk");
+			object->Store(path + "/object" + std::to_string(index++) + "f" + std::to_string(frame_id) + ".vtk", OutputFormatType::kVtk);
 		}
 	}
 

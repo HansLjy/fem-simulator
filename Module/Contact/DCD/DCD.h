@@ -6,7 +6,6 @@
 #define FEM_DCD_H
 
 #include "Util/EigenAll.h"
-#include "Object/DOFShapeConverter.h"
 #include "Util/Pattern.h"
 
 enum class DCDType {

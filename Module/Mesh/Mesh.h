@@ -10,7 +10,6 @@
 #include <vector>
 #include "Util/Pattern.h"
 #include "Util/EigenAll.h"
-#include "Object/DOFShapeConverter.h"
 
 using std::string, std::vector, std::array;
 

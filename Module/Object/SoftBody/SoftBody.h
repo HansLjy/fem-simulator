@@ -7,7 +7,6 @@
 
 #include "Mesh/Mesh.h"
 #include "Mass/MassModel.h"
-#include "Object/DOFShapeConverter.h"
 #include "Object/Object.h"
 #include "BodyEnergy/BodyEnergy.h"
 #include "Util/EigenAll.h"
@@ -77,15 +76,15 @@ struct SoftBody : public Object {
 	VectorXd InternalEnergyGradient() const override;
 	COO InternalEnergyHessianCOO() const override;
 
-	const DOFShapeConverter * GetDOFShapeConverter() const override;
-
 	double GetMu() const override {
 		return _mu;
 	}
 
-	void Store(const std::string &file) override {
-		_mesh.Store(file);
-	}
+	MatrixXd GetSurfacePosition() const override;
+	Matrix<int, Dynamic, 3> GetSurfaceTopo() const override;
+	SparseMatrixXd GetJ(int idx, const Vector3d &point) const override;
+
+	void Store(const std::string &filename, const OutputFormatType &format) const override;
 
 	SoftBody(const SoftBody& rhs);
 
@@ -100,26 +99,10 @@ struct SoftBody : public Object {
 	vector<Matrix3d> _inv;		// inverse of Ds
 	vector<Matrix12x9d> _pFpX;	// partial F partial X
 	BodyEnergy* _body_energy;
-	DOFShapeConverter* _DOF_converter;
 	double _mu;
 
 	friend ExternalForce;
 	friend class TetMeshDOFShapeConverter;
-};
-
-#include "Object/DOFShapeConverter.h"
-
-class TetMeshDOFShapeConverter : public DOFShapeConverter {
-public:
-	MatrixXd GetSurfacePosition(const Object &obj) const override;
-	Matrix<int, Dynamic, 3> GetSurfaceTopo(const Object &obj) const override;
-	SparseMatrixXd
-	GetJ(const Object &obj, int idx, const Vector3d &point) const override;
-
-	void Store(const Object &obj, const std::string &filename,
-			   const OutputFormatType &format) const override;
-
-	DERIVED_DECLARE_CLONE(DOFShapeConverter)
 };
 
 #endif //FEM_SOFTBODY_H

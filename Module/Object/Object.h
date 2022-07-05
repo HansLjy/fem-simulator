@@ -6,10 +6,14 @@
 #define FEM_OBJECT_H
 
 #include "Util/EigenAll.h"
-#include "DOFShapeConverter.h"
 #include "Util/Pattern.h"
 #include "BodyEnergy/ExternalForce.h"
 #include <vector>
+
+enum class OutputFormatType {
+	kVtk,
+	kObj
+};
 
 class Object {
 public:
@@ -47,18 +51,18 @@ public:
 	// (collision force not included) against the status vector
 	SparseMatrixXd EnergyHessian() const;
 
-	// For contact simulation
-	virtual const DOFShapeConverter * GetDOFShapeConverter() const = 0;
+	// From DOF to shape
+	virtual Matrix<int, Dynamic, 3> GetSurfaceTopo() const = 0;
+	virtual MatrixXd GetSurfacePosition() const = 0;
+
+	// From shape to DOF
+	virtual SparseMatrixXd GetJ(int idx, const Vector3d &point) const = 0;
+	virtual void Store(const std::string &filename, const OutputFormatType &format) const = 0;
 
 	virtual double GetMu() const = 0;
 
 	void AddExternalForce(const ExternalForce& external_force);
 
-	/**
-	 * Store the file in vtk form
-	 * @param file filename to be stored (path included)
-	 */
-	virtual void Store(const std::string& file) = 0;
 	virtual ~Object() noexcept;
 
 	Object(const Object& obj);

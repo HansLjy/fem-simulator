@@ -38,8 +38,8 @@ void PolygonFrictionModel::GetJ(const System &system,
 		const Vector3d point = contact._point, normal = contact._normal;
 		const SparseMatrixXd point_sparse = point.sparseView(), normal_sparse = normal.sparseView();
 		const int offset1 = system.GetOffset(contact._obj1), offset2 = system.GetOffset(contact._obj2);
-		SparseMatrixXd J1 = obj1->GetDOFShapeConverter()->GetJ(*obj1, contact._idx1, point);
-		SparseMatrixXd J2 = obj2->GetDOFShapeConverter()->GetJ(*obj2, contact._idx2, point);
+		SparseMatrixXd J1 = obj1->GetJ(contact._idx1, point);
+		SparseMatrixXd J2 = obj2->GetJ(contact._idx2, point);
 		SparseMatrixXd Jn1 = -normal_sparse.transpose() * J1;
 		SparseMatrixXd Jn2 = normal_sparse.transpose() * J2;
 		for (int k = 0; k < Jn1.outerSize(); k++) {

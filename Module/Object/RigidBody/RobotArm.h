@@ -30,6 +30,8 @@ public:
 		return _rotation;
 	}
 
+	SparseMatrixXd GetJ(int idx, const Vector3d &point) const override;
+
 	DERIVED_DECLARE_CLONE(Object)
 
 	friend class RobotArmForce;
@@ -37,14 +39,6 @@ public:
 
 protected:
 	Vector3d _direction;
-};
-
-#include "RigidBodyDOFShapeConverter.h"
-
-class RobotArmDOFShapeConverter : public RigidBodyDOFShapeConverter {
-public:
-	SparseMatrixXd GetJ(const Object &obj, int idx, const Vector3d &point) const override;
-	DERIVED_DECLARE_CLONE(DOFShapeConverter)
 };
 
 #endif //FEM_ROBOTARM_H

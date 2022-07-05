@@ -6,7 +6,6 @@
 #include "Util/EigenAll.h"
 
 DEFINE_CLONE(Object, RobotArm)
-DEFINE_CLONE(DOFShapeConverter, RobotArmDOFShapeConverter)
 
 RobotArm::RobotArm(double mu, double rho, const Vector3d &center,
 				   const Vector3d &euler_angles, const Vector3d &size,
@@ -18,18 +17,14 @@ RobotArm::RobotArm(double mu, double rho, const Vector3d &center,
 	_x.setZero();
 	_v.setZero();
 
-	_DOF_converter = new RobotArmDOFShapeConverter();
 }
 
-SparseMatrixXd RobotArmDOFShapeConverter::GetJ(const Object &obj, int idx,
-											   const Vector3d &point) const {
-	const auto& robot_arm = dynamic_cast<const RobotArm&>(obj);
+SparseMatrixXd RobotArm::GetJ(int idx, const Vector3d &point) const {
 	std::vector<Tripletd> coo;
 	for (int i = 0; i < 3; i++) {
-		coo.push_back(Tripletd(i, 0, robot_arm._direction(i)));
+		coo.push_back(Tripletd(i, 0, _direction(i)));
 	}
 	SparseMatrixXd JT(3, 1);
 	JT.setFromTriplets(coo.begin(), coo.end());
 	return JT;
 }
-

@@ -17,8 +17,7 @@ DEFINE_CLONE(Object, SoftBody)
 
 SoftBody::SoftBody(const Mesh &rest, const Mesh &mesh)
 	: _rest(rest), _mesh(mesh),
-	  _body_energy(new BodyEnergy()),
-	  _DOF_converter(new TetMeshDOFShapeConverter()) {
+	  _body_energy(new BodyEnergy()) {
 
 	// Set v to zero
 	_v.resizeLike(mesh.GetPoints());
@@ -72,7 +71,6 @@ SoftBody::SoftBody(const SoftBody &rhs)
 	_v(rhs._v), _mass(rhs._mass), _mass_coo(rhs._mass_coo),
 	_volume(rhs._volume), _inv(rhs._inv), _pFpX(rhs._pFpX), _mu(rhs._mu) {
 	_body_energy = rhs._body_energy->Clone();
-	_DOF_converter = new TetMeshDOFShapeConverter();
 }
 
 void SoftBody::Initialize(const SoftBodyParameter &para) {
@@ -90,26 +88,18 @@ void SoftBody::Initialize(const SoftBodyParameter &para) {
 	_mu = para.GetMu();
 }
 
-const DOFShapeConverter *SoftBody::GetDOFShapeConverter() const {
-	return _DOF_converter;
-}
-
-MatrixXd TetMeshDOFShapeConverter::GetSurfacePosition(const Object &obj) const {
-	const auto& vec_form = dynamic_cast<const SoftBody&>(obj)._mesh.GetPoints();
+MatrixXd SoftBody::GetSurfacePosition() const {
+	const auto& vec_form = _mesh.GetPoints();
 	return Eigen::Map<const Eigen::Matrix<double, Dynamic, Dynamic, Eigen::RowMajor>>(vec_form.data(), vec_form.size() / 3, 3);
 }
 
-Matrix<int, Dynamic, 3>
-TetMeshDOFShapeConverter::GetSurfaceTopo(const Object &obj) const {
-	auto& soft_obj = dynamic_cast<const SoftBody&>(obj);
-	return soft_obj._mesh.GetSurface();
+Matrix<int, Dynamic, 3> SoftBody::GetSurfaceTopo() const {
+	return _mesh.GetSurface();
 }
 
-SparseMatrixXd TetMeshDOFShapeConverter::GetJ(const Object &obj, int idx,
-											  const Vector3d &point) const {
-	auto& soft_obj = dynamic_cast<const SoftBody&>(obj);
-	const auto& points = soft_obj._mesh.GetPoints();
-	RowVector3i face = soft_obj._mesh.GetSurface().row(idx);
+SparseMatrixXd SoftBody::GetJ(int idx, const Vector3d &point) const {
+	const auto& points = _mesh.GetPoints();
+	RowVector3i face = _mesh.GetSurface().row(idx);
 	Matrix3d X;
 	for (int i = 0; i < 3; i++) {
 		X.col(i) = points.block<3, 1>(3 * face[i], 0);
@@ -122,16 +112,12 @@ SparseMatrixXd TetMeshDOFShapeConverter::GetJ(const Object &obj, int idx,
 			coo.push_back(Tripletd(i, 3 * face[j] + i, barycentric[j]));
 		}
 	}
-	SparseMatrixXd J(3, soft_obj.GetDOF());
+	SparseMatrixXd J(3, GetDOF());
 	J.setFromTriplets(coo.begin(), coo.end());
 	return J;
 }
 
-void
-TetMeshDOFShapeConverter::Store(const Object &obj, const std::string &filename,
-								const OutputFormatType &format) const {
-	auto& soft_obj = dynamic_cast<const SoftBody&>(obj);
-	soft_obj._mesh.Store(filename);
+void SoftBody::Store(const std::string &filename,
+					 const OutputFormatType &format) const {
+	_mesh.Store(filename);
 }
-
-DEFINE_CLONE(DOFShapeConverter, TetMeshDOFShapeConverter)
