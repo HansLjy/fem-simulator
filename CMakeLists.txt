@@ -48,6 +48,8 @@ CPMAddPackage(
         GIT_TAG 2357545619575293f466d6a7d545834d05495392
 )
 
+add_subdirectory(Renderer)
+include_directories(Renderer/src)
 
 add_executable(fem main.cpp ${src})
 target_link_libraries(fem Eigen3::Eigen)
@@ -55,5 +57,6 @@ target_link_libraries(fem cppunit)
 target_link_libraries(fem spdlog::spdlog)
 target_link_libraries(fem OsqpEigen::OsqpEigen)
 target_link_libraries(fem SuiteSparse::CHOLMOD)
+target_link_libraries(fem libmeshviewer)
 
 #message("Success!")
