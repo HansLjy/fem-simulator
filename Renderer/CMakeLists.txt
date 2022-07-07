@@ -17,9 +17,8 @@ find_package(spdlog)
 
 include(cmake/get_cpm.cmake)
 
-set(glad_SOURCE_DIR 3rdParty/glad)
+set(glad_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/glad)
 add_subdirectory(${glad_SOURCE_DIR})
-include_directories(${glad_SOURCE_DIR}/include)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL  "GLFW lib only")
 set(GLFW_INSTALL OFF CACHE BOOL  "GLFW lib only")
@@ -29,22 +28,19 @@ CPMAddPackage(
         GIT_REPOSITORY https://mirror.ghproxy.com/https://github.com/glfw/glfw.git
         GIT_TAG 45ce5ddd197d5c58f50fdd3296a5131c894e5527
 )
-include_directories(${glfw_SOURCE_DIR}/include)
 
 CPMAddPackage(
         NAME eigen
         GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
         GIT_TAG 67eeba6e720c5745abc77ae6c92ce0a44aa7b7ae
 )
-include_directories(${eigen_SOURCE_DIR}/include)
 
 CPMAddPackage(
         NAME glm
         GIT_REPOSITORY https://github.com/Groovounet/glm.git
         GIT_TAG e1afbc9ceaacbc9aed7bb896d26c0872f8a2bf29
-        PATCH_COMMAND git am ${CMAKE_SOURCE_DIR}/patch/glm.patch
+        PATCH_COMMAND git am ${CMAKE_CURRENT_SOURCE_DIR}/patch/glm.patch
 )
-include_directories(${glm_SOURCE_DIR})
 
 include_directories(src)
 
@@ -62,6 +58,11 @@ target_link_libraries(libmeshviewer glfw)
 target_link_libraries(libmeshviewer glad)
 target_link_libraries(libmeshviewer spdlog::spdlog)
 target_link_libraries(libmeshviewer Eigen3::Eigen)
+target_include_directories(libmeshviewer PUBLIC ${glad_SOURCE_DIR}/include)
+target_include_directories(libmeshviewer PUBLIC ${glfw_SOURCE_DIR}/include)
+target_include_directories(libmeshviewer PUBLIC ${eigen_SOURCE_DIR}/include)
+target_include_directories(libmeshviewer PUBLIC ${glm_SOURCE_DIR})
+target_compile_definitions(libmeshviewer PRIVATE RENDERER_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
 
 if (BUILD_EXAMPLE_MESH_VIEWER)
         add_executable(main src/Example/main.cc src/Example/ExampleApp.cc)

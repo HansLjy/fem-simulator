@@ -95,7 +95,7 @@ public:
 		delete _contact;
 	}
 
-private:
+protected:
 	double _duration;		// simulation duration
 	double _step;			// time step
 

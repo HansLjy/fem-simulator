@@ -1,6 +1,6 @@
 #include "GUI.hpp"
 #include "Camera/Camera.hpp"
-#include "EigenAll.h"
+#include "Util/EigenAll.h"
 #include "GLFW/glfw3.h"
 #include "Light/Light.hpp"
 #include "MeshObject/Scene.hpp"
@@ -17,7 +17,7 @@
 #include <string>
 #include <iostream>
 
-GLFWwindow* window;
+GLFWwindow* GUI::window;
 int GUI::width = 800;
 int GUI::height = 600;
 std::string GUI::title = "Mesh Viewer";
@@ -25,8 +25,8 @@ std::string GUI::title = "Mesh Viewer";
 int GUI::major_version = 3;
 int GUI::minor_version = 3;
 
-std::string GUI::vs_path = "../src/Shader/VertexShader.vert";
-std::string GUI::fs_path = "../src/Shader/FragmentShader.frag";
+std::string GUI::vs_path = std::string(RENDERER_PATH) + "/src/Shader/VertexShader.vert";
+std::string GUI::fs_path = std::string(RENDERER_PATH) + "/src/Shader/FragmentShader.frag";
 
 
 Camera GUI::camera(

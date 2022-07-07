@@ -1,7 +1,7 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
-#include "EigenAll.h"
+#include "Util/EigenAll.h"
 #include <vector>
 #include "MeshObject/MeshObject.hpp"
 

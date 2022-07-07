@@ -19,8 +19,8 @@ public:
     static void ScrollCB(GLFWwindow* window, double x_offset, double y_offset);
     static void ProcessKeyboard(float duration);
 
-private:
-    static GLFWwindow* _window;
+protected:
+    static GLFWwindow* window;
     static int width;
     static int height;
     static std::string title;

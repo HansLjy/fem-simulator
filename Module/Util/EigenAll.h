@@ -19,6 +19,7 @@ using Eigen::Matrix4d;
 using Eigen::Vector4d;
 using Eigen::MatrixX;
 using Eigen::VectorX;
+using Eigen::MatrixXi;
 
 using Eigen::RowVector3i;
 

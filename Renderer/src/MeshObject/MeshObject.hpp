@@ -3,7 +3,7 @@
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "EigenAll.h"
+#include "Util/EigenAll.h"
 
 class MeshObject {
 public:
