@@ -1,7 +1,5 @@
 #include "Simulator/Simulator.h"
 #include "NumericSolver/LCPSolver/BGS.h"
-#include "NumericSolver/LCPSolver/PGS.h"
-#include "NumericSolver/LCPSolver/PivotingMethod.h"
 #include "NumericSolver/LCPSolver/OSQPWrapper.h"
 #include "ElementEnergy/SimpleModel.h"
 #include "ElementEnergy/RayleighModel.h"
@@ -13,12 +11,11 @@
 #include "Object/RigidBody/RobotArm.h"
 #include "Object/RigidBody/FixedSlab.h"
 #include "BodyEnergy/RobotArmForce.h"
-#include "Object/Object.h"
 #include "BodyEnergy/SoftBodyGravity.h"
-#include "Util/Factory.h"
 #include "Output/FileOutput.h"
 #include <iostream>
-#include <fstream>
+
+#include "App.h"
 
 int main() {
 	string output_dir;
@@ -38,7 +35,6 @@ int main() {
 	cfg >> num_tangent;
 	cfg >> alpha1 >> alpha2;
 
-	auto simulator = new Simulator;
 	SimulatorParameter para(
 			duration,					// duration
 			step,						// step
@@ -69,7 +65,9 @@ int main() {
 			)
 	);
 
-	simulator->Initialize(para);
+	App app;
+
+	app.Initialize(para);
 
 	int num_soft_bodies;
 	cfg >> num_soft_bodies;
@@ -109,7 +107,7 @@ int main() {
 		SoftBody soft_body(mesh);
 		soft_body.Initialize(soft_para);
 		soft_body.AddExternalForce(SoftBodyGravity(9.8));
-		simulator->AddObject(soft_body);
+		app.AddObject(soft_body);
 	}
 
 	int num_robot_arm;
@@ -136,7 +134,7 @@ int main() {
 		direction << dir_x, dir_y, dir_z;
 		RobotArm robot_arm(mu, density, center, euler, shape, direction);
 		robot_arm.AddExternalForce(RobotArmForce(direction, force));
-		simulator->AddObject(robot_arm);
+		app.AddObject(robot_arm);
 	}
 
 	int num_fixed_slab;
@@ -157,9 +155,9 @@ int main() {
 		center << x, y, z;
 		shape << length, width, height;
 		euler << phi, theta, psi;
-		simulator->AddObject(FixedSlab(mu, density, center, euler, shape));
+		app.AddObject(FixedSlab(mu, density, center, euler, shape));
 	}
+	app.MainLoop();
 
-	simulator->Simulate();
 	return 0;
 }

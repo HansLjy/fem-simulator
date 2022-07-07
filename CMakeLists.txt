@@ -51,7 +51,7 @@ CPMAddPackage(
 add_subdirectory(Renderer)
 include_directories(Renderer/src)
 
-add_executable(fem main.cpp ${src})
+add_executable(fem main.cpp App.cc ${src})
 target_link_libraries(fem Eigen3::Eigen)
 target_link_libraries(fem cppunit)
 target_link_libraries(fem spdlog::spdlog)
