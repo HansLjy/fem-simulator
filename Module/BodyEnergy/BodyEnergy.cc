@@ -34,25 +34,6 @@ DEFINE_ACCESSIBLE_POINTER_MEMBER(BodyEnergyParameter, ConstituteModelParameter, 
 
 #include <Eigen/Eigenvalues>
 
-/**
- * Project a matrix into a positive definite one
- */
-
-template<int dim>
-void PositiveProject(Eigen::Matrix<double, dim, dim>& matrix) {
-	typedef Eigen::Matrix<double, dim, dim> MatrixOfSize;
-	typedef Eigen::Vector<double, dim> VectorOfSize;
-	Eigen::SelfAdjointEigenSolver<MatrixOfSize> eigens(matrix);
-	MatrixOfSize eigen_vectors = eigens.eigenvectors();
-	VectorOfSize eigen_values = eigens.eigenvalues();
-	for (int i = 0; i < dim; i++) {
-		if (eigen_values[i] < 0) {
-			eigen_values[i] = 0;
-		}
-	}
-	matrix = eigen_vectors * eigen_values.asDiagonal() * eigen_vectors.transpose();
-}
-
 void BodyEnergy::Initialize(const BodyEnergyParameter &para) {
 	_cons_model = ConstituteModelFactory::GetInstance()->GetConstituteModel(para.GetConstituteModelType());
 	_cons_model->Initialize(*para.GetConstituteModelParameter());
@@ -121,25 +102,14 @@ void BodyEnergy::EHessianCOO(const SoftBody &soft_body, COO &coo, int x_offset,
 //	spdlog::info("Time spent in allocation: {} s", (double)(clock() - start_allocation) / CLOCKS_PER_SEC);
 
 //	auto start_computing = clock();
-	START_TIMING(calc_t)
 	#pragma omp parallel for
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
 		auto D = GetDs(X, tet);
 		local_hessian[i] = _elas_model->Hessian(*_cons_model, soft_body._volume[i], soft_body._inv[i], D, soft_body._pFpX[i]);
 	}
-	STOP_TIMING_TICK(calc_t, "calculating hessian")
-	START_TIMING(project_t)
-	#pragma omp parallel for
-	for (int i = 0; i < num_of_tets; i++) {
-		PositiveProject(local_hessian[i]);
-	}
-	STOP_TIMING_TICK(project_t, "calculating positive projection")
-
-//	spdlog::info("Time spent in computing hessian: {} s", (double) (clock() - start_computing) / CLOCKS_PER_SEC);
 
 //	auto start_assembly = clock();
-	START_TIMING(t)
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
 		auto& local = local_hessian[i];
@@ -158,7 +128,6 @@ void BodyEnergy::EHessianCOO(const SoftBody &soft_body, COO &coo, int x_offset,
 			}
 		}
 	}
-	STOP_TIMING_TICK(t, "assembling");
 }
 
 double
@@ -229,9 +198,6 @@ void BodyEnergy::DHessianCOO(const SoftBody &soft_body, COO &coo, int x_offset,
 		auto D = GetDs(X, tet);
 		local_hessian[i] = _diss_model->Hessian(*_cons_model, *_elas_model,
 												soft_body._volume[i], soft_body._inv[i], m, v, D, soft_body._pFpX[i]);
-	}
-	for (int i = 0; i < num_of_tets; i++) {
-		PositiveProject(local_hessian[i]);
 	}
 
 	for (int i = 0; i < num_of_tets; i++) {

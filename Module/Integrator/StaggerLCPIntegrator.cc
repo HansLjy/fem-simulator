@@ -48,9 +48,7 @@ void StaggerLCPIntegrator::Step(System &system,
 	SparseMatrixXd mass = system.GetSysMass();
 	system.GetSysV(u);
 	system.GetSysF(f);
-	START_TIMING(gen_system_info_t)
 	system.GetSysEnergyHessian(W);
-	STOP_TIMING_TICK(gen_system_info_t, "system info generation");
 
 //	std::cerr << f.transpose() << std::endl;
 //	std::cerr << W.toDense() << std::endl;

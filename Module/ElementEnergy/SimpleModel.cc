@@ -5,6 +5,25 @@
 #include "SimpleModel.h"
 #include <spdlog/spdlog.h>
 
+/**
+ * Project a matrix into a positive definite one
+ */
+
+template<int dim>
+Matrix<double, dim, dim> PositiveProject(const Eigen::Matrix<double, dim, dim>& matrix) {
+	typedef Eigen::Matrix<double, dim, dim> MatrixOfSize;
+	typedef Eigen::Vector<double, dim> VectorOfSize;
+	Eigen::SelfAdjointEigenSolver<MatrixOfSize> eigens(matrix);
+	MatrixOfSize eigen_vectors = eigens.eigenvectors();
+	VectorOfSize eigen_values = eigens.eigenvalues();
+	for (int i = 0; i < dim; i++) {
+		if (eigen_values[i] < 0) {
+			eigen_values[i] = 0;
+		}
+	}
+	return eigen_vectors * eigen_values.asDiagonal() * eigen_vectors.transpose();
+}
+
 DEFINE_CLONE(ElasticEnergyModelParameter, SimpleModelParameter)
 
 void SimpleModel::Initialize(const ElasticEnergyModelParameter &para) {
@@ -37,7 +56,7 @@ Matrix12d SimpleModel::Hessian(const ConstituteModel &cons_model, double W,
 							   const Matrix12x9d &pFpX) const {
 //	auto start = clock();
 	Matrix3d F = Ds * B;
-	Matrix9d pdPsiF2 = cons_model.PiolaDifferential(F);
+	Matrix9d pdPsiF2 = PositiveProject(cons_model.PiolaDifferential(F));
 	Matrix12d hessian = W * pFpX * pdPsiF2 * pFpX.transpose();
 //	spdlog::info("Time for computing a single hessian matrix: {} s", (double)(clock() - start) / CLOCKS_PER_SEC);
 	return hessian;

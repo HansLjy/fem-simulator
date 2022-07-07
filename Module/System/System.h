@@ -108,17 +108,20 @@ public:
 		const int num_objects = _objects.size();
 		hessian.resize(_dof, _dof);
 		std::vector<Tripletd> COO_internal, COO_external;
-		START_TIMING(t)
+		START_TIMING(calc_t)
 		for (int i = 0; i < num_objects; i++) {
 			const int offset = _dof_offsets[i];
 			_objects[i]->InternalEnergyHessianCOO(COO_internal, offset, offset);
 			_objects[i]->ExternalEnergyHessianCOO(COO_external, offset, offset);
 		}
-		STOP_TIMING_TICK(t, "assembling hessian")
+		STOP_TIMING_TICK(calc_t, "calculating hessian")
+
+		START_TIMING(assem_t)
 		hessian.setFromTriplets(COO_internal.begin(), COO_internal.end());
 		SparseMatrixXd external_hessian(_dof, _dof);
 		external_hessian.setFromTriplets(COO_external.begin(), COO_external.end());
 		hessian += external_hessian;
+		STOP_TIMING_TICK(assem_t, "assembling hessian");
 	}
 
 	int GetOffset(int idx) const {
