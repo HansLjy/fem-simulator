@@ -122,6 +122,7 @@ void BodyEnergy::EHessianCOO(const SoftBody &soft_body, COO &coo, int x_offset,
 
 //	auto start_computing = clock();
 	START_TIMING(calc_t)
+	#pragma omp parallel for
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
 		auto D = GetDs(X, tet);
@@ -129,7 +130,7 @@ void BodyEnergy::EHessianCOO(const SoftBody &soft_body, COO &coo, int x_offset,
 	}
 	STOP_TIMING_TICK(calc_t, "calculating hessian")
 	START_TIMING(project_t)
-	#pragma omp parallel for default(none) shared(num_tets, local_hessian) num_threads(16)
+	#pragma omp parallel for
 	for (int i = 0; i < num_of_tets; i++) {
 		PositiveProject(local_hessian[i]);
 	}
