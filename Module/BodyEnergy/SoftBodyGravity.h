@@ -13,7 +13,7 @@ public:
 	SoftBodyGravity(double g);
 	double Energy(const Object &obj) const override;
 	VectorXd Gradient(const Object &obj) const override;
-	SparseMatrixXd Hessian(const Object &obj) const override;
+	void HessianCOO(const Object &obj, COO &coo, int x_offset, int y_offset) const override;
 
 	DERIVED_DECLARE_CLONE(ExternalForce)
 

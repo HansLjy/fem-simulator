@@ -45,8 +45,7 @@ public:
 		return energy_gradient;
 	}
 
-	COO InternalEnergyHessianCOO() const override {
-		return COO();
+	void InternalEnergyHessianCOO(COO &coo, int x_offset, int y_offset) const override {
 	}
 
 	double GetMu() const {

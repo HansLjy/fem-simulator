@@ -47,9 +47,11 @@ public:
 	// (collision force not included)
 	VectorXd EnergyGradient() const;
 
-	//-> Hessian of the energy, negate of the derivative of the total force
-	// (collision force not included) against the status vector
-	SparseMatrixXd EnergyHessian() const;
+	virtual void
+	InternalEnergyHessianCOO(COO &coo, int x_offset, int y_offset) const = 0;
+
+	//-> HessianCOO of external energy
+	void ExternalEnergyHessianCOO(COO &coo, int x_offset, int y_offset) const;
 
 	// From DOF to shape
 	virtual Matrix<int, Dynamic, 3> GetSurfaceTopo() const = 0;
@@ -57,31 +59,26 @@ public:
 
 	// From shape to DOF
 	virtual SparseMatrixXd GetJ(int idx, const Vector3d &point) const = 0;
+
 	virtual void Store(const std::string &filename, const OutputFormatType &format) const = 0;
 
 	virtual double GetMu() const = 0;
 
 	void AddExternalForce(const ExternalForce& external_force);
-
 	virtual ~Object() noexcept;
 
 	Object(const Object& obj);
+
 	Object& operator=(const Object& rhs);
-
 	BASE_DECLARE_CLONE(Object)
-
 protected:
 	// The internal energy of the object
 	virtual double InternalEnergy() const = 0;
-	virtual VectorXd InternalEnergyGradient() const = 0;
-	virtual COO InternalEnergyHessianCOO() const = 0;
 
+	virtual VectorXd InternalEnergyGradient() const = 0;
 	// The external force of the object
-	SparseMatrixXd InternalEnergyHessian() const;
 	double ExternalEnergy() const;
 	VectorXd ExternalEnergyGradient() const;
-	COO ExternalEnergyHessianCOO() const;
-	SparseMatrixXd ExternalEnergyHessian() const;
 
 	std::vector<const ExternalForce*> _external_force;
 };

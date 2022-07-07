@@ -59,17 +59,13 @@ public:
 	//->gradient of damping energy, negate of damping force
 	VectorXd DGradient(const SoftBody &soft_body) const;
 
-	//->hessian of elasticity energy, negate of the derivative of elasticity force
-	SparseMatrixXd EHessian(const SoftBody &soft_body) const;
-
 	//->COO form of EHessian
-	COO EHessianCOO(const SoftBody &soft_body) const;
-
-	//->hessian of damping energy, negate of the derivative of damping force
-	SparseMatrixXd DHessian(const SoftBody &soft_body) const;
+	void EHessianCOO(const SoftBody &soft_body, COO &coo, int x_offset,
+					 int y_offset) const;
 
 	//->COO form of DHessian
-	COO DHessianCOO(const SoftBody &soft_body) const;
+	void DHessianCOO(const SoftBody &soft_body, COO &coo, int x_offset,
+					 int y_offset) const;
 	BodyEnergy(const BodyEnergy& body_energy);
 	~BodyEnergy();
 

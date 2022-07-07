@@ -21,7 +21,8 @@ VectorXd RobotArmForce::Gradient(const Object &obj) const {
 	return gradient;
 }
 
-SparseMatrixXd RobotArmForce::Hessian(const Object &obj) const {
-	return SparseMatrixXd(1, 1);
+void RobotArmForce::HessianCOO(const Object &obj, COO &coo, int x_offset,
+							   int y_offset) const {
+	// do nothing since the hessian is zero
 }
 

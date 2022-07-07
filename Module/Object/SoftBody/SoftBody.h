@@ -74,7 +74,7 @@ struct SoftBody : public Object {
 
 	double InternalEnergy() const override;
 	VectorXd InternalEnergyGradient() const override;
-	COO InternalEnergyHessianCOO() const override;
+	void InternalEnergyHessianCOO(COO &coo, int x_offset, int y_offset) const override;
 
 	double GetMu() const override {
 		return _mu;
@@ -102,7 +102,6 @@ struct SoftBody : public Object {
 	double _mu;
 
 	friend ExternalForce;
-	friend class TetMeshDOFShapeConverter;
 };
 
 #endif //FEM_SOFTBODY_H

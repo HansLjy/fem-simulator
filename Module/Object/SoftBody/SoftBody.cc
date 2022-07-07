@@ -62,8 +62,9 @@ VectorXd SoftBody::InternalEnergyGradient() const {
 	return _body_energy->EGradient(*this);
 }
 
-COO SoftBody::InternalEnergyHessianCOO() const {
-	return _body_energy->EHessianCOO(*this);
+void
+SoftBody::InternalEnergyHessianCOO(COO &coo, int x_offset, int y_offset) const {
+	_body_energy->EHessianCOO(*this, coo, x_offset, y_offset);
 }
 
 SoftBody::SoftBody(const SoftBody &rhs)

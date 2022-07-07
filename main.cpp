@@ -157,7 +157,8 @@ int main() {
 		euler << phi, theta, psi;
 		app.AddObject(FixedSlab(mu, density, center, euler, shape));
 	}
-	app.MainLoop();
+	app.Simulate();
+//	app.MainLoop();
 
 	return 0;
 }

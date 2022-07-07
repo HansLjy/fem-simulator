@@ -108,15 +108,8 @@ BodyEnergy::EGradient(const SoftBody &soft_body) const {
 	return gradient;
 }
 
-SparseMatrixXd
-BodyEnergy::EHessian(const SoftBody &soft_body) const {
-	SparseMatrixXd hessian(soft_body.GetDOF(), soft_body.GetDOF());
-	COO triplets = EHessianCOO(soft_body);
-	hessian.setFromTriplets(triplets.begin(), triplets.end());
-	return hessian;
-}
-
-COO BodyEnergy::EHessianCOO(const SoftBody &soft_body) const {
+void BodyEnergy::EHessianCOO(const SoftBody &soft_body, COO &coo, int x_offset,
+							 int y_offset) const {
 	const auto& tets = soft_body._mesh.GetTets();
 	const auto& X = soft_body._mesh.GetPoints();
 //	auto t = clock();
@@ -125,22 +118,27 @@ COO BodyEnergy::EHessianCOO(const SoftBody &soft_body) const {
 
 //	auto start_allocation = clock();
 	std::vector<Matrix12d> local_hessian(num_of_tets);
-	std::vector<Triplet> triplets;
 //	spdlog::info("Time spent in allocation: {} s", (double)(clock() - start_allocation) / CLOCKS_PER_SEC);
 
 //	auto start_computing = clock();
-//	#pragma omp parallel for default(none) shared(num_of_tets, tets, points, local_hessian, W, inv) num_threads(4)
+	START_TIMING(calc_t)
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
 		auto D = GetDs(X, tet);
 		local_hessian[i] = _elas_model->Hessian(*_cons_model, soft_body._volume[i], soft_body._inv[i], D, soft_body._pFpX[i]);
 	}
+	STOP_TIMING_TICK(calc_t, "calculating hessian")
+	START_TIMING(project_t)
+	#pragma omp parallel for default(none) shared(num_tets, local_hessian) num_threads(16)
 	for (int i = 0; i < num_of_tets; i++) {
 		PositiveProject(local_hessian[i]);
 	}
+	STOP_TIMING_TICK(project_t, "calculating positive projection")
+
 //	spdlog::info("Time spent in computing hessian: {} s", (double) (clock() - start_computing) / CLOCKS_PER_SEC);
 
 //	auto start_assembly = clock();
+	START_TIMING(t)
 	for (int i = 0; i < num_of_tets; i++) {
 		auto& tet = tets[i];
 		auto& local = local_hessian[i];
@@ -153,13 +151,13 @@ COO BodyEnergy::EHessianCOO(const SoftBody &soft_body) const {
 				const int base_col_local = 3 * k;
 				for (int  row = 0; row < 3; row++) {
 					for (int col = 0; col < 3; col++) {
-						triplets.push_back(Triplet(base_row + row, base_col + col, local(base_row_local + row, base_col_local + col)));
+						coo.push_back(Triplet(base_row + row + x_offset, base_col + col + y_offset, local(base_row_local + row, base_col_local + col)));
 					}
 				}
 			}
 		}
 	}
-	return triplets;
+	STOP_TIMING_TICK(t, "assembling");
 }
 
 double
@@ -211,19 +209,12 @@ VectorXd BodyEnergy::DGradient(const SoftBody &soft_body) const {
 	return gradient;
 }
 
-SparseMatrixXd BodyEnergy::DHessian(const SoftBody &soft_body) const {
-	SparseMatrixXd hessian(soft_body.GetDOF(), soft_body.GetDOF());
-	COO triplets = DHessianCOO(soft_body);
-	hessian.setFromTriplets(triplets.begin(), triplets.end());
-	return hessian;
-}
-
-COO BodyEnergy::DHessianCOO(const SoftBody &soft_body) const {
+void BodyEnergy::DHessianCOO(const SoftBody &soft_body, COO &coo, int x_offset,
+							 int y_offset) const {
 	const auto& tets = soft_body._mesh.GetTets();
 	const auto& X = soft_body._mesh.GetPoints();
 	int num_of_tets = tets.size();
 	std::vector<Matrix12d> local_hessian(num_of_tets);
-	std::vector<Triplet> triplets;
 
 //	#pragma omp parallel for default(none) shared(num_of_tets, tets, mass, points, local_hessian, W, inv, V) num_threads(4)
 	for (int i = 0; i < num_of_tets; i++) {
@@ -253,13 +244,12 @@ COO BodyEnergy::DHessianCOO(const SoftBody &soft_body) const {
 				const int base_col_local = 3 * k;
 				for (int  row = 0; row < 3; row++) {
 					for (int col = 0; col < 3; col++) {
-						triplets.push_back(Triplet(base_row + row, base_col + col, local_hessian[i](base_row_local + row, base_col_local + col)));
+						coo.push_back(Triplet(base_row + row + x_offset, base_col + col + y_offset, local_hessian[i](base_row_local + row, base_col_local + col)));
 					}
 				}
 			}
 		}
 	}
-	return triplets;
 }
 
 

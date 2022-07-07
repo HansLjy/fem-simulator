@@ -12,6 +12,7 @@
 #include "Object/SoftBody/SoftBody.h"
 #include "Object/RigidBody/RigidBody.h"
 #include "BodyEnergy/BodyEnergy.h"
+#include "Util/Timing.h"
 
 class SystemParameter {
 public:
@@ -106,17 +107,18 @@ public:
 	void GetSysEnergyHessian(SparseMatrixXd &hessian) const {
 		const int num_objects = _objects.size();
 		hessian.resize(_dof, _dof);
-		std::vector<Tripletd> COO;
+		std::vector<Tripletd> COO_internal, COO_external;
+		START_TIMING(t)
 		for (int i = 0; i < num_objects; i++) {
-			auto single_hession = _objects[i]->EnergyHessian();
 			const int offset = _dof_offsets[i];
-			for (int j = 0; j < single_hession.outerSize(); j++) {
-				for (SparseMatrixXd::InnerIterator it(single_hession, j); it; ++it) {
-					COO.push_back(Tripletd(it.row() + offset, it.col() + offset, it.value()));
-				}
-			}
+			_objects[i]->InternalEnergyHessianCOO(COO_internal, offset, offset);
+			_objects[i]->ExternalEnergyHessianCOO(COO_external, offset, offset);
 		}
-		hessian.setFromTriplets(COO.begin(), COO.end());
+		STOP_TIMING_TICK(t, "assembling hessian")
+		hessian.setFromTriplets(COO_internal.begin(), COO_internal.end());
+		SparseMatrixXd external_hessian(_dof, _dof);
+		external_hessian.setFromTriplets(COO_external.begin(), COO_external.end());
+		hessian += external_hessian;
 	}
 
 	int GetOffset(int idx) const {

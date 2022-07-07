@@ -22,17 +22,21 @@ void StaggerLCPIntegrator::Step(System &system,
 	VectorXd Mu;
 
 	vector<ContactPoint> contacts;
+	START_TIMING(gen_contact_t)
 	contact_generator.GetContact(system, contacts);
+	STOP_TIMING_TICK(gen_contact_t, "contact generation");
 //	for(auto& contact : contacts) {
 //		std::cerr << "Collision between " << contact._obj1 << " and " << contact._obj2 << std::endl;
 //		std::cerr << "Point: " << contact._point.transpose() << "\nNormal: " << contact._normal.transpose() << std::endl;
 //	}
+	START_TIMING(gen_LCP_t)
 	friction_model.GetJ(system, contacts, JnT, JtT, Mu);
+	STOP_TIMING_TICK(gen_LCP_t, "LCP generation");
 //	std::cerr << "Jn:\n" << JnT.transpose() << std::endl;
 //	std::cerr << "Jt:\n" << JtT.transpose() << std::endl;
 //	std::cerr << Mu.transpose() << std::endl;
 
-const int num_tangent = friction_model.GetNumTangent();
+	const int num_tangent = friction_model.GetNumTangent();
 
 	const int num_contact = JnT.rows();
 	spdlog::info("Number of contact points: {}", num_contact);
@@ -44,7 +48,9 @@ const int num_tangent = friction_model.GetNumTangent();
 	SparseMatrixXd mass = system.GetSysMass();
 	system.GetSysV(u);
 	system.GetSysF(f);
+	START_TIMING(gen_system_info_t)
 	system.GetSysEnergyHessian(W);
+	STOP_TIMING_TICK(gen_system_info_t, "system info generation");
 
 //	std::cerr << f.transpose() << std::endl;
 //	std::cerr << W.toDense() << std::endl;
@@ -54,6 +60,7 @@ const int num_tangent = friction_model.GetNumTangent();
 	W += mass;
 	VectorXd c = mass * u + h * f;
 
+	START_TIMING(precompute_t)
 	Eigen::CholmodSupernodalLLT<SparseMatrixXd> LLT_solver;
 	LLT_solver.compute(W);
 	double alpha = 0.01;
@@ -63,12 +70,13 @@ const int num_tangent = friction_model.GetNumTangent();
 		alpha *= 2;
 		LLT_solver.compute(W);
 	}
+	STOP_TIMING_TICK(precompute_t, "precomputing linear equations")
 
-	START_TIMING(t)
+	START_TIMING(solve_t)
 	MatrixXd WiJn = LLT_solver.solve(JnT.transpose().toDense());
 	MatrixXd WiJt = LLT_solver.solve(JtT.transpose().toDense());
 	VectorXd Wic = LLT_solver.solve(c);
-	STOP_TIMING_TICK(t, "solving linear equations")
+	STOP_TIMING_TICK(solve_t, "solving linear equations")
 
 
 	MatrixXd E(num_contact * num_tangent, num_contact);
@@ -186,7 +194,7 @@ const int num_tangent = friction_model.GetNumTangent();
 			pre_xn = xn;
 			pre_xt = xt;
 		}
-		STOP_TIMING_SEC(t_iter, "Staggering iteration")
+		STOP_TIMING_TICK(t_iter, "Staggering iteration")
 		if (step <= _max_step) {
 			spdlog::info("Staggering Method, converges in {} steps", step);
 		} else {
@@ -199,7 +207,9 @@ const int num_tangent = friction_model.GetNumTangent();
 //		std::cerr << "Friction Force: " << xt.transpose() << std::endl;
 //	}
 
+	START_TIMING(update_t)
 	VectorXd u_plus = Wic + WiJn * xn + WiJt * xt;
 
 	system.UpdateDynamic(u_plus, h);
+	STOP_TIMING_TICK(update_t, "updating system")
 }

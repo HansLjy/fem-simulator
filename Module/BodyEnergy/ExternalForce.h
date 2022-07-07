@@ -28,7 +28,8 @@ public:
 	virtual VectorXd Gradient(const Object &obj) const = 0;
 
 	//->Negate of the derivative of external force against DOF
-	virtual SparseMatrixXd Hessian(const Object &obj) const = 0;
+	virtual void
+	HessianCOO(const Object &obj, COO &coo, int x_offset, int y_offset) const = 0;
 
 	virtual ~ExternalForce() = default;
 
