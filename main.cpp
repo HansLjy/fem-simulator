@@ -13,55 +13,51 @@
 #include "BodyEnergy/RobotArmForce.h"
 #include "BodyEnergy/SoftBodyGravity.h"
 #include "Output/FileOutput.h"
+#include "json/json.h"
 #include <iostream>
 
 #include "App.h"
 
 int main() {
-	string output_dir;
-	double duration, step;
+	Json::Value root;
+	std::fstream config(RESOURCE_PATH "/config/robot-arm.json");
 
-	int max_step;
-	double max_error;
+	Json::CharReaderBuilder builder;
+	builder["collectComments"] = false;
+	JSONCPP_STRING err;
 
-	int num_tangent;
-
-	double alpha1, alpha2;
-
-	std::fstream cfg("./config");
-	cfg >> output_dir;
-	cfg >> duration >> step;
-	cfg >> max_error >> max_step;
-	cfg >> num_tangent;
-	cfg >> alpha1 >> alpha2;
+	if (!Json::parseFromStream(builder, config, &root, &err)) {
+		spdlog::error("Error occurs while reading from json files: {}", err);
+		exit(EXIT_FAILURE);
+	}
 
 	SimulatorParameter para(
-			duration,					// duration
-			step,						// step
+			root.get("simulation-config", Json::nullValue).get("duration", 5).asDouble(),
+			root.get("simulation-config", Json::nullValue).get("time-step", 0.01).asDouble(),
 			SystemParameter(),
 			IntegratorType::kStaggeringLCP,
 			LCPIntegratorParameter(
 					LCPSolverType::kOSQP,
 					OSQPWrapperParameter (
-							max_step,
-							max_error
+							root.get("solver-config", Json::nullValue).get("max-iteration", 300).asInt(),
+							root.get("solver-config", Json::nullValue).get("tolerance", 1e-3).asDouble()
 					)
 			),
 			ContactGeneratorType::kDCD,
 			DCDContactGeneratorParameter(
 					DCDType::kFast,
 					DCDParameter(
-							max_step,	// max iteration
-							1e-6	// tolerance
+							root.get("solver-config", Json::nullValue).get("max-iteration", 300).asInt(),
+							root.get("solver-config", Json::nullValue).get("tolerance", 1e-3).asDouble()
 					)
 			),
 			FrictionModelType::kInscribedPolygon,
 			PolygonFrictionModelParameter(
-					num_tangent
+					root.get("friction-model", Json::nullValue).get("num-tangent", 4).asInt()
 			),
 			SimulatorOutputType::kFile,
 			FileOutputParameter (
-					output_dir
+					RESOURCE_PATH + root.get("output-dir", Json::nullValue).asString()
 			)
 	);
 
@@ -69,19 +65,16 @@ int main() {
 
 	app.Initialize(para);
 
-	int num_soft_bodies;
-	cfg >> num_soft_bodies;
-	for (int i = 0; i < num_soft_bodies; i++) {
-		Mesh mesh;
-		std::string input_file;
-		double density;
-		double mu_soft;
-		double youngs_module, poisson_ratio;
+	const auto& soft_bodies = root.get("softbodies", Json::nullValue);
+	int num_soft_bodies = static_cast<int>(soft_bodies.size());
 
-		cfg >> input_file;
-		cfg >> density;
-		cfg >> mu_soft;
-		cfg >> youngs_module >> poisson_ratio;
+	double alpha1 = root.get("dissipation-model", Json::nullValue).get("alpha1", 1).asDouble();
+	double alpha2 = root.get("dissipation-model", Json::nullValue).get("alpha2", 1).asDouble();
+
+	for (int i = 0; i < num_soft_bodies; i++) {
+		const auto& soft_body_config = soft_bodies[i];
+		Mesh mesh;
+
 		BodyEnergyParameter body_energy (
 				ElasticEnergyModelType::kSimple,		// elastic energy model
 				SimpleModelParameter(),
@@ -92,69 +85,68 @@ int main() {
 				),
 				ConstituteModelType::kStVK,
 				StVKModelParameter(
-						youngs_module,    // Young's module
-						poisson_ratio    // Poisson's ratio
+						soft_body_config.get("youngs-module", 1e4).asDouble(),    // Young's module
+						soft_body_config.get("poisson-ratio", 0.47).asDouble()    // Poisson's ratio
 				)
 		);
 
 		SoftBodyParameter soft_para(
-				mu_soft,
+				soft_body_config.get("mu", 1.0).asDouble(),
 				MassModelType::kVoronoi,
-				VoronoiModelParameter(density),
+				VoronoiModelParameter(soft_body_config.get("density", 1.0).asDouble()),
 				body_energy
 		);
-		mesh.Initialize(MeshParameter(input_file));
+		mesh.Initialize(MeshParameter(RESOURCE_PATH + soft_body_config.get("src", "").asString()));
 		SoftBody soft_body(mesh);
 		soft_body.Initialize(soft_para);
 		soft_body.AddExternalForce(SoftBodyGravity(9.8));
 		app.AddObject(soft_body);
 	}
 
-	int num_robot_arm;
-	cfg >> num_robot_arm;
-	for (int i = 0; i < num_robot_arm; i++) {
-		double mu, density;
-		double x, y, z;
-		double length, width, height;
-		double theta, phi, psi;
-		double dir_x, dir_y, dir_z;
-		double force;
-		cfg >> mu >> density;
-		cfg >> x >> y >> z;
-		cfg >> length >> width >> height;
-		cfg >> phi >> theta >> psi;
-		cfg >> dir_x >> dir_y >> dir_z;
-		cfg >> force;
+	const auto& robot_arms = root.get("robot-arms", Json::nullValue);
+	int num_robot_arm = static_cast<int>(robot_arms.size());
 
-		Vector3d center, shape, euler;
-		center << x, y, z;
-		shape << length, width, height;
-		euler << phi, theta, psi;
-		Vector3d direction;
-		direction << dir_x, dir_y, dir_z;
+	for (int i = 0; i < num_robot_arm; i++) {
+		auto robot_arm_config = robot_arms[i];
+		double mu = robot_arm_config.get("mu", 0.5).asDouble();
+		double density = robot_arm_config.get("density", 1).asDouble();
+		double force = robot_arm_config.get("force", Json::nullValue).asDouble();
+		Vector3d center, shape, euler, direction;
+		center << robot_arm_config.get("x", Json::nullValue).asDouble(),
+				  robot_arm_config.get("y", Json::nullValue).asDouble(),
+				  robot_arm_config.get("z", Json::nullValue).asDouble();
+		shape << robot_arm_config.get("length", Json::nullValue).asDouble(),
+				 robot_arm_config.get("width", Json::nullValue).asDouble(),
+				 robot_arm_config.get("height", Json::nullValue).asDouble();
+		euler << robot_arm_config.get("phi", Json::nullValue).asDouble(),
+				 robot_arm_config.get("theta", Json::nullValue).asDouble(),
+				 robot_arm_config.get("psi", Json::nullValue).asDouble();
+		direction << robot_arm_config.get("dir-x", Json::nullValue).asDouble(),
+					 robot_arm_config.get("dir-y", Json::nullValue).asDouble(),
+					 robot_arm_config.get("dir-z", Json::nullValue).asDouble();
 		RobotArm robot_arm(mu, density, center, euler, shape, direction);
 		robot_arm.AddExternalForce(RobotArmForce(direction, force));
 		app.AddObject(robot_arm);
 	}
 
-	int num_fixed_slab;
-	cfg >> num_fixed_slab;
-	for (int i = 0; i < num_fixed_slab; i++) {
-		double mu, density;
-		double x, y, z;
-		double length, width, height;
-		double theta, phi, psi;
-		double dir_x, dir_y, dir_z;
-		cfg >> mu >> density;
-		cfg >> x >> y >> z;
-		cfg >> length >> width >> height;
-		cfg >> phi >> theta >> psi;
-		cfg >> dir_x >> dir_y >> dir_z;
+	const auto& fixed_slabs = root.get("slabs", Json::nullValue);
+	int num_fixed_slab = static_cast<int>(fixed_slabs.size());
 
+	for (int i = 0; i < num_fixed_slab; i++) {
+		const auto& fixed_slab_config = fixed_slabs[i];
+		double mu = fixed_slab_config.get("mu", 0.5).asDouble();
+		double density = fixed_slab_config.get("density", 1).asDouble();
 		Vector3d center, shape, euler;
-		center << x, y, z;
-		shape << length, width, height;
-		euler << phi, theta, psi;
+		center << fixed_slab_config.get("x", Json::nullValue).asDouble(),
+				fixed_slab_config.get("y", Json::nullValue).asDouble(),
+				fixed_slab_config.get("z", Json::nullValue).asDouble();
+		shape << fixed_slab_config.get("length", Json::nullValue).asDouble(),
+				fixed_slab_config.get("width", Json::nullValue).asDouble(),
+				fixed_slab_config.get("height", Json::nullValue).asDouble();
+		euler << fixed_slab_config.get("phi", Json::nullValue).asDouble(),
+				fixed_slab_config.get("theta", Json::nullValue).asDouble(),
+				fixed_slab_config.get("psi", Json::nullValue).asDouble();
+
 		app.AddObject(FixedSlab(mu, density, center, euler, shape));
 	}
 //	app.Simulate();

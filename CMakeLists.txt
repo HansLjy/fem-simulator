@@ -59,5 +59,7 @@ target_link_libraries(fem spdlog::spdlog)
 target_link_libraries(fem OsqpEigen::OsqpEigen)
 target_link_libraries(fem SuiteSparse::CHOLMOD)
 target_link_libraries(fem libmeshviewer)
+target_link_libraries(fem jsoncpp)
+target_compile_definitions(fem PUBLIC RESOURCE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/Resource")
 
 #message("Success!")
