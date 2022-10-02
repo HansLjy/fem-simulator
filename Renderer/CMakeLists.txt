@@ -25,7 +25,7 @@ set(GLFW_INSTALL OFF CACHE BOOL  "GLFW lib only")
 
 CPMAddPackage(
         NAME glfw
-        GIT_REPOSITORY https://mirror.ghproxy.com/https://github.com/glfw/glfw.git
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
         GIT_TAG 45ce5ddd197d5c58f50fdd3296a5131c894e5527
 )
 
