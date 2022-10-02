@@ -41,3 +41,7 @@ make -j
 ```
 
 A demo can be found in Resource/Demo
+
+# Note
+
+This repo has been archived for several reasons. A new fem system will be built based on this one. When it is ready, this repo will be deleted.
